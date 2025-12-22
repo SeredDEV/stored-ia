@@ -1,0 +1,5 @@
+# Redis Configuration
+REDIS_URL=redis://redis:6379
+
+# Node Environment
+NODE_ENV=development
