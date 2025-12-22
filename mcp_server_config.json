@@ -1,0 +1,26 @@
+{
+    "mcpServers": {
+        "redis": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@modelcontextprotocol/server-redis",
+                "redis://redis:6379"
+            ],
+            "env": {
+                "REDIS_URL": "redis://redis:6379"
+            }
+        },
+        "supabase": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@supabase/mcp-server-supabase@latest",
+                "--access-token",
+                "sbp_e4b253a76ab086e8d954592e3378fe7307e9bcd9"
+            ],
+            "env": {},
+            "disabled": false
+        }
+    }
+}

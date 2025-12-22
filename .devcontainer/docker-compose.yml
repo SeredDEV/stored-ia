@@ -1,0 +1,58 @@
+version: "3.8"
+
+services:
+  app:
+    image: node:23-bookworm
+    volumes:
+      - ..:/workspace:cached
+    working_dir: /workspace
+    command: sleep infinity
+    depends_on:
+      - redis
+    env_file:
+      - ../.env
+    environment:
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+      - NODE_ENV=${NODE_ENV:-development}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  redis-mcp:
+    image: mcp/redis:latest
+    restart: unless-stopped
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      # Configuración básica
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB=0
+      - REDIS_USERNAME=default
+      - REDIS_PWD=
+
+      # SSL/TLS (deshabilitado para desarrollo local)
+      - REDIS_SSL=false
+
+      # Cluster mode (deshabilitado)
+      - REDIS_CLUSTER_MODE=false
+    stdin_open: true
+    tty: true
+
+volumes:
+  redis-data:
