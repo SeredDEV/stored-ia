@@ -1,10 +1,14 @@
+'use client';
 
-import React, { useState, useEffect } from 'react';
-import { Sidebar } from './components/Sidebar';
-import { Navbar } from './components/Navbar';
-import { Dashboard } from './components/Dashboard';
+import { useState, useEffect } from 'react';
+import { Sidebar } from './Sidebar';
+import { Navbar } from './Navbar';
 
-const App: React.FC = () => {
+interface DashboardLayoutProps {
+  children: React.ReactNode;
+}
+
+export function DashboardLayout({ children }: DashboardLayoutProps) {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -34,11 +38,10 @@ const App: React.FC = () => {
         />
         
         <main className="flex-1 overflow-y-auto p-4 md:p-8 bg-background-light dark:bg-background-dark">
-          <Dashboard />
+          {children}
         </main>
       </div>
     </div>
   );
-};
+}
 
-export default App;

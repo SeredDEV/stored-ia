@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { CRITICAL_ALERTS } from '../constants';
+import { CRITICAL_ALERTS } from '@/constants';
 
 export const AlertsPanel: React.FC = () => {
   return (
@@ -37,7 +36,7 @@ export const AlertsPanel: React.FC = () => {
                 {alert.status && <span className="ml-1 text-gray-400">({alert.status})</span>}
               </p>
               {alert.actionText && (
-                <button className="mt-2 text-xs font-semibold text-primary hover:underline">
+                <button type="button" className="mt-2 text-xs font-semibold text-primary hover:underline">
                   {alert.actionText}
                 </button>
               )}
@@ -48,3 +47,4 @@ export const AlertsPanel: React.FC = () => {
     </div>
   );
 };
+

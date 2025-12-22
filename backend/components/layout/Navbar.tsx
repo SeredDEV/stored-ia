@@ -1,3 +1,4 @@
+'use client';
 
 import React from 'react';
 
@@ -11,7 +12,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onMenuClick, onThemeToggle, isDa
   return (
     <header className="h-16 flex items-center justify-between px-6 bg-surface-light dark:bg-surface-dark border-b border-[#e7edf3] dark:border-gray-800 flex-shrink-0 z-10">
       <div className="flex items-center gap-4">
-        <button className="md:hidden text-gray-500 hover:text-gray-700" onClick={onMenuClick}>
+        <button type="button" className="md:hidden text-gray-500 hover:text-gray-700" onClick={onMenuClick}>
           <span className="material-symbols-outlined">menu</span>
         </button>
         <div className="hidden md:flex flex-col">
@@ -32,6 +33,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onMenuClick, onThemeToggle, isDa
         
         <div className="flex items-center gap-2 md:gap-3">
           <button 
+            type="button"
             className="p-2 text-gray-500 hover:text-primary hover:bg-primary/5 rounded-full transition-colors"
             onClick={onThemeToggle}
           >
@@ -40,12 +42,12 @@ export const Navbar: React.FC<NavbarProps> = ({ onMenuClick, onThemeToggle, isDa
             </span>
           </button>
           
-          <button className="relative p-2 text-gray-500 hover:text-primary hover:bg-primary/5 rounded-full transition-colors">
+          <button type="button" className="relative p-2 text-gray-500 hover:text-primary hover:bg-primary/5 rounded-full transition-colors">
             <span className="material-symbols-outlined">notifications</span>
             <span className="absolute top-2.5 right-2.5 size-2 bg-red-500 rounded-full border-2 border-white dark:border-[#1A2633]"></span>
           </button>
           
-          <button className="p-2 text-gray-500 hover:text-primary hover:bg-primary/5 rounded-full transition-colors">
+          <button type="button" className="p-2 text-gray-500 hover:text-primary hover:bg-primary/5 rounded-full transition-colors">
             <span className="material-symbols-outlined">help</span>
           </button>
         </div>
@@ -53,3 +55,4 @@ export const Navbar: React.FC<NavbarProps> = ({ onMenuClick, onThemeToggle, isDa
     </header>
   );
 };
+

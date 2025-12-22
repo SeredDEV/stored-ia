@@ -1,5 +1,7 @@
+'use client';
 
 import React from 'react';
+import Link from 'next/link';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -29,10 +31,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         </div>
 
         <nav className="flex-1 px-4 flex flex-col gap-2 overflow-y-auto">
-          <a className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 text-primary" href="#">
+          <Link className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 text-primary" href="/">
             <span className="material-symbols-outlined icon-filled">dashboard</span>
             <span className="text-sm font-semibold">Dashboard</span>
-          </a>
+          </Link>
           
           <div className="pt-4 pb-2">
             <p className="px-3 text-xs font-bold text-gray-400 uppercase tracking-wider">Gestión</p>
@@ -63,8 +65,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 };
 
 const NavItem: React.FC<{ icon: string; label: string }> = ({ icon, label }) => (
-  <a className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors group" href="#">
+  <Link className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors group" href="#">
     <span className="material-symbols-outlined group-hover:text-[#0d141b] dark:group-hover:text-white">{icon}</span>
     <span className="text-sm font-medium">{label}</span>
-  </a>
+  </Link>
 );
+

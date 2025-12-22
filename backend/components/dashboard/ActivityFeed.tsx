@@ -1,13 +1,13 @@
-
 import React from 'react';
-import { RECENT_ACTIVITY } from '../constants';
+import Link from 'next/link';
+import { RECENT_ACTIVITY } from '@/constants';
 
 export const ActivityFeed: React.FC = () => {
   return (
     <div className="bg-surface-light dark:bg-surface-dark rounded-xl border border-[#e7edf3] dark:border-gray-700 shadow-sm flex flex-col">
       <div className="p-5 border-b border-[#e7edf3] dark:border-gray-700 flex justify-between items-center">
         <h3 className="font-bold text-[#0d141b] dark:text-white">Actividad Reciente</h3>
-        <a className="text-sm text-primary font-semibold hover:underline" href="#">Ver todo</a>
+        <Link className="text-sm text-primary font-semibold hover:underline" href="#">Ver todo</Link>
       </div>
       
       <div className="flex-1">
@@ -40,3 +40,4 @@ export const ActivityFeed: React.FC = () => {
     </div>
   );
 };
+

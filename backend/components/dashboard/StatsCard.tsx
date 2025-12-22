@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { KPIProps } from '../types';
+import { KPIProps } from '@/types';
 
 export const StatsCard: React.FC<KPIProps> = ({ 
   label, 
@@ -39,3 +38,4 @@ export const StatsCard: React.FC<KPIProps> = ({
     </div>
   );
 };
+
