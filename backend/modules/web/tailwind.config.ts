@@ -10,24 +10,34 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        primary: '#137fec',
-        'background-light': '#f6f7f8',
-        'background-dark': '#101922',
-        'surface-light': '#ffffff',
+        // Principales
+        primary: '#0FA6D1', // Azul principal Echo
+        'background-light': '#F7F5F2', // Beige claro
+        'background-dark': '#101e22',
+        'surface-light': '#FFFFFF', // Blanco
         'surface-dark': '#1A2633',
-        // Start: Custom Echo Colors
-        'echo-blue': '#0FA6D1',
-        'echo-light-blue': '#40C4EB',
-        'echo-cyan': '#4DE2E5',
-        'echo-pastel': '#A8E6CF', // Ajustado a un tono pastel armónico
-        'echo-beige': '#f8fafc', // Usando un gris muy claro/beige moderno
-        'echo-black': '#1e293b',
-        'echo-gray': '#64748b',
-        'echo-red': '#ef4444',
-        // End: Custom Echo Colors
+
+        // Custom Echo Colors (Mapped from User Request)
+        'echo-blue': '#0FA6D1',      // Azul principal Echo
+        'echo-blue-variant': '#5EA4CF', // Azul claro variante
+        'echo-gray': '#959595',      // Gris
+        'echo-beige': '#F7F5F2',     // Beige claro
+        'echo-white': '#FFFFFF',     // Blanco
+
+        // Secundarios
+        'echo-cyan': '#4DE2E5',      // Cyan brillante
+        'echo-pastel-blue': '#94D6EA', // Azul claro pastel
+        'echo-black': '#090808',     // Negro
+        'echo-red': '#FF5757',       // Rojo
+
+        // Helper aliases for compatibility
+        'text-main': '#090808',
+        'text-secondary': '#959595', // Updated to use the new gray
+        'echo-light-blue': '#94D6EA', // Mapped to new pastel blue
+        'echo-pastel': '#94D6EA',     // Legacy mapping
       },
       fontFamily: {
-        display: ['var(--font-manrope)', 'sans-serif'],
+        display: ['Inter', 'sans-serif'],
       },
       borderRadius: {
         DEFAULT: '0.25rem',

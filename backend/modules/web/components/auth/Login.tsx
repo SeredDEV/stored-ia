@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import BackgroundBlobs from '../ui/BackgroundBlobs';
 
 interface LoginProps {
   onLogin: (email: string) => void;
@@ -22,8 +23,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
   return (
     <div className="min-h-screen w-full flex items-center justify-center p-4 bg-echo-beige relative overflow-hidden">
       {/* Background blobs for depth */}
-      <div className="absolute -top-24 -left-24 w-96 h-96 bg-echo-pastel/30 rounded-full blur-3xl animate-pulse"></div>
-      <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-echo-cyan/20 rounded-full blur-3xl"></div>
+      <BackgroundBlobs />
 
       <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl border border-white/50 overflow-hidden relative z-10">
         {/* Decorative Top Bar */}
@@ -99,9 +99,9 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
                 />
                 <span className="text-sm text-echo-gray group-hover:text-echo-black transition-colors">Recordarme</span>
               </label>
-              <button type="button" className="text-sm font-bold text-echo-blue hover:text-echo-light-blue transition-colors">
+              <Link href="/reset-password" className="text-sm font-bold text-echo-blue hover:text-echo-light-blue transition-colors">
                 ¿Olvidó su contraseña?
-              </button>
+              </Link>
             </div>
 
             <button
@@ -113,14 +113,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
           </form>
         </div>
 
-        <div className="bg-echo-beige/50 p-6 text-center border-t border-gray-100">
-          <p className="text-sm text-echo-gray">
-            ¿No tiene una cuenta?{' '}
-            <Link href="/register" className="font-bold text-echo-black hover:text-echo-blue transition-colors">
-              Regístrese aquí
-            </Link>
-          </p>
-        </div>
+
       </div>
     </div>
   );
