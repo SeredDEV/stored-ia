@@ -92,3 +92,5 @@ backend/
 - **Asíncrona**: Event Bus → Subscribers (eventos)
 
 
+
+

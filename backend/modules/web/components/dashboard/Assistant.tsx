@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const Assistant: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -26,18 +26,22 @@ const Assistant: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: [
-          { role: 'user', parts: [{ text: `Actúa como un asistente administrativo experto para el portal "Echo". Responde de forma amable y concisa en español. Contexto: El usuario está en el dashboard principal. Pregunta: ${userMsg}` }] }
-        ],
-        config: {
-            systemInstruction: "Eres un asistente amable para administradores. Los colores de la marca son el Azul Echo (#0FA6D1) y el Cyan brillante (#4DE2E5). Tu tono es profesional pero cercano."
-        }
+      const apiKey = process.env.NEXT_PUBLIC_GOOGLE_AI_API_KEY || '';
+      if (!apiKey) {
+        throw new Error('API key de Google AI no configurada');
+      }
+
+      const genAI = new GoogleGenerativeAI(apiKey);
+      const model = genAI.getGenerativeModel({ 
+        model: 'gemini-1.5-flash',
+        systemInstruction: "Eres un asistente amable para administradores. Los colores de la marca son el Azul Echo (#0FA6D1) y el Cyan brillante (#4DE2E5). Tu tono es profesional pero cercano."
       });
 
-      const aiContent = response.text || 'Lo siento, no pude procesar tu solicitud.';
+      const prompt = `Actúa como un asistente administrativo experto para el portal "Echo". Responde de forma amable y concisa en español. Contexto: El usuario está en el dashboard principal. Pregunta: ${userMsg}`;
+      
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      const aiContent = response.text() || 'Lo siento, no pude procesar tu solicitud.';
       setMessages(prev => [...prev, { role: 'assistant', content: aiContent }]);
     } catch (error) {
       console.error('Error calling Gemini:', error);

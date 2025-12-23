@@ -12,7 +12,9 @@
     "dev:all": "concurrently \"npm run dev:web\" \"npm run dev:api\"",
     "build:web": "npm run build --workspace=@domotica/web",
     "build:api": "npm run build --workspace=@domotica/api",
-    "build:all": "npm run build:web && npm run build:api"
+    "build:all": "npm run build:web && npm run build:api",
+    "create-admin": "npm run create-admin --workspace=@domotica/api --",
+    "create-admin-sistemasmi13": "npm run create-admin -- sistemasmi13@gmail.com miPassword"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"

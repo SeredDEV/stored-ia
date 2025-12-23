@@ -1,7 +1,10 @@
 
+'use client';
+
 import React, { useState } from 'react';
 import Link from 'next/link';
 import BackgroundBlobs from '../ui/BackgroundBlobs';
+import { login as loginApi } from '../../lib/api/authService';
 
 interface LoginProps {
   onLogin: (email: string) => void;
@@ -12,11 +15,34 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [errorDetails, setErrorDetails] = useState<Array<{ path: string[]; message: string }> | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email && password) {
+    setError(null);
+    setLoading(true);
+
+    try {
+      const data = await loginApi(email, password);
+
+      // Aquí podrías guardar el token en localStorage/cookies si quieres
+      // localStorage.setItem('access_token', data.access_token);
+
       onLogin(email);
+    } catch (err: any) {
+      // Manejo de errores del backend
+      setError(err.message || 'Error de red');
+      
+      // Si hay detalles de validación, los mostramos
+      if (err.details && Array.isArray(err.details)) {
+        setErrorDetails(err.details);
+      } else {
+        setErrorDetails(null);
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -104,11 +130,29 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
               </Link>
             </div>
 
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-xl p-4 space-y-2">
+                <p className="text-sm text-red-600 font-medium text-center">
+                  {error}
+                </p>
+                {errorDetails && errorDetails.length > 0 && (
+                  <ul className="text-xs text-red-500 space-y-1 list-disc list-inside">
+                    {errorDetails.map((detail, idx) => (
+                      <li key={idx}>
+                        {detail.path.join('.')}: {detail.message}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
+
             <button
               type="submit"
-              className="w-full h-14 bg-echo-blue hover:bg-echo-light-blue text-white font-bold rounded-xl shadow-lg shadow-echo-blue/30 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+              disabled={loading}
+              className="w-full h-14 bg-echo-blue hover:bg-echo-light-blue disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold rounded-xl shadow-lg shadow-echo-blue/30 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
             >
-              Iniciar Sesión
+              {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
             </button>
           </form>
         </div>
