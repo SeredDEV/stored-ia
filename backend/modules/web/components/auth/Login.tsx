@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 
 interface LoginProps {
   onLogin: (email: string) => void;
@@ -115,9 +116,9 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
         <div className="bg-echo-beige/50 p-6 text-center border-t border-gray-100">
           <p className="text-sm text-echo-gray">
             ¿No tiene una cuenta?{' '}
-            <button className="font-bold text-echo-black hover:text-echo-blue transition-colors">
-              Contactar Soporte
-            </button>
+            <Link href="/register" className="font-bold text-echo-black hover:text-echo-blue transition-colors">
+              Regístrese aquí
+            </Link>
           </p>
         </div>
       </div>
