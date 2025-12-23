@@ -34,7 +34,7 @@
     }
   },
 
-  "postCreateCommand": "apt-get update && apt-get install -y zsh git curl && sh -c \"$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)\" \"\" --unattended && chsh -s $(which zsh)",
+  "postCreateCommand": "bash /workspace/.devcontainer/setup.sh",
   
   "remoteUser": "root",
   
