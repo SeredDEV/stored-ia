@@ -44,3 +44,5 @@ backend/
 3. **Código Compartido**: Tipos, constantes y utilidades en `shared/`
 4. **Escalabilidad**: Fácil agregar nuevos módulos sin afectar los existentes
 
+
+

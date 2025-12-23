@@ -17,3 +17,5 @@ eventBus.subscribe("order.cancelled", async (order) => {
   console.log("📈 Order cancelled, restoring stock:", order.id);
   // Restaurar stock cuando se cancela un pedido
 });
+
+

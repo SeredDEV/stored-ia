@@ -90,3 +90,5 @@ backend/
 
 - **Síncrona**: API → Services → Database (request/response)
 - **Asíncrona**: Event Bus → Subscribers (eventos)
+
+
