@@ -11,8 +11,8 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: 'Domótica Admin',
-  description: 'Panel de control de administración para sistema de domótica',
+  title: 'Echotecnologia - Admin Panel',
+  description: 'Portal administrativo para gestión de servicios de Echotecnologia',
 };
 
 export default function RootLayout({
@@ -38,6 +38,7 @@ export default function RootLayout({
         />
       </head>
       <body
+        suppressHydrationWarning
         className={`${manrope.variable} bg-background-light dark:bg-background-dark text-[#0d141b] dark:text-white font-display antialiased`}
       >
         {children}

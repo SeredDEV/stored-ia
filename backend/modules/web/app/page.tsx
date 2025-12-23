@@ -1,11 +1,6 @@
-import { DashboardLayout } from '@/components/layout/DashboardLayout';
-import { Dashboard } from '@/components/dashboard/Dashboard';
+import { redirect } from 'next/navigation';
 
 export default function HomePage() {
-  return (
-    <DashboardLayout>
-      <Dashboard />
-    </DashboardLayout>
-  );
+  redirect('/login');
 }
 

@@ -15,6 +15,16 @@ const config: Config = {
         'background-dark': '#101922',
         'surface-light': '#ffffff',
         'surface-dark': '#1A2633',
+        // Start: Custom Echo Colors
+        'echo-blue': '#0FA6D1',
+        'echo-light-blue': '#40C4EB',
+        'echo-cyan': '#4DE2E5',
+        'echo-pastel': '#A8E6CF', // Ajustado a un tono pastel armónico
+        'echo-beige': '#f8fafc', // Usando un gris muy claro/beige moderno
+        'echo-black': '#1e293b',
+        'echo-gray': '#64748b',
+        'echo-red': '#ef4444',
+        // End: Custom Echo Colors
       },
       fontFamily: {
         display: ['var(--font-manrope)', 'sans-serif'],
