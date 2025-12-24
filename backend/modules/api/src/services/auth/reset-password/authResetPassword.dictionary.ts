@@ -68,3 +68,4 @@ export interface ErrorDictionaryGenerator<T extends string> {
 
 export type DictionaryAuthResetPasswordType =
   typeof authResetPasswordDictionary;
+
