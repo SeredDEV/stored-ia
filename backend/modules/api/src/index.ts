@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import { AuthServiceBuilder } from "./services/auth/login";
 import { AuthResetPasswordServiceBuilder } from "./services/auth/reset-password";
+import { AuthNewPasswordServiceBuilder } from "./services/auth/new-password";
 import { env } from "./config/env";
 import { authErrorHandler } from "./middleware/errorHandler";
 import { RouteLoader } from "./lib/routeLoader";
@@ -12,6 +13,7 @@ const PORT = env.apiPort || 3001;
 // Servicios (inyección de dependencias básica)
 const authService = AuthServiceBuilder.build();
 const resetPasswordService = AuthResetPasswordServiceBuilder.build();
+const newPasswordService = AuthNewPasswordServiceBuilder.build();
 
 // Middleware
 app.use(cors({
@@ -66,6 +68,7 @@ app.get("/health", (req, res) => {
 RouteLoader.loadRoutes(app, undefined, {
   authService,
   resetPasswordService,
+  newPasswordService,
 })
   .then(() => {
     app.listen(PORT, '0.0.0.0', () => {

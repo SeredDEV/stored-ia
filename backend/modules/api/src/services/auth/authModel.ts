@@ -107,3 +107,15 @@ export interface IAuthResetPasswordService {
    */
   confirmPasswordReset(token: string, newPassword: string): Promise<void>;
 }
+
+/**
+ * Interfaz del servicio de nueva contraseña.
+ * Define el contrato que debe cumplir cualquier implementación.
+ */
+export interface IAuthNewPasswordService {
+  /**
+   * Establece una nueva contraseña.
+   * Valida el token y actualiza la contraseña del usuario.
+   */
+  setNewPassword(token: string, newPassword: string, refreshToken?: string): Promise<void>;
+}

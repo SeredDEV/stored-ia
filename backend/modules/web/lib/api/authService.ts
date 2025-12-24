@@ -142,19 +142,84 @@ export async function requestPasswordReset(
 
 /**
  * Confirma el reset de contraseña con el token y la nueva contraseña.
+ * Establece una nueva contraseña usando el token de recuperación.
  */
 export async function confirmPasswordReset(
   token: string,
-  password: string
+  password: string,
+  refreshToken?: string | null
 ): Promise<ConfirmResetResponse> {
-  const res = await fetch(`${API_BASE_URL}/api/auth/reset-password/confirm`, {
+  const res = await fetch(`${API_BASE_URL}/api/auth/new-password`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
-    body: JSON.stringify({ token, password }),
+    body: JSON.stringify({ token, password, refreshToken: refreshToken || undefined }),
   });
 
-  const data = await res.json();
+  // Verificar el Content-Type antes de intentar parsear JSON
+  const contentType = res.headers.get("content-type");
+  let data;
+
+  try {
+    // Si la respuesta es JSON, parsearla
+    if (contentType && contentType.includes("application/json")) {
+      data = await res.json();
+    } else {
+      // Si no es JSON (probablemente HTML o texto), leer como texto
+      const text = await res.text();
+
+      // Detectar si es un error de rate limiting (429) o error del servidor
+      if (res.status === 429 || res.status === 503) {
+        const error: LoginError = {
+          message:
+            "Demasiados intentos. Por favor, espere unos minutos antes de intentar nuevamente.",
+          status: res.status,
+        };
+        throw error;
+      }
+
+      // Si la respuesta contiene HTML, es probablemente una página de error
+      if (text.includes("<!DOCTYPE") || text.includes("<html")) {
+        const error: LoginError = {
+          message:
+            "Error al procesar la respuesta del servidor. Por favor, intente más tarde.",
+          status: res.status,
+        };
+        throw error;
+      }
+
+      // Si no podemos parsear la respuesta, lanzar error genérico
+      const error: LoginError = {
+        message:
+          "Error al procesar la respuesta del servidor. Por favor, intente más tarde.",
+        status: res.status,
+      };
+      throw error;
+    }
+  } catch (err: any) {
+    // Si ya es un LoginError, relanzarlo
+    if (err.status !== undefined && err.message) {
+      throw err;
+    }
+
+    // Si es un error de parsing JSON
+    if (err.message && err.message.includes("JSON")) {
+      const error: LoginError = {
+        message:
+          "Error al procesar la respuesta del servidor. Por favor, intente más tarde.",
+        status: res.status || 500,
+      };
+      throw error;
+    }
+
+    // Error genérico
+    const error: LoginError = {
+      message:
+        "Error al actualizar la contraseña. Por favor, intente más tarde.",
+      status: res.status || 500,
+    };
+    throw error;
+  }
 
   if (!res.ok) {
     const error: LoginError = {

@@ -9,7 +9,10 @@ export type RValidationsNamesAuthResetPassword =
   | "tokenExpired"
   | "smtpNotConfigured"
   | "redirectUrlNotAllowed"
-  | "resendDomainNotVerified";
+  | "resendDomainNotVerified"
+  | "passwordRequired"
+  | "passwordTooShort"
+  | "passwordTooWeak";
 
 export interface AuthResetPasswordDictionaryItem {
   dictionaryId: number;
@@ -57,6 +60,22 @@ export const authResetPasswordDictionary: Record<
     defaultMessage:
       "Para enviar emails a otros destinatarios, necesitas verificar un dominio en Resend. Por ahora, solo puedes enviar a tu email de cuenta de Resend.",
   },
+  passwordRequired: {
+    dictionaryId: 1000107,
+    statusCode: 400,
+    defaultMessage: "La contraseña es requerida",
+  },
+  passwordTooShort: {
+    dictionaryId: 1000108,
+    statusCode: 400,
+    defaultMessage: "La contraseña debe tener al menos 6 caracteres",
+  },
+  passwordTooWeak: {
+    dictionaryId: 1000109,
+    statusCode: 400,
+    defaultMessage:
+      "La contraseña no cumple con los requisitos de seguridad. Por favor elige una contraseña más segura.",
+  },
 };
 
 export interface ErrorDictionaryGenerator<T extends string> {
@@ -68,4 +87,3 @@ export interface ErrorDictionaryGenerator<T extends string> {
 
 export type DictionaryAuthResetPasswordType =
   typeof authResetPasswordDictionary;
-

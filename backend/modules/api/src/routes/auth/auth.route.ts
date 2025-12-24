@@ -3,8 +3,11 @@ import { AuthLoginEndpoint } from "./login/authLogin.endpoint";
 import { AuthLoginNetwork } from "./login/authLogin.network";
 import { AuthResetPasswordEndpoint } from "./reset-password/authResetPassword.endpoint";
 import { AuthResetPasswordNetwork } from "./reset-password/authResetPassword.network";
+import { AuthNewPasswordEndpoint } from "./new-password/authNewPassword.endpoint";
+import { AuthNewPasswordNetwork } from "./new-password/authNewPassword.network";
 import type { IAuthService } from "../../services/auth/authModel";
 import type { IAuthResetPasswordService } from "../../services/auth/authModel";
+import type { IAuthNewPasswordService } from "../../services/auth/authModel";
 
 /**
  * Router de autenticación.
@@ -15,7 +18,8 @@ export class AuthRoute {
   public static register(
     server: Express,
     authService: IAuthService,
-    resetPasswordService: IAuthResetPasswordService
+    resetPasswordService: IAuthResetPasswordService,
+    newPasswordService: IAuthNewPasswordService
   ): void {
     const router = Router();
 
@@ -32,6 +36,15 @@ export class AuthRoute {
       authResetPasswordEndpoint
     );
     authResetPasswordNetwork.setNetwork(router);
+
+    // New password routes
+    const authNewPasswordEndpoint = new AuthNewPasswordEndpoint({
+      newPasswordService,
+    });
+    const authNewPasswordNetwork = new AuthNewPasswordNetwork(
+      authNewPasswordEndpoint
+    );
+    authNewPasswordNetwork.setNetwork(router);
 
     // Registrar el router en el servidor con el path /auth
     server.use("/api/auth", router);

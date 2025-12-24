@@ -114,7 +114,7 @@ export class RouteLoader {
     const className = RouteClass.name || "";
     
     // Mapeo de nombres de clases a servicios
-    // AuthRoute -> authService y resetPasswordService
+    // AuthRoute -> authService, resetPasswordService y newPasswordService
     if (className.includes("Auth") && className.includes("Route")) {
       const args: any[] = [];
       if (services.authService) {
@@ -122,6 +122,9 @@ export class RouteLoader {
       }
       if (services.resetPasswordService) {
         args.push(services.resetPasswordService);
+      }
+      if (services.newPasswordService) {
+        args.push(services.newPasswordService);
       }
       return args;
     }

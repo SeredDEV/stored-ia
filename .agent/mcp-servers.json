@@ -1,32 +1,28 @@
 {
-    "mcpServers": {
-        "redis-cache": {
-            "command": "/root/.local/bin/uvx",
-            "args": [
-                "-qq",
-                "--from",
-                "redis-mcp-server@latest",
-                "redis-mcp-server",
-                "--url",
-                "redis://127.0.0.1:6379/0"
-            ],
-            "type": "stdio"
-        },
-        "supabase": {
-            "type": "http",
-            "url": "https://mcp.supabase.com/mcp?project_ref=xijcwlmhtgdmnibcfais",
-            "headers": {
-                "Authorization": "Bearer sbp_e4b253a76ab086e8d954592e3378fe7307e9bcd9"
-            }
-        },
-        "filesystem": {
-            "command": "npx",
-            "args": [
-                "-y",
-                "@modelcontextprotocol/server-filesystem",
-                "/workspace"
-            ],
-            "type": "stdio"
-        }
+  "mcpServers": {
+    "redis-cache": {
+      "command": "/root/.local/bin/uvx",
+      "args": [
+        "-qq",
+        "--from",
+        "redis-mcp-server@latest",
+        "redis-mcp-server",
+        "--url",
+        "redis://redis:6379/0"
+      ],
+      "type": "stdio"
+    },
+    "supabase": {
+      "type": "http",
+      "url": "https://mcp.supabase.com/mcp?project_ref=xijcwlmhtgdmnibcfais",
+      "headers": {
+        "Authorization": "Bearer sbp_e4b253a76ab086e8d954592e3378fe7307e9bcd9"
+      }
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/workspace"],
+      "type": "stdio"
     }
+  }
 }
