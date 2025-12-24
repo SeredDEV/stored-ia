@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import NewProductForm from "./product-form/NewProductForm";
 
 interface Product {
   id: string;
@@ -89,6 +90,7 @@ const products: Product[] = [
 const ProductsManagement: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [showNewProductForm, setShowNewProductForm] = useState(false);
   const itemsPerPage = 11;
   const totalProducts = products.length;
 
@@ -104,6 +106,14 @@ const ProductsManagement: React.FC = () => {
     console.log("Delete product:", productId);
   };
 
+  if (showNewProductForm) {
+    return (
+      <div className="max-w-6xl mx-auto">
+        <NewProductForm onClose={() => setShowNewProductForm(false)} />
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-6xl mx-auto">
       {/* Header */}
@@ -116,7 +126,10 @@ const ProductsManagement: React.FC = () => {
             Administra el catálogo de productos de tu tienda.
           </p>
         </div>
-        <button className="bg-echo-blue dark:bg-primary hover:bg-echo-blue-variant dark:hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg shadow-lg shadow-blue-500/30 flex items-center justify-center gap-2 transition-all active:scale-95 font-medium">
+        <button
+          onClick={() => setShowNewProductForm(true)}
+          className="bg-echo-blue dark:bg-primary hover:bg-echo-blue-variant dark:hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg shadow-lg shadow-blue-500/30 flex items-center justify-center gap-2 transition-all active:scale-95 font-medium"
+        >
           <span className="material-symbols-outlined text-sm">add</span>
           Nuevo Producto
         </button>
@@ -155,66 +168,90 @@ const ProductsManagement: React.FC = () => {
 
       {/* Desktop Table */}
       <div className="bg-white dark:bg-surface-dark border border-gray-200 dark:border-gray-700 rounded-b-xl shadow-sm overflow-hidden hidden md:block">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50 text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 font-semibold">
-              <th className="px-6 py-4">PRODUCTO</th>
-              <th className="px-6 py-4">COLECCIÓN</th>
-              <th className="px-6 py-4">CANALES DE VENTA</th>
-              <th className="px-6 py-4">VARIANTES</th>
-              <th className="px-6 py-4">ESTADO</th>
-              <th className="px-6 py-4 text-right">ACCIONES</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-            {filteredProducts.map((product) => (
-              <tr
-                key={product.id}
-                className="group hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
-              >
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
-                      <span className="material-symbols-outlined text-gray-600 dark:text-gray-300">
-                        {product.icon}
-                      </span>
-                    </div>
-                    <div>
-                      <div className="font-medium text-gray-900 dark:text-white">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700">
+                <th className="px-8 py-5 text-left">
+                  <span className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 font-semibold">
+                    PRODUCTO
+                  </span>
+                </th>
+                <th className="px-8 py-5 text-left">
+                  <span className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 font-semibold">
+                    COLECCIÓN
+                  </span>
+                </th>
+                <th className="px-8 py-5 text-left">
+                  <span className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 font-semibold">
+                    CANALES DE VENTA
+                  </span>
+                </th>
+                <th className="px-8 py-5 text-left">
+                  <span className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 font-semibold">
+                    VARIANTES
+                  </span>
+                </th>
+                <th className="px-8 py-5 text-left">
+                  <span className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 font-semibold">
+                    ESTADO
+                  </span>
+                </th>
+                <th className="px-8 py-5 text-right">
+                  <span className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 font-semibold">
+                    ACCIONES
+                  </span>
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+              {filteredProducts.map((product) => (
+                <tr
+                  key={product.id}
+                  className="hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors"
+                >
+                  <td className="px-8 py-6">
+                    <div className="flex items-center gap-4">
+                      <div className="w-11 h-11 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <span className="material-symbols-outlined text-xl text-gray-600 dark:text-gray-300">
+                          {product.icon}
+                        </span>
+                      </div>
+                      <div className="font-medium text-base text-gray-900 dark:text-white">
                         {product.name}
                       </div>
                     </div>
-                  </div>
-                </td>
-                <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">
-                  {product.collection}
-                </td>
-                <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">
-                  {product.salesChannel}
-                </td>
-                <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">
-                  {product.variants} variantes
-                </td>
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
-                    <span className="text-sm text-gray-600 dark:text-gray-300">
-                      {product.status}
-                    </span>
-                  </div>
-                </td>
-                <td className="px-6 py-4 text-right">
-                  <button className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors p-1">
-                    <span className="material-symbols-outlined text-lg">
-                      more_vert
-                    </span>
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between bg-white dark:bg-surface-dark">
+                  </td>
+                  <td className="px-8 py-6 text-base text-gray-600 dark:text-gray-300">
+                    {product.collection}
+                  </td>
+                  <td className="px-8 py-6 text-base text-gray-600 dark:text-gray-300">
+                    {product.salesChannel}
+                  </td>
+                  <td className="px-8 py-6 text-base text-gray-600 dark:text-gray-300">
+                    {product.variants} variantes
+                  </td>
+                  <td className="px-8 py-6">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-2.5 h-2.5 rounded-full bg-emerald-500"></div>
+                      <span className="text-base text-gray-600 dark:text-gray-300">
+                        {product.status}
+                      </span>
+                    </div>
+                  </td>
+                  <td className="px-8 py-6 text-right">
+                    <button className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                      <span className="material-symbols-outlined text-xl">
+                        more_vert
+                      </span>
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="px-8 py-5 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between bg-white dark:bg-surface-dark">
           <div className="text-sm text-gray-500 dark:text-gray-400">
             {currentPage === 1 ? 1 : (currentPage - 1) * itemsPerPage + 1}-
             {Math.min(currentPage * itemsPerPage, totalProducts)} de{" "}
@@ -225,8 +262,7 @@ const ProductsManagement: React.FC = () => {
           </div>
           <div className="flex items-center gap-4">
             <div className="text-sm text-gray-500 dark:text-gray-400">
-              {Math.ceil(totalProducts / itemsPerPage)} de{" "}
-              {Math.ceil(totalProducts / itemsPerPage)} páginas
+              {currentPage} de {Math.ceil(totalProducts / itemsPerPage)} páginas
             </div>
             <div className="flex gap-2">
               <button
