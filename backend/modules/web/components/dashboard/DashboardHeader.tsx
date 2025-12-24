@@ -20,12 +20,6 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   return (
     <header className="h-16 bg-white dark:bg-surface-dark border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-6 lg:px-8 flex-shrink-0 transition-colors duration-200">
       <div className="flex items-center gap-4">
-        <button
-          onClick={onToggleSidebar}
-          className="md:hidden text-gray-500 dark:text-gray-400"
-        >
-          <span className="material-symbols-outlined">menu</span>
-        </button>
         <h1 className="text-lg font-semibold text-gray-800 dark:text-gray-100 hidden md:block">
           {title}
         </h1>
