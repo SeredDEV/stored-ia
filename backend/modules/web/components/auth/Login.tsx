@@ -27,8 +27,10 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
     try {
       const data = await loginApi(email, password);
 
-      // Aquí podrías guardar el token en localStorage/cookies si quieres
-      // localStorage.setItem('access_token', data.access_token);
+      // Guardar información del usuario en localStorage
+      if (data.data?.user) {
+        localStorage.setItem('user', JSON.stringify(data.data.user));
+      }
 
       onLogin(email);
     } catch (err: any) {

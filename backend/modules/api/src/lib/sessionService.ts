@@ -24,6 +24,8 @@ export interface UserData {
 
 export interface FormattedSessionData {
   sessionId: string;
+  accessToken: string;
+  refreshToken: string;
   userData: {
     user: UserData;
   };
@@ -64,6 +66,8 @@ export class SessionService {
 
     return {
       sessionId,
+      accessToken: loginResult.access_token || "",
+      refreshToken: loginResult.refresh_token || "",
       userData: {
         user: userData,
       },
@@ -77,7 +81,7 @@ export class SessionService {
     req: Request,
     sessionDataPartial: FormattedSessionData
   ): Promise<void> {
-    const { sessionId, userData } = sessionDataPartial;
+    const { sessionId, accessToken, refreshToken, userData } = sessionDataPartial;
 
     // Guardar sesión en Redis
     const sessionData: SessionData = {
@@ -85,8 +89,8 @@ export class SessionService {
       userId: userData.user.id,
       email: userData.user.email,
       role: userData.user.role,
-      accessToken: (req as any).body?.access_token || "",
-      refreshToken: (req as any).body?.refresh_token || "",
+      accessToken: accessToken || "",
+      refreshToken: refreshToken || "",
       createdAt: Date.now(),
       expiresAt: Date.now() + this.SESSION_TTL * 1000,
     };

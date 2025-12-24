@@ -7,7 +7,8 @@
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
-    "create-admin": "tsx scripts/create-admin.ts"
+    "create-admin": "tsx scripts/create-admin.ts",
+    "check-sessions": "tsx scripts/checkRedisSessions.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.89.0",

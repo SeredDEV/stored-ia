@@ -12,7 +12,10 @@ const PORT = env.apiPort || 3001;
 const authService = AuthServiceBuilder.build();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  credentials: true, // Permitir cookies y credenciales
+}));
 app.use(express.json());
 
 // Middleware de logging sencillo para todas las rutas, estilo Next.js
