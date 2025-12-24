@@ -89,3 +89,21 @@ export interface IAuthService {
    */
   logUserAction(user: AuthLoginModel): Promise<void>;
 }
+
+/**
+ * Interfaz del servicio de reset de contraseña.
+ * Define el contrato que debe cumplir cualquier implementación.
+ */
+export interface IAuthResetPasswordService {
+  /**
+   * Solicita un reset de contraseña.
+   * Envía un email con un token para restablecer la contraseña.
+   */
+  requestPasswordReset(email: string): Promise<void>;
+
+  /**
+   * Confirma el reset de contraseña.
+   * Valida el token y actualiza la contraseña del usuario.
+   */
+  confirmPasswordReset(token: string, newPassword: string): Promise<void>;
+}

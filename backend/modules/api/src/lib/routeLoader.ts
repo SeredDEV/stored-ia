@@ -103,7 +103,7 @@ export class RouteLoader {
 
   /**
    * Obtiene los argumentos del servicio basándose en el nombre de la clase.
-   * Por ejemplo, AuthRoute necesita authService.
+   * Por ejemplo, AuthRoute necesita authService y resetPasswordService.
    */
   private static getServiceArgs(
     RouteClass: any,
@@ -114,9 +114,16 @@ export class RouteLoader {
     const className = RouteClass.name || "";
     
     // Mapeo de nombres de clases a servicios
-    // AuthRoute -> authService
-    if (className.includes("Auth")) {
-      return services.authService ? [services.authService] : [];
+    // AuthRoute -> authService y resetPasswordService
+    if (className.includes("Auth") && className.includes("Route")) {
+      const args: any[] = [];
+      if (services.authService) {
+        args.push(services.authService);
+      }
+      if (services.resetPasswordService) {
+        args.push(services.resetPasswordService);
+      }
+      return args;
     }
 
     // Agregar más mapeos según sea necesario

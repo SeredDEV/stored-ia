@@ -5,7 +5,10 @@ import type {
   ErrorDictionaryGenerator,
   RValidationsNamesAuthLogin,
 } from "./authLogin.dictionary";
-import { InvalidCredentialsError, RateLimitError } from "../../../lib/authError";
+import {
+  InvalidCredentialsError,
+  RateLimitError,
+} from "../../../lib/authError";
 
 /**
  * Implementación del servicio de autenticación usando Supabase.
