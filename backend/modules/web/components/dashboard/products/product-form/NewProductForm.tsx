@@ -696,216 +696,247 @@ const NewProductForm: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
           {activeTab === "variants" && (
             <div className="w-full">
               <div className="bg-white dark:bg-surface-dark rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700">
-                        <th className="px-2 py-2.5 text-left w-10">
-                          <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">
-                            Ver
+                    <div className="overflow-x-auto max-h-[500px] overflow-y-auto">
+                      {formData.variants.filter((v) => !v.id.startsWith("option-")).length === 0 ? (
+                        <div className="p-8 text-center text-gray-500 dark:text-gray-400 bg-white dark:bg-surface-dark">
+                          <span className="material-symbols-outlined text-4xl mb-2 block mx-auto opacity-50">
+                            inventory_2
                           </span>
-                        </th>
-                        <th className="px-2 py-2.5 text-left">
-                          <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">
-                            Color
-                          </span>
-                        </th>
-                        <th className="px-2 py-2.5 text-left">
-                          <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">
-                            Título
-                          </span>
-                        </th>
-                        <th className="px-2 py-2.5 text-left">
-                          <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">
-                            SKU
-                          </span>
-                        </th>
-                        <th className="px-2 py-2.5 text-center w-24">
-                          <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">
-                            Inv. gestionado
-                          </span>
-                        </th>
-                        <th className="px-2 py-2.5 text-center w-28">
-                          <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">
-                            Pedido pendiente
-                          </span>
-                        </th>
-                        <th className="px-2 py-2.5 text-center w-24">
-                          <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">
-                            Kit inventario
-                          </span>
-                        </th>
-                        <th className="px-2 py-2.5 text-left w-32">
-                          <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">
-                            Precio COP
-                          </span>
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                      {formData.variants
-                        .filter((v) => !v.id.startsWith("option-"))
-                        .map((variant) => (
-                          <tr
-                            key={variant.id}
-                            className="hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors bg-white dark:bg-surface-dark"
-                          >
-                            <td className="px-2 py-3">
-                              <div className="flex items-center justify-center">
-                                <button className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
-                                  <span className="material-symbols-outlined text-base">
-                                    visibility
-                                  </span>
-                                </button>
-                              </div>
-                            </td>
-                            <td className="px-2 py-3">
-                              <input
-                                type="text"
-                                value={variant.name}
-                                onChange={(e) => {
-                                  setFormData((prev) => ({
-                                    ...prev,
-                                    variants: prev.variants.map((v) =>
-                                      v.id === variant.id
-                                        ? { ...v, name: e.target.value }
-                                        : v
-                                    ),
-                                  }));
-                                }}
-                                className="w-full px-2.5 py-1.5 border border-gray-200 dark:border-gray-700 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary focus:border-transparent transition-all"
-                              />
-                            </td>
-                            <td className="px-2 py-3">
-                              <input
-                                type="text"
-                                value={variant.title || variant.name}
-                                onChange={(e) => {
-                                  setFormData((prev) => ({
-                                    ...prev,
-                                    variants: prev.variants.map((v) =>
-                                      v.id === variant.id
-                                        ? { ...v, title: e.target.value }
-                                        : v
-                                    ),
-                                  }));
-                                }}
-                                className="w-full px-2.5 py-1.5 border border-gray-200 dark:border-gray-700 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary focus:border-transparent transition-all"
-                              />
-                            </td>
-                            <td className="px-2 py-3">
-                              <input
-                                type="text"
-                                value={variant.sku || ""}
-                                onChange={(e) => {
-                                  setFormData((prev) => ({
-                                    ...prev,
-                                    variants: prev.variants.map((v) =>
-                                      v.id === variant.id
-                                        ? { ...v, sku: e.target.value }
-                                        : v
-                                    ),
-                                  }));
-                                }}
-                                className="w-full px-2.5 py-1.5 border border-gray-200 dark:border-gray-700 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary focus:border-transparent transition-all"
-                                placeholder="SKU"
-                              />
-                            </td>
-                            <td className="px-2 py-3">
-                              <div className="flex items-center justify-center">
-                                <input
-                                  type="checkbox"
-                                  checked={variant.managedInventory || false}
-                                  onChange={(e) => {
-                                    setFormData((prev) => ({
-                                      ...prev,
-                                      variants: prev.variants.map((v) =>
-                                        v.id === variant.id
-                                          ? {
-                                              ...v,
-                                              managedInventory:
-                                                e.target.checked,
-                                            }
-                                          : v
-                                      ),
-                                    }));
-                                  }}
-                                  className="w-4 h-4 text-echo-blue dark:text-primary border-gray-300 rounded focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary cursor-pointer"
-                                />
-                              </div>
-                            </td>
-                            <td className="px-2 py-3">
-                              <div className="flex items-center justify-center">
-                                <input
-                                  type="checkbox"
-                                  checked={variant.allowBackorder || false}
-                                  onChange={(e) => {
-                                    setFormData((prev) => ({
-                                      ...prev,
-                                      variants: prev.variants.map((v) =>
-                                        v.id === variant.id
-                                          ? {
-                                              ...v,
-                                              allowBackorder: e.target.checked,
-                                            }
-                                          : v
-                                      ),
-                                    }));
-                                  }}
-                                  className="w-4 h-4 text-echo-blue dark:text-primary border-gray-300 rounded focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary cursor-pointer"
-                                />
-                              </div>
-                            </td>
-                            <td className="px-2 py-3">
-                              <div className="flex items-center justify-center">
-                                <input
-                                  type="checkbox"
-                                  checked={variant.hasInventoryKit || false}
-                                  onChange={(e) => {
-                                    setFormData((prev) => ({
-                                      ...prev,
-                                      variants: prev.variants.map((v) =>
-                                        v.id === variant.id
-                                          ? {
-                                              ...v,
-                                              hasInventoryKit: e.target.checked,
-                                            }
-                                          : v
-                                      ),
-                                    }));
-                                  }}
-                                  className="w-4 h-4 text-echo-blue dark:text-primary border-gray-300 rounded focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary cursor-pointer"
-                                />
-                              </div>
-                            </td>
-                            <td className="px-2 py-3">
-                              <div className="flex items-center gap-1">
-                                <span className="text-gray-600 dark:text-gray-400 font-medium text-sm">
-                                  $
+                          <p>No hay variantes generadas.</p>
+                          <p className="text-sm mt-1">
+                            Agrega opciones en la pestaña "Detalles" para generar variantes.
+                          </p>
+                        </div>
+                      ) : (
+                        <table className="w-full relative">
+                          <thead className="sticky top-0 z-10 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm">
+                            <tr>
+                              <th className="px-2 py-3 text-left w-16 bg-gray-50 dark:bg-gray-800">
+                                <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">
+                                  Acciones
                                 </span>
-                                <input
-                                  type="text"
-                                  value={variant.priceCOP || ""}
-                                  onChange={(e) => {
-                                    setFormData((prev) => ({
-                                      ...prev,
-                                      variants: prev.variants.map((v) =>
-                                        v.id === variant.id
-                                          ? { ...v, priceCOP: e.target.value }
-                                          : v
-                                      ),
-                                    }));
-                                  }}
-                                  className="flex-1 px-2.5 py-1.5 border border-gray-200 dark:border-gray-700 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary focus:border-transparent transition-all"
-                                  placeholder="0"
-                                />
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
-                    </tbody>
-                  </table>
-                </div>
+                              </th>
+                              <th className="px-2 py-3 text-left bg-gray-50 dark:bg-gray-800">
+                                <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">
+                                  Color
+                                </span>
+                              </th>
+                              <th className="px-2 py-3 text-left bg-gray-50 dark:bg-gray-800">
+                                <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">
+                                  Título
+                                </span>
+                              </th>
+                              <th className="px-2 py-3 text-left bg-gray-50 dark:bg-gray-800">
+                                <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">
+                                  SKU
+                                </span>
+                              </th>
+                              <th className="px-2 py-3 text-center w-24 bg-gray-50 dark:bg-gray-800">
+                                <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase block" title="Inventario Gestionado">
+                                  Inv. Gest.
+                                </span>
+                              </th>
+                              <th className="px-2 py-3 text-center w-28 bg-gray-50 dark:bg-gray-800">
+                                <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase block" title="Pedido Pendiente">
+                                  Ped. Pend.
+                                </span>
+                              </th>
+                              <th className="px-2 py-3 text-center w-24 bg-gray-50 dark:bg-gray-800">
+                                <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase block" title="Kit Inventario">
+                                  Kit Inv.
+                                </span>
+                              </th>
+                              <th className="px-2 py-3 text-left w-32 bg-gray-50 dark:bg-gray-800">
+                                <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">
+                                  Precio COP
+                                </span>
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                            {formData.variants
+                              .filter((v) => !v.id.startsWith("option-"))
+                              .map((variant) => (
+                                <tr
+                                  key={variant.id}
+                                  className="hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors bg-white dark:bg-surface-dark group"
+                                >
+                                  <td className="px-2 py-3">
+                                    <div className="flex items-center justify-center gap-1">
+                                      <button 
+                                        className="text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors p-1 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                                        title="Ver detalles"
+                                      >
+                                        <span className="material-symbols-outlined text-base">
+                                          visibility
+                                        </span>
+                                      </button>
+                                      <button 
+                                        onClick={() => {
+                                            setFormData(prev => ({
+                                                ...prev,
+                                                variants: prev.variants.filter(v => v.id !== variant.id)
+                                            }));
+                                        }}
+                                        className="text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors p-1 rounded hover:bg-red-50 dark:hover:bg-red-900/20"
+                                        title="Eliminar variante"
+                                      >
+                                        <span className="material-symbols-outlined text-base">
+                                          delete
+                                        </span>
+                                      </button>
+                                    </div>
+                                  </td>
+                                  <td className="px-2 py-3">
+                                    <input
+                                      type="text"
+                                      value={variant.name}
+                                      onChange={(e) => {
+                                        setFormData((prev) => ({
+                                          ...prev,
+                                          variants: prev.variants.map((v) =>
+                                            v.id === variant.id
+                                              ? { ...v, name: e.target.value }
+                                              : v
+                                          ),
+                                        }));
+                                      }}
+                                      className="w-full px-2.5 py-1.5 border border-gray-200 dark:border-gray-700 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary focus:border-transparent transition-all"
+                                    />
+                                  </td>
+                                  <td className="px-2 py-3">
+                                    <input
+                                      type="text"
+                                      value={variant.title || variant.name}
+                                      onChange={(e) => {
+                                        setFormData((prev) => ({
+                                          ...prev,
+                                          variants: prev.variants.map((v) =>
+                                            v.id === variant.id
+                                              ? { ...v, title: e.target.value }
+                                              : v
+                                          ),
+                                        }));
+                                      }}
+                                      className="w-full px-2.5 py-1.5 border border-gray-200 dark:border-gray-700 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary focus:border-transparent transition-all"
+                                    />
+                                  </td>
+                                  <td className="px-2 py-3">
+                                    <input
+                                      type="text"
+                                      value={variant.sku || ""}
+                                      onChange={(e) => {
+                                        setFormData((prev) => ({
+                                          ...prev,
+                                          variants: prev.variants.map((v) =>
+                                            v.id === variant.id
+                                              ? { ...v, sku: e.target.value }
+                                              : v
+                                          ),
+                                        }));
+                                      }}
+                                      className="w-full px-2.5 py-1.5 border border-gray-200 dark:border-gray-700 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary focus:border-transparent transition-all"
+                                      placeholder="SKU"
+                                    />
+                                  </td>
+                                  <td className="px-2 py-3">
+                                    <div className="flex items-center justify-center">
+                                      <input
+                                        type="checkbox"
+                                        checked={variant.managedInventory || false}
+                                        onChange={(e) => {
+                                          setFormData((prev) => ({
+                                            ...prev,
+                                            variants: prev.variants.map((v) =>
+                                              v.id === variant.id
+                                                ? {
+                                                    ...v,
+                                                    managedInventory:
+                                                      e.target.checked,
+                                                  }
+                                                : v
+                                            ),
+                                          }));
+                                        }}
+                                        className="w-4 h-4 text-echo-blue dark:text-primary border-gray-300 rounded focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary cursor-pointer"
+                                      />
+                                    </div>
+                                  </td>
+                                  <td className="px-2 py-3">
+                                    <div className="flex items-center justify-center">
+                                      <input
+                                        type="checkbox"
+                                        checked={variant.allowBackorder || false}
+                                        onChange={(e) => {
+                                          setFormData((prev) => ({
+                                            ...prev,
+                                            variants: prev.variants.map((v) =>
+                                              v.id === variant.id
+                                                ? {
+                                                    ...v,
+                                                    allowBackorder: e.target.checked,
+                                                  }
+                                                : v
+                                            ),
+                                          }));
+                                        }}
+                                        className="w-4 h-4 text-echo-blue dark:text-primary border-gray-300 rounded focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary cursor-pointer"
+                                      />
+                                    </div>
+                                  </td>
+                                  <td className="px-2 py-3">
+                                    <div className="flex items-center justify-center">
+                                      <input
+                                        type="checkbox"
+                                        checked={variant.hasInventoryKit || false}
+                                        onChange={(e) => {
+                                          setFormData((prev) => ({
+                                            ...prev,
+                                            variants: prev.variants.map((v) =>
+                                              v.id === variant.id
+                                                ? {
+                                                    ...v,
+                                                    hasInventoryKit: e.target.checked,
+                                                  }
+                                                : v
+                                            ),
+                                          }));
+                                        }}
+                                        className="w-4 h-4 text-echo-blue dark:text-primary border-gray-300 rounded focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary cursor-pointer"
+                                      />
+                                    </div>
+                                  </td>
+                                  <td className="px-2 py-3">
+                                    <div className="flex items-center gap-1">
+                                      <span className="text-gray-600 dark:text-gray-400 font-medium text-sm">
+                                        $
+                                      </span>
+                                      <input
+                                        type="number"
+                                        min="0"
+                                        step="0.01"
+                                        value={variant.priceCOP || ""}
+                                        onChange={(e) => {
+                                          setFormData((prev) => ({
+                                            ...prev,
+                                            variants: prev.variants.map((v) =>
+                                              v.id === variant.id
+                                                ? { ...v, priceCOP: e.target.value }
+                                                : v
+                                            ),
+                                          }));
+                                        }}
+                                        className="flex-1 px-2.5 py-1.5 border border-gray-200 dark:border-gray-700 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary focus:border-transparent transition-all"
+                                        placeholder="0.00"
+                                      />
+                                    </div>
+                                  </td>
+                                </tr>
+                              ))}
+                          </tbody>
+                        </table>
+                      )}
+                    </div>
               </div>
             </div>
           )}

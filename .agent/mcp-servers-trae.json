@@ -1,0 +1,35 @@
+{
+  "mcpServers": {
+    "redis-cache": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "--network", "host",
+        "ghcr.io/mcp-servers/redis:latest",
+        "--url", "redis://localhost:6379/0"
+      ],
+      "type": "stdio"
+    },
+    "supabase": {
+      "command": "npx.cmd",
+      "args": [
+        "-y",
+        "@supabase/mcp-server-supabase@latest",
+        "--access-token",
+        "sbp_e4b253a76ab086e8d954592e3378fe7307e9bcd9"
+      ],
+      "type": "stdio"
+    },
+    "filesystem": {
+      "command": "npx.cmd",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "c:\\Users\\sopor\\OneDrive\\Documentos\\Project\\stored-ia"
+      ],
+      "type": "stdio"
+    }
+  }
+}
