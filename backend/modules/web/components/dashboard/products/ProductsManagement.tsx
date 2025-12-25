@@ -8,11 +8,12 @@ import { ProductHeader } from "./components/ProductHeader";
 import { ProductFilters } from "./components/ProductFilters";
 import { ProductTable } from "./components/ProductTable";
 import { ProductMobileList } from "./components/ProductMobileList";
+import { Product } from "./types";
 
 const ProductsManagement: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  
+
   // Hook personalizado para lógica de filtrado y paginación
   const {
     searchTerm,
@@ -44,6 +45,18 @@ const ProductsManagement: React.FC = () => {
     router.push("/dashboard?view=products");
   };
 
+  const handleEditProduct = (product: Product) => {
+    console.log("Edit product:", product);
+    // Aquí iría la lógica para editar el producto
+  };
+
+  const handleDeleteProduct = (product: Product) => {
+    if (confirm(`¿Estás seguro de que deseas eliminar el producto "${product.name}"?`)) {
+      console.log("Delete product:", product);
+      // Aquí iría la lógica para eliminar el producto
+    }
+  };
+
   if (showNewProductForm) {
     return (
       <div className="max-w-6xl mx-auto">
@@ -68,9 +81,15 @@ const ProductsManagement: React.FC = () => {
         totalProducts={totalProducts}
         totalPages={totalPages}
         onPageChange={setCurrentPage}
+        onEdit={handleEditProduct}
+        onDelete={handleDeleteProduct}
       />
 
-      <ProductMobileList products={paginatedProducts} />
+      <ProductMobileList 
+        products={paginatedProducts} 
+        onEdit={handleEditProduct}
+        onDelete={handleDeleteProduct}
+      />
     </div>
   );
 };

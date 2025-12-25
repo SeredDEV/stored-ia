@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Product } from "../types";
 
 interface ProductTableProps {
@@ -8,6 +8,8 @@ interface ProductTableProps {
   totalProducts: number;
   totalPages: number;
   onPageChange: (page: number) => void;
+  onEdit?: (product: Product) => void;
+  onDelete?: (product: Product) => void;
 }
 
 export const ProductTable: React.FC<ProductTableProps> = ({
@@ -17,7 +19,39 @@ export const ProductTable: React.FC<ProductTableProps> = ({
   totalProducts,
   totalPages,
   onPageChange,
+  onEdit,
+  onDelete,
 }) => {
+  const [activeMenu, setActiveMenu] = useState<{
+    id: string;
+    top: number;
+    left: number;
+  } | null>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (activeMenu && !(event.target as Element).closest(".action-menu-container")) {
+        setActiveMenu(null);
+      }
+    };
+
+    const handleScroll = () => {
+      if (activeMenu) {
+        setActiveMenu(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    window.addEventListener("scroll", handleScroll, true);
+    window.addEventListener("resize", handleScroll);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      window.removeEventListener("scroll", handleScroll, true);
+      window.removeEventListener("resize", handleScroll);
+    };
+  }, [activeMenu]);
+
   return (
     <div className="bg-white dark:bg-surface-dark border border-gray-200 dark:border-gray-700 rounded-b-xl shadow-sm overflow-hidden hidden md:block">
       <div className="overflow-x-auto">
@@ -91,12 +125,69 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                     </span>
                   </div>
                 </td>
-                <td className="px-8 py-6 text-right">
-                  <button className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                <td className="px-8 py-6 text-right action-menu-container">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (activeMenu?.id === product.id) {
+                        setActiveMenu(null);
+                      } else {
+                        const rect = e.currentTarget.getBoundingClientRect();
+                        setActiveMenu({
+                          id: product.id,
+                          top: rect.bottom,
+                          left: rect.right - 192, // 192px = w-48
+                        });
+                      }
+                    }}
+                    className={`transition-colors p-1.5 rounded-lg ${
+                      activeMenu?.id === product.id
+                        ? "bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-white"
+                        : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    }`}
+                  >
                     <span className="material-symbols-outlined text-xl">
                       more_vert
                     </span>
                   </button>
+                  {activeMenu?.id === product.id && (
+                    <div
+                      className="fixed w-48 bg-white dark:bg-surface-dark rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 z-[9999] overflow-hidden animate-in fade-in zoom-in-95 duration-100 origin-top-right ring-1 ring-black ring-opacity-5"
+                      style={{
+                        top: `${activeMenu.top}px`,
+                        left: `${activeMenu.left}px`,
+                      }}
+                    >
+                      <div className="p-1">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onEdit?.(product);
+                            setActiveMenu(null);
+                          }}
+                          className="w-full px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg flex items-center gap-2.5 transition-colors"
+                        >
+                          <span className="material-symbols-outlined text-[20px] text-gray-500 dark:text-gray-400">
+                            edit
+                          </span>
+                          Editar
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onDelete?.(product);
+                            setActiveMenu(null);
+                          }}
+                          className="w-full px-3 py-2 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg flex items-center gap-2.5 transition-colors"
+                        >
+                          <span className="material-symbols-outlined text-[20px]">
+                            delete
+                          </span>
+                          Eliminar
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </td>
               </tr>
             ))}
