@@ -96,36 +96,50 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                 key={product.id}
                 className="hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors"
               >
-                <td className="px-8 py-6">
+                <td className="px-8 py-4">
                   <div className="flex items-center gap-4">
-                    <div className="w-11 h-11 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <span className="material-symbols-outlined text-xl text-gray-600 dark:text-gray-300">
-                        {product.icon}
-                      </span>
+                    <div className="w-14 h-14 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
+                      {product.image ? (
+                        <img 
+                          src={product.image} 
+                          alt={product.name} 
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <span className="material-symbols-outlined text-xl text-gray-600 dark:text-gray-300">
+                          {product.icon}
+                        </span>
+                      )}
                     </div>
                     <div className="font-medium text-base text-gray-900 dark:text-white">
                       {product.name}
                     </div>
                   </div>
                 </td>
-                <td className="px-8 py-6 text-base text-gray-600 dark:text-gray-300">
+                <td className="px-8 py-4 text-sm text-gray-500 dark:text-gray-400">
                   {product.collection}
                 </td>
-                <td className="px-8 py-6 text-base text-gray-600 dark:text-gray-300">
+                <td className="px-8 py-4 text-sm text-gray-500 dark:text-gray-400">
                   {product.salesChannel}
                 </td>
-                <td className="px-8 py-6 text-base text-gray-600 dark:text-gray-300">
-                  {product.variants} variantes
-                </td>
-                <td className="px-8 py-6">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-2.5 h-2.5 rounded-full bg-emerald-500"></div>
-                    <span className="text-base text-gray-600 dark:text-gray-300">
-                      {product.status}
-                    </span>
+                <td className="px-8 py-4">
+                  <div className="text-sm text-gray-900 dark:text-white">
+                    {product.variants} variante{product.variants !== 1 ? 's' : ''}
                   </div>
                 </td>
-                <td className="px-8 py-6 text-right action-menu-container">
+                <td className="px-8 py-4">
+                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
+                    product.status === 'Publicado'
+                      ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800'
+                      : 'bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700'
+                  }`}>
+                    <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${
+                      product.status === 'Publicado' ? 'bg-green-500' : 'bg-gray-500'
+                    }`}></span>
+                    {product.status}
+                  </span>
+                </td>
+                <td className="px-8 py-4 text-right action-menu-container">
                   <button
                     onClick={(e) => {
                       e.stopPropagation();

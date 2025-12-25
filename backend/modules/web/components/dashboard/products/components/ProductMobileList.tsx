@@ -39,10 +39,18 @@ export const ProductMobileList: React.FC<ProductMobileListProps> = ({
         >
           <div className="flex items-start justify-between mb-4">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
-                <span className="material-symbols-outlined text-gray-600 dark:text-gray-300">
-                  {product.icon}
-                </span>
+              <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
+                {product.image ? (
+                  <img 
+                    src={product.image} 
+                    alt={product.name} 
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="material-symbols-outlined text-gray-600 dark:text-gray-300">
+                    {product.icon}
+                  </span>
+                )}
               </div>
               <div>
                 <h3 className="font-semibold text-gray-900 dark:text-white">
