@@ -314,39 +314,42 @@ const NewProductForm: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
                   General
                 </h3>
                 <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Título
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.title}
-                      onChange={(e) =>
-                        handleInputChange("title", e.target.value)
-                      }
-                      className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary focus:border-transparent"
-                      placeholder="Ej: Chaqueta de invierno"
-                    />
-                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="flex items-center gap-1 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Título
+                        <span className="text-red-500 text-lg leading-none" title="Obligatorio">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.title}
+                        onChange={(e) =>
+                          handleInputChange("title", e.target.value)
+                        }
+                        className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary focus:border-transparent"
+                        placeholder="Ej: Chaqueta de invierno"
+                      />
+                    </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Subtítulo (Opcional)
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.subtitle}
-                      onChange={(e) =>
-                        handleInputChange("subtitle", e.target.value)
-                      }
-                      className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary focus:border-transparent"
-                      placeholder="Ej: Cálido y acogedor"
-                    />
+                    <div>
+                      <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Subtítulo
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.subtitle}
+                        onChange={(e) =>
+                          handleInputChange("subtitle", e.target.value)
+                        }
+                        className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary focus:border-transparent"
+                        placeholder="Ej: Cálido y acogedor"
+                      />
+                    </div>
                   </div>
 
                   <div>
                     <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Manejo (Opcional)
+                      Manejo
                       <span
                         className="material-symbols-outlined text-gray-400 text-sm cursor-help"
                         title="URL amigable para el producto"
@@ -371,8 +374,8 @@ const NewProductForm: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Descripción (Opcional)
+                    <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Descripción
                     </label>
                     <textarea
                       value={formData.description}
@@ -386,8 +389,8 @@ const NewProductForm: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Imágenes del producto (Opcional)
+                    <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Imágenes del producto
                     </label>
                     <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center hover:border-echo-blue dark:hover:border-primary transition-colors">
                       <input
@@ -966,7 +969,7 @@ const NewProductForm: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
                           <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-echo-blue dark:peer-focus:ring-primary rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-echo-blue dark:peer-checked:bg-primary"></div>
                         </label>
                         <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                          Descuento aplicable (Opcional)
+                          Descuento aplicable
                         </span>
                       </div>
                     </div>
@@ -976,220 +979,222 @@ const NewProductForm: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
                     </p>
                   </div>
 
-                  {/* Tipo */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Tipo (Opcional)
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        value={formData.type}
-                        onChange={(e) =>
-                          handleInputChange("type", e.target.value)
-                        }
-                        className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary focus:border-transparent pr-10"
-                        placeholder="Seleccionar tipo"
-                      />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
-                        <span className="material-symbols-outlined">
-                          expand_more
-                        </span>
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Colección */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Colección (Opcional)
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        value={formData.collection}
-                        onChange={(e) =>
-                          handleInputChange("collection", e.target.value)
-                        }
-                        className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary focus:border-transparent pr-10"
-                        placeholder="Seleccionar colección"
-                      />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
-                        <span className="material-symbols-outlined">
-                          expand_more
-                        </span>
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Categorías */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Categorías (Opcional)
-                    </label>
-                    <div className="relative">
-                      <div
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setOpenDropdown(
-                            openDropdown === "categories" ? null : "categories"
-                          );
-                        }}
-                        className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white cursor-pointer flex items-center justify-between"
-                      >
-                        <span
-                          className={
-                            formData.categories.length === 0
-                              ? "text-gray-400"
-                              : ""
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Tipo */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Tipo
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="text"
+                          value={formData.type}
+                          onChange={(e) =>
+                            handleInputChange("type", e.target.value)
                           }
-                        >
-                          {formData.categories.length > 0
-                            ? `${formData.categories.length}x Seleccionado`
-                            : "Seleccionar categorías"}
-                        </span>
-                        {formData.categories.length > 0 && (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleInputChange("categories", []);
-                            }}
-                            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                          >
-                            <span className="material-symbols-outlined text-sm">
-                              close
-                            </span>
-                          </button>
-                        )}
-                        <span className="material-symbols-outlined text-gray-400">
-                          expand_more
+                          className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary focus:border-transparent pr-10"
+                          placeholder="Seleccionar tipo"
+                        />
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+                          <span className="material-symbols-outlined">
+                            expand_more
+                          </span>
                         </span>
                       </div>
-                      {openDropdown === "categories" && (
-                        <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                          {[
-                            "Camisetas",
-                            "Sudaderas",
-                            "Pantalones",
-                            "Merchandising",
-                          ].map((cat) => (
-                            <div
-                              key={cat}
+                    </div>
+
+                    {/* Colección */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Colección
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="text"
+                          value={formData.collection}
+                          onChange={(e) =>
+                            handleInputChange("collection", e.target.value)
+                          }
+                          className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary focus:border-transparent pr-10"
+                          placeholder="Seleccionar colección"
+                        />
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+                          <span className="material-symbols-outlined">
+                            expand_more
+                          </span>
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Categorías */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Categorías
+                      </label>
+                      <div className="relative">
+                        <div
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setOpenDropdown(
+                              openDropdown === "categories" ? null : "categories"
+                            );
+                          }}
+                          className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white cursor-pointer flex items-center justify-between"
+                        >
+                          <span
+                            className={
+                              formData.categories.length === 0
+                                ? "text-gray-400"
+                                : ""
+                            }
+                          >
+                            {formData.categories.length > 0
+                              ? `${formData.categories.length}x Seleccionado`
+                              : "Seleccionar categorías"}
+                          </span>
+                          {formData.categories.length > 0 && (
+                            <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                const newCategories =
+                                handleInputChange("categories", []);
+                              }}
+                              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                            >
+                              <span className="material-symbols-outlined text-sm">
+                                close
+                              </span>
+                            </button>
+                          )}
+                          <span className="material-symbols-outlined text-gray-400">
+                            expand_more
+                          </span>
+                        </div>
+                        {openDropdown === "categories" && (
+                          <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                            {[
+                              "Camisetas",
+                              "Sudaderas",
+                              "Pantalones",
+                              "Merchandising",
+                            ].map((cat) => (
+                              <div
+                                key={cat}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  const newCategories =
+                                    formData.categories.includes(cat)
+                                      ? formData.categories.filter(
+                                          (c) => c !== cat
+                                        )
+                                      : [...formData.categories, cat];
+                                  handleInputChange("categories", newCategories);
+                                }}
+                                className={`px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer flex items-center gap-2 ${
                                   formData.categories.includes(cat)
-                                    ? formData.categories.filter(
-                                        (c) => c !== cat
-                                      )
-                                    : [...formData.categories, cat];
-                                handleInputChange("categories", newCategories);
-                              }}
-                              className={`px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer flex items-center gap-2 ${
-                                formData.categories.includes(cat)
-                                  ? "bg-echo-blue/10 dark:bg-primary/20"
-                                  : ""
-                              }`}
-                            >
-                              {formData.categories.includes(cat) && (
-                                <span className="material-symbols-outlined text-echo-blue dark:text-primary text-sm">
-                                  check
+                                    ? "bg-echo-blue/10 dark:bg-primary/20"
+                                    : ""
+                                }`}
+                              >
+                                {formData.categories.includes(cat) && (
+                                  <span className="material-symbols-outlined text-echo-blue dark:text-primary text-sm">
+                                    check
+                                  </span>
+                                )}
+                                <span className="text-sm text-gray-700 dark:text-gray-300">
+                                  {cat}
                                 </span>
-                              )}
-                              <span className="text-sm text-gray-700 dark:text-gray-300">
-                                {cat}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Etiquetas */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Etiquetas (Opcional)
-                    </label>
-                    <div className="relative">
-                      <div
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setOpenDropdown(
-                            openDropdown === "tags" ? null : "tags"
-                          );
-                        }}
-                        className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white cursor-pointer flex items-center justify-between"
-                      >
-                        <span
-                          className={
-                            formData.tags.length === 0 ? "text-gray-400" : ""
-                          }
-                        >
-                          {formData.tags.length > 0
-                            ? `${formData.tags.length}x Seleccionado`
-                            : "Seleccionar etiquetas"}
-                        </span>
-                        {formData.tags.length > 0 && (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleInputChange("tags", []);
-                            }}
-                            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                          >
-                            <span className="material-symbols-outlined text-sm">
-                              close
-                            </span>
-                          </button>
+                              </div>
+                            ))}
+                          </div>
                         )}
-                        <span className="material-symbols-outlined text-gray-400">
-                          expand_more
-                        </span>
                       </div>
-                      {openDropdown === "tags" && (
-                        <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                          {[
-                            "temporada",
-                            "nuevo",
-                            "premium",
-                            "oferta",
-                            "popular",
-                          ].map((tag) => (
-                            <div
-                              key={tag}
+                    </div>
+
+                    {/* Etiquetas */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Etiquetas
+                      </label>
+                      <div className="relative">
+                        <div
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setOpenDropdown(
+                              openDropdown === "tags" ? null : "tags"
+                            );
+                          }}
+                          className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white cursor-pointer flex items-center justify-between"
+                        >
+                          <span
+                            className={
+                              formData.tags.length === 0 ? "text-gray-400" : ""
+                            }
+                          >
+                            {formData.tags.length > 0
+                              ? `${formData.tags.length}x Seleccionado`
+                              : "Seleccionar etiquetas"}
+                          </span>
+                          {formData.tags.length > 0 && (
+                            <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                const newTags = formData.tags.includes(tag)
-                                  ? formData.tags.filter((t) => t !== tag)
-                                  : [...formData.tags, tag];
-                                handleInputChange("tags", newTags);
+                                handleInputChange("tags", []);
                               }}
-                              className={`px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer flex items-center gap-2 ${
-                                formData.tags.includes(tag)
-                                  ? "bg-echo-blue/10 dark:bg-primary/20"
-                                  : ""
-                              }`}
+                              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                             >
-                              {formData.tags.includes(tag) && (
-                                <span className="material-symbols-outlined text-echo-blue dark:text-primary text-sm">
-                                  check
-                                </span>
-                              )}
-                              <span className="text-sm text-gray-700 dark:text-gray-300">
-                                {tag}
+                              <span className="material-symbols-outlined text-sm">
+                                close
                               </span>
-                            </div>
-                          ))}
+                            </button>
+                          )}
+                          <span className="material-symbols-outlined text-gray-400">
+                            expand_more
+                          </span>
                         </div>
-                      )}
+                        {openDropdown === "tags" && (
+                          <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                            {[
+                              "temporada",
+                              "nuevo",
+                              "premium",
+                              "oferta",
+                              "popular",
+                            ].map((tag) => (
+                              <div
+                                key={tag}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  const newTags = formData.tags.includes(tag)
+                                    ? formData.tags.filter((t) => t !== tag)
+                                    : [...formData.tags, tag];
+                                  handleInputChange("tags", newTags);
+                                }}
+                                className={`px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer flex items-center gap-2 ${
+                                  formData.tags.includes(tag)
+                                    ? "bg-echo-blue/10 dark:bg-primary/20"
+                                    : ""
+                                }`}
+                              >
+                                {formData.tags.includes(tag) && (
+                                  <span className="material-symbols-outlined text-echo-blue dark:text-primary text-sm">
+                                    check
+                                  </span>
+                                )}
+                                <span className="text-sm text-gray-700 dark:text-gray-300">
+                                  {tag}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
 
                   {/* Perfil de envío */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Perfil de envío (Opcional)
+                      Perfil de envío
                     </label>
                     <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
                       Conecta el producto a un perfil de envío
@@ -1215,7 +1220,7 @@ const NewProductForm: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
                   {/* Canales de venta */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Canales de venta (Opcional)
+                      Canales de venta
                     </label>
                     <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
                       Este producto solo estará disponible en el canal de ventas
