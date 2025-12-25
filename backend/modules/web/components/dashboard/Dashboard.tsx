@@ -1,5 +1,6 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { User, NavItem } from '../../types';
 import DashboardHeader from './DashboardHeader';
 import SidebarHeader from './SidebarHeader';
@@ -21,22 +22,54 @@ interface DashboardProps {
   onLogout?: () => void;
 }
 
+const NAV_ITEMS: NavItem[] = [
+  { label: 'Pedidos', icon: 'shopping_cart', path: '/orders' },
+  { label: 'Borradores', icon: 'drafts', path: '/drafts' },
+  { label: 'Productos', icon: 'sell', path: '/products' },
+  { label: 'Inventario', icon: 'warehouse', path: '/inventory' },
+  { label: 'Clientes', icon: 'people', path: '/clients' },
+  { label: 'Promociones', icon: 'local_offer', path: '/promotions' },
+  { label: 'Listas de Precios', icon: 'attach_money', path: '/price-lists' },
+];
+
 const Dashboard: React.FC<DashboardProps> = ({
   user = { name: 'Admin User', role: 'Administrator' },
   onLogout
 }) => {
-  const [activePath, setActivePath] = useState('/orders'); // Por defecto Pedidos está activo
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const initialView = searchParams.get('view');
+  
+  // Mapear la vista inicial al path correspondiente
+  const getInitialPath = () => {
+    if (!initialView) return '/orders';
+    const validPaths = NAV_ITEMS.map(item => item.path);
+    const path = `/${initialView}`;
+    return validPaths.includes(path) ? path : '/orders';
+  };
+
+  const [activePath, setActivePath] = useState(getInitialPath);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
-  const navItems: NavItem[] = [
-    { label: 'Pedidos', icon: 'shopping_cart', path: '/orders' },
-    { label: 'Borradores', icon: 'drafts', path: '/drafts' },
-    { label: 'Productos', icon: 'sell', path: '/products' },
-    { label: 'Inventario', icon: 'warehouse', path: '/inventory' },
-    { label: 'Clientes', icon: 'people', path: '/clients' },
-    { label: 'Promociones', icon: 'local_offer', path: '/promotions' },
-    { label: 'Listas de Precios', icon: 'attach_money', path: '/price-lists' },
-  ];
+  // Sincronizar URL cuando cambia activePath
+  const handleNavigate = (path: string) => {
+    setActivePath(path);
+    const view = path.substring(1); // Remover el '/' inicial
+    router.push(`/dashboard?view=${view}`);
+  };
+
+  // Escuchar cambios en la URL (por si el usuario usa botones de atrás/adelante)
+  useEffect(() => {
+    const view = searchParams.get('view');
+    if (view) {
+      const path = `/${view}`;
+      if (path !== activePath) {
+        setActivePath(path);
+      }
+    }
+  }, [searchParams]);
+
+  const navItems = NAV_ITEMS;
 
   // Función para obtener el título según la ruta activa
   const getHeaderTitle = (): string => {
@@ -95,7 +128,7 @@ const Dashboard: React.FC<DashboardProps> = ({
         <SidebarNavigation
           navItems={navItems}
           activePath={activePath}
-          onNavigate={setActivePath}
+          onNavigate={handleNavigate}
         />
 
         <SidebarFooter
@@ -123,7 +156,7 @@ const Dashboard: React.FC<DashboardProps> = ({
           {navItems.slice(0, 5).map((item) => (
             <button
               key={item.path}
-              onClick={() => setActivePath(item.path)}
+              onClick={() => handleNavigate(item.path)}
               className={`flex flex-col items-center p-2 min-w-[60px] ${
                 activePath === item.path
                   ? 'text-echo-blue dark:text-primary'

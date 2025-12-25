@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 interface ProductFormData {
   title: string;
@@ -40,9 +41,18 @@ interface ProductVariant {
 }
 
 const NewProductForm: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
-  const [activeTab, setActiveTab] = useState<
-    "details" | "organize" | "variants"
-  >("details");
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const currentTab = (searchParams.get("tab") as "details" | "organize" | "variants") || "details";
+
+  const setActiveTab = (tab: "details" | "organize" | "variants") => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("tab", tab);
+    router.push(`?${params.toString()}`);
+  };
+
+  const activeTab = currentTab;
+
   const [formData, setFormData] = useState<ProductFormData>({
     title: "",
     subtitle: "",
@@ -235,74 +245,63 @@ const NewProductForm: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
   };
 
   return (
-    <div className="w-full">
-      <div className="bg-white dark:bg-surface-dark w-full rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 flex flex-col">
+    <div className="w-[calc(100%+2rem)] -m-4 md:w-full md:m-0">
+      <div className="bg-white dark:bg-surface-dark w-full rounded-none md:rounded-xl shadow-sm border-y md:border border-gray-200 dark:border-gray-700 flex flex-col">
         {/* Header con tabs */}
-        <div className="border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-6">
-            {activeTab !== "details" && (
-              <button
-                onClick={() => {
-                  if (activeTab === "organize") {
-                    setActiveTab("details");
-                  } else if (activeTab === "variants") {
-                    setActiveTab("organize");
-                  }
-                }}
-                className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors flex items-center gap-2"
-              >
-                <span className="material-symbols-outlined">arrow_back</span>
-                <span className="text-sm font-medium">Volver</span>
-              </button>
-            )}
-            <div className="flex gap-6">
+        <div className="border-b border-gray-200 dark:border-gray-700 px-3 md:px-6 flex items-center justify-between gap-3 bg-white dark:bg-surface-dark rounded-none md:rounded-t-xl sticky top-0 z-30">
+          <div className="flex flex-1 items-center min-w-0">
+            <div className="flex flex-1 md:flex-none justify-between md:justify-start gap-0 md:gap-6 w-full md:w-auto">
               <button
                 onClick={() => setActiveTab("details")}
-                className={`flex items-center gap-2 font-medium ${
+                className={`relative flex-1 md:flex-none px-2 md:px-3 py-4 text-sm font-medium whitespace-nowrap text-center transition-colors ${
                   activeTab === "details"
                     ? "text-echo-blue dark:text-primary"
                     : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
                 }`}
               >
-                {activeTab === "details" && (
-                  <span className="material-symbols-outlined text-sm">
-                    check
-                  </span>
-                )}
                 Detalles
+                {activeTab === "details" && (
+                  <span className="absolute bottom-0 left-0 w-full h-0.5 bg-echo-blue dark:bg-primary rounded-t-full" />
+                )}
               </button>
+              
               <button
                 onClick={() => setActiveTab("organize")}
-                className={`flex items-center gap-2 font-medium ${
+                className={`relative flex-1 md:flex-none px-2 md:px-3 py-4 text-sm font-medium whitespace-nowrap text-center transition-colors ${
                   activeTab === "organize"
                     ? "text-echo-blue dark:text-primary"
                     : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
                 }`}
               >
-                {activeTab === "organize" && (
-                  <span className="material-symbols-outlined text-sm">
-                    check
-                  </span>
-                )}
                 Organizar
+                {activeTab === "organize" && (
+                  <span className="absolute bottom-0 left-0 w-full h-0.5 bg-echo-blue dark:bg-primary rounded-t-full" />
+                )}
               </button>
+              
               <button
                 onClick={() => setActiveTab("variants")}
-                className={`flex items-center gap-2 font-medium ${
+                className={`relative flex-1 md:flex-none px-2 md:px-3 py-4 text-sm font-medium whitespace-nowrap text-center transition-colors ${
                   activeTab === "variants"
                     ? "text-echo-blue dark:text-primary"
                     : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
                 }`}
               >
-                {activeTab === "variants" && (
-                  <span className="material-symbols-outlined text-sm">
-                    fiber_manual_record
-                  </span>
-                )}
                 Variantes
+                {activeTab === "variants" && (
+                  <span className="absolute bottom-0 left-0 w-full h-0.5 bg-echo-blue dark:bg-primary rounded-t-full" />
+                )}
               </button>
             </div>
           </div>
+          
+          <button 
+            onClick={onClose}
+            className="flex-shrink-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+            title="Cerrar formulario"
+          >
+            <span className="material-symbols-outlined text-xl">close</span>
+          </button>
         </div>
 
         {/* Content */}
