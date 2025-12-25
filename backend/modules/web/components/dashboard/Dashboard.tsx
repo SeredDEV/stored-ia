@@ -161,6 +161,7 @@ const Dashboard: React.FC<DashboardProps> = ({
           navItems={navItems}
           activePath={activePath}
           onNavigate={handleNavigate}
+          isSidebarOpen={isSidebarOpen}
         />
 
         <SidebarFooter
