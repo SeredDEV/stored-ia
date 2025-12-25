@@ -46,6 +46,25 @@ const NewProductForm: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
   const currentTab = (searchParams.get("tab") as "details" | "organize" | "variants") || "details";
 
   const setActiveTab = (tab: "details" | "organize" | "variants") => {
+    // Si cambiamos a la pestaña de variantes y no hay variantes creadas (ni opción de variantes activada),
+    // creamos una variante por defecto basada en el título del producto
+    if (tab === "variants" && !formData.hasVariants && formData.variants.length === 0 && formData.title) {
+      setFormData(prev => ({
+        ...prev,
+        variants: [{
+          id: "default-variant",
+          name: prev.title, // Usamos el título del producto
+          selected: true,
+          title: prev.title, // Usamos el título del producto
+          sku: "",
+          priceCOP: "",
+          managedInventory: false,
+          allowBackorder: false,
+          hasInventoryKit: false
+        }]
+      }));
+    }
+
     const params = new URLSearchParams(searchParams.toString());
     params.set("tab", tab);
     router.push(`?${params.toString()}`);
@@ -253,12 +272,13 @@ const NewProductForm: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
             <div className="flex flex-1 md:flex-none justify-between md:justify-start gap-0 md:gap-6 w-full md:w-auto">
               <button
                 onClick={() => setActiveTab("details")}
-                className={`relative flex-1 md:flex-none px-2 md:px-3 py-4 text-sm font-medium whitespace-nowrap text-center transition-colors ${
+                className={`relative flex-1 md:flex-none px-2 md:px-3 py-4 text-sm font-medium whitespace-nowrap text-center transition-colors flex items-center justify-center gap-2 ${
                   activeTab === "details"
                     ? "text-echo-blue dark:text-primary"
                     : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
                 }`}
               >
+                <span className="material-symbols-outlined text-[20px]">description</span>
                 Detalles
                 {activeTab === "details" && (
                   <span className="absolute bottom-0 left-0 w-full h-0.5 bg-echo-blue dark:bg-primary rounded-t-full" />
@@ -267,12 +287,13 @@ const NewProductForm: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
               
               <button
                 onClick={() => setActiveTab("organize")}
-                className={`relative flex-1 md:flex-none px-2 md:px-3 py-4 text-sm font-medium whitespace-nowrap text-center transition-colors ${
+                className={`relative flex-1 md:flex-none px-2 md:px-3 py-4 text-sm font-medium whitespace-nowrap text-center transition-colors flex items-center justify-center gap-2 ${
                   activeTab === "organize"
                     ? "text-echo-blue dark:text-primary"
                     : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
                 }`}
               >
+                <span className="material-symbols-outlined text-[20px]">category</span>
                 Organizar
                 {activeTab === "organize" && (
                   <span className="absolute bottom-0 left-0 w-full h-0.5 bg-echo-blue dark:bg-primary rounded-t-full" />
@@ -281,12 +302,13 @@ const NewProductForm: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
               
               <button
                 onClick={() => setActiveTab("variants")}
-                className={`relative flex-1 md:flex-none px-2 md:px-3 py-4 text-sm font-medium whitespace-nowrap text-center transition-colors ${
+                className={`relative flex-1 md:flex-none px-2 md:px-3 py-4 text-sm font-medium whitespace-nowrap text-center transition-colors flex items-center justify-center gap-2 ${
                   activeTab === "variants"
                     ? "text-echo-blue dark:text-primary"
                     : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
                 }`}
               >
+                <span className="material-symbols-outlined text-[20px]">style</span>
                 Variantes
                 {activeTab === "variants" && (
                   <span className="absolute bottom-0 left-0 w-full h-0.5 bg-echo-blue dark:bg-primary rounded-t-full" />
@@ -392,7 +414,7 @@ const NewProductForm: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
                     <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Imágenes del producto
                     </label>
-                    <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center hover:border-echo-blue dark:hover:border-primary transition-colors">
+                    <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-10 text-center hover:border-echo-blue dark:hover:border-primary transition-all bg-gray-50 dark:bg-gray-800/50 group">
                       <input
                         type="file"
                         multiple
@@ -403,48 +425,52 @@ const NewProductForm: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
                       />
                       <label
                         htmlFor="media-upload"
-                        className="cursor-pointer flex flex-col items-center gap-3"
+                        className="cursor-pointer flex flex-col items-center gap-4"
                       >
-                        <span className="material-symbols-outlined text-4xl text-gray-400 dark:text-gray-500">
-                          cloud_upload
-                        </span>
+                        <div className="w-16 h-16 bg-white dark:bg-gray-700 rounded-full flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
+                          <span className="material-symbols-outlined text-3xl text-echo-blue dark:text-primary">
+                            cloud_upload
+                          </span>
+                        </div>
                         <div>
-                          <div className="text-echo-blue dark:text-primary font-medium mb-1">
-                            Subir imágenes
+                          <div className="text-gray-900 dark:text-white font-medium mb-1 text-base">
+                            Haz clic para subir imágenes
                           </div>
                           <div className="text-sm text-gray-500 dark:text-gray-400">
-                            Arrastra y suelta imágenes aquí o haz clic para
-                            cargar.
+                            o arrastra y suelta aquí
+                          </div>
+                          <div className="text-xs text-gray-400 mt-2">
+                            PNG, JPG, WEBP hasta 5MB
                           </div>
                         </div>
                       </label>
                     </div>
                     {formData.media.length > 0 && (
-                      <div className="mt-4 grid grid-cols-4 gap-4">
+                      <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
                         {formData.media.map((file, index) => (
                           <div
                             key={index}
-                            className="relative group border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden"
+                            className="relative group border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden aspect-square"
                           >
                             <img
                               src={URL.createObjectURL(file)}
                               alt={file.name}
-                              className="w-full h-32 object-cover"
+                              className="w-full h-full object-cover"
                             />
-                            <button
-                              onClick={() => handleRemoveMedia(index)}
-                              className="absolute top-2 right-2 bg-black/50 hover:bg-black/70 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                            >
-                              <span className="material-symbols-outlined text-sm">
-                                close
-                              </span>
-                            </button>
-                            <div className="p-2 bg-white dark:bg-gray-800">
-                              <p className="text-xs text-gray-600 dark:text-gray-400 truncate">
+                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                              <button
+                                onClick={() => handleRemoveMedia(index)}
+                                className="bg-white/90 text-red-600 rounded-full p-2 hover:bg-white hover:scale-110 transition-all shadow-lg"
+                                title="Eliminar imagen"
+                              >
+                                <span className="material-symbols-outlined text-xl">
+                                  delete
+                                </span>
+                              </button>
+                            </div>
+                            <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent">
+                              <p className="text-xs text-white truncate px-1">
                                 {file.name}
-                              </p>
-                              <p className="text-xs text-gray-500 dark:text-gray-500">
-                                {(file.size / 1024).toFixed(2)} KB
                               </p>
                             </div>
                           </div>
@@ -698,7 +724,7 @@ const NewProductForm: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
           {activeTab === "variants" && (
             <div className="w-full">
               <div className="bg-white dark:bg-surface-dark rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
-                    <div className="overflow-x-auto max-h-[500px] overflow-y-auto">
+                    <div className="max-h-[500px] overflow-y-auto">
                       {formData.variants.filter((v) => !v.id.startsWith("option-")).length === 0 ? (
                         <div className="p-8 text-center text-gray-500 dark:text-gray-400 bg-white dark:bg-surface-dark">
                           <span className="material-symbols-outlined text-4xl mb-2 block mx-auto opacity-50">
@@ -710,139 +736,311 @@ const NewProductForm: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
                           </p>
                         </div>
                       ) : (
-                        <table className="w-full relative">
-                          <thead className="sticky top-0 z-10 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm">
-                            <tr>
-                              <th className="px-2 py-3 text-left w-16 bg-gray-50 dark:bg-gray-800">
-                                <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">
-                                  Acciones
-                                </span>
-                              </th>
-                              <th className="px-2 py-3 text-left bg-gray-50 dark:bg-gray-800">
-                                <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">
-                                  Color
-                                </span>
-                              </th>
-                              <th className="px-2 py-3 text-left bg-gray-50 dark:bg-gray-800">
-                                <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">
-                                  Título
-                                </span>
-                              </th>
-                              <th className="px-2 py-3 text-left bg-gray-50 dark:bg-gray-800">
-                                <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">
-                                  SKU
-                                </span>
-                              </th>
-                              <th className="px-2 py-3 text-center w-24 bg-gray-50 dark:bg-gray-800">
-                                <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase block" title="Inventario Gestionado">
-                                  Inv. Gest.
-                                </span>
-                              </th>
-                              <th className="px-2 py-3 text-center w-28 bg-gray-50 dark:bg-gray-800">
-                                <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase block" title="Pedido Pendiente">
-                                  Ped. Pend.
-                                </span>
-                              </th>
-                              <th className="px-2 py-3 text-center w-24 bg-gray-50 dark:bg-gray-800">
-                                <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase block" title="Kit Inventario">
-                                  Kit Inv.
-                                </span>
-                              </th>
-                              <th className="px-2 py-3 text-left w-32 bg-gray-50 dark:bg-gray-800">
-                                <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">
-                                  Precio COP
-                                </span>
-                              </th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                        <>
+                          {/* Vista Desktop (Tabla) */}
+                          <div className="hidden md:block overflow-x-auto">
+                            <table className="w-full relative">
+                              <thead className="sticky top-0 z-10 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm">
+                                <tr>
+                                  <th className="px-2 py-3 text-left w-16 bg-gray-50 dark:bg-gray-800">
+                                    <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">
+                                      Acciones
+                                    </span>
+                                  </th>
+                                  <th className="px-2 py-3 text-left bg-gray-50 dark:bg-gray-800">
+                                    <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">
+                                      Variantes
+                                    </span>
+                                  </th>
+                                  <th className="px-2 py-3 text-left bg-gray-50 dark:bg-gray-800">
+                                    <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">
+                                      Título
+                                    </span>
+                                  </th>
+                                  <th className="px-2 py-3 text-left bg-gray-50 dark:bg-gray-800">
+                                    <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">
+                                      SKU
+                                    </span>
+                                  </th>
+                                  <th className="px-2 py-3 text-center w-24 bg-gray-50 dark:bg-gray-800">
+                                    <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase block" title="Inventario Gestionado">
+                                      Inv. Gest.
+                                    </span>
+                                  </th>
+                                  <th className="px-2 py-3 text-center w-28 bg-gray-50 dark:bg-gray-800">
+                                    <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase block" title="Pedido Pendiente">
+                                      Ped. Pend.
+                                    </span>
+                                  </th>
+                                  <th className="px-2 py-3 text-center w-24 bg-gray-50 dark:bg-gray-800">
+                                    <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase block" title="Kit Inventario">
+                                      Kit Inv.
+                                    </span>
+                                  </th>
+                                  <th className="px-2 py-3 text-left w-32 bg-gray-50 dark:bg-gray-800">
+                                    <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">
+                                      Precio COP
+                                    </span>
+                                  </th>
+                                </tr>
+                              </thead>
+                              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                                {formData.variants
+                                  .filter((v) => !v.id.startsWith("option-"))
+                                  .map((variant) => (
+                                    <tr
+                                      key={variant.id}
+                                      className="hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors bg-white dark:bg-surface-dark group"
+                                    >
+                                      <td className="px-2 py-3">
+                                        <div className="flex items-center justify-center gap-1">
+                                          <button 
+                                            className="text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors p-1 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                                            title="Ver detalles"
+                                          >
+                                            <span className="material-symbols-outlined text-base">
+                                              visibility
+                                            </span>
+                                          </button>
+                                          <button 
+                                            onClick={() => {
+                                                setFormData(prev => ({
+                                                    ...prev,
+                                                    variants: prev.variants.filter(v => v.id !== variant.id)
+                                                }));
+                                            }}
+                                            className="text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors p-1 rounded hover:bg-red-50 dark:hover:bg-red-900/20"
+                                            title="Eliminar variante"
+                                          >
+                                            <span className="material-symbols-outlined text-base">
+                                              delete
+                                            </span>
+                                          </button>
+                                        </div>
+                                      </td>
+                                      <td className="px-2 py-3">
+                                        <input
+                                          type="text"
+                                          value={variant.id.startsWith('default-variant') ? "" : variant.name}
+                                          disabled={variant.id.startsWith('default-variant')}
+                                          onChange={(e) => {
+                                            setFormData((prev) => ({
+                                              ...prev,
+                                              variants: prev.variants.map((v) =>
+                                                v.id === variant.id
+                                                  ? { ...v, name: e.target.value }
+                                                  : v
+                                              ),
+                                            }));
+                                          }}
+                                          className={`w-full px-2.5 py-1.5 border border-gray-200 dark:border-gray-700 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary focus:border-transparent transition-all ${variant.id.startsWith('default-variant') ? 'bg-gray-100 dark:bg-gray-700 text-gray-400' : ''}`}
+                                          placeholder={variant.id.startsWith('default-variant') ? "-" : ""}
+                                        />
+                                      </td>
+                                      <td className="px-2 py-3">
+                                        <input
+                                          type="text"
+                                          value={variant.title || variant.name}
+                                          onChange={(e) => {
+                                            setFormData((prev) => ({
+                                              ...prev,
+                                              variants: prev.variants.map((v) =>
+                                                v.id === variant.id
+                                                  ? { ...v, title: e.target.value }
+                                                  : v
+                                              ),
+                                            }));
+                                          }}
+                                          className="w-full px-2.5 py-1.5 border border-gray-200 dark:border-gray-700 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary focus:border-transparent transition-all"
+                                        />
+                                      </td>
+                                      <td className="px-2 py-3">
+                                        <input
+                                          type="text"
+                                          value={variant.sku || ""}
+                                          onChange={(e) => {
+                                            setFormData((prev) => ({
+                                              ...prev,
+                                              variants: prev.variants.map((v) =>
+                                                v.id === variant.id
+                                                  ? { ...v, sku: e.target.value }
+                                                  : v
+                                              ),
+                                            }));
+                                          }}
+                                          className="w-full px-2.5 py-1.5 border border-gray-200 dark:border-gray-700 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary focus:border-transparent transition-all"
+                                          placeholder="SKU"
+                                        />
+                                      </td>
+                                      <td className="px-2 py-3">
+                                        <div className="flex items-center justify-center">
+                                          <input
+                                            type="checkbox"
+                                            checked={variant.managedInventory || false}
+                                            onChange={(e) => {
+                                              setFormData((prev) => ({
+                                                ...prev,
+                                                variants: prev.variants.map((v) =>
+                                                  v.id === variant.id
+                                                    ? {
+                                                        ...v,
+                                                        managedInventory:
+                                                          e.target.checked,
+                                                      }
+                                                    : v
+                                                ),
+                                              }));
+                                            }}
+                                            className="w-4 h-4 text-echo-blue dark:text-primary border-gray-300 rounded focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary cursor-pointer"
+                                          />
+                                        </div>
+                                      </td>
+                                      <td className="px-2 py-3">
+                                        <div className="flex items-center justify-center">
+                                          <input
+                                            type="checkbox"
+                                            checked={variant.allowBackorder || false}
+                                            onChange={(e) => {
+                                              setFormData((prev) => ({
+                                                ...prev,
+                                                variants: prev.variants.map((v) =>
+                                                  v.id === variant.id
+                                                    ? {
+                                                        ...v,
+                                                        allowBackorder: e.target.checked,
+                                                      }
+                                                    : v
+                                                ),
+                                              }));
+                                            }}
+                                            className="w-4 h-4 text-echo-blue dark:text-primary border-gray-300 rounded focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary cursor-pointer"
+                                          />
+                                        </div>
+                                      </td>
+                                      <td className="px-2 py-3">
+                                        <div className="flex items-center justify-center">
+                                          <input
+                                            type="checkbox"
+                                            checked={variant.hasInventoryKit || false}
+                                            onChange={(e) => {
+                                              setFormData((prev) => ({
+                                                ...prev,
+                                                variants: prev.variants.map((v) =>
+                                                  v.id === variant.id
+                                                    ? {
+                                                        ...v,
+                                                        hasInventoryKit: e.target.checked,
+                                                      }
+                                                    : v
+                                                ),
+                                              }));
+                                            }}
+                                            className="w-4 h-4 text-echo-blue dark:text-primary border-gray-300 rounded focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary cursor-pointer"
+                                          />
+                                        </div>
+                                      </td>
+                                      <td className="px-2 py-3">
+                                        <div className="flex items-center gap-1">
+                                          <span className="text-gray-600 dark:text-gray-400 font-medium text-sm">
+                                            $
+                                          </span>
+                                          <input
+                                            type="number"
+                                            min="0"
+                                            step="0.01"
+                                            value={variant.priceCOP || ""}
+                                            onChange={(e) => {
+                                              setFormData((prev) => ({
+                                                ...prev,
+                                                variants: prev.variants.map((v) =>
+                                                  v.id === variant.id
+                                                    ? { ...v, priceCOP: e.target.value }
+                                                    : v
+                                                ),
+                                              }));
+                                            }}
+                                            className="flex-1 px-2.5 py-1.5 border border-gray-200 dark:border-gray-700 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary focus:border-transparent transition-all"
+                                            placeholder="0.00"
+                                          />
+                                        </div>
+                                      </td>
+                                    </tr>
+                                  ))}
+                              </tbody>
+                            </table>
+                          </div>
+
+                          {/* Vista Móvil (Tarjetas) */}
+                          <div className="md:hidden space-y-4 p-4">
                             {formData.variants
                               .filter((v) => !v.id.startsWith("option-"))
                               .map((variant) => (
-                                <tr
+                                <div
                                   key={variant.id}
-                                  className="hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors bg-white dark:bg-surface-dark group"
+                                  className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 space-y-3"
                                 >
-                                  <td className="px-2 py-3">
-                                    <div className="flex items-center justify-center gap-1">
-                                      <button 
-                                        className="text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors p-1 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20"
-                                        title="Ver detalles"
-                                      >
-                                        <span className="material-symbols-outlined text-base">
-                                          visibility
-                                        </span>
-                                      </button>
-                                      <button 
-                                        onClick={() => {
-                                            setFormData(prev => ({
-                                                ...prev,
-                                                variants: prev.variants.filter(v => v.id !== variant.id)
-                                            }));
+                                  <div className="flex justify-between items-start">
+                                    <div>
+                                      <h4 className="font-medium text-gray-900 dark:text-white">
+                                        {variant.name}
+                                      </h4>
+                                      <input
+                                        type="text"
+                                        value={variant.sku || ""}
+                                        onChange={(e) => {
+                                          setFormData((prev) => ({
+                                            ...prev,
+                                            variants: prev.variants.map((v) =>
+                                              v.id === variant.id
+                                                ? { ...v, sku: e.target.value }
+                                                : v
+                                            ),
+                                          }));
                                         }}
-                                        className="text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors p-1 rounded hover:bg-red-50 dark:hover:bg-red-900/20"
-                                        title="Eliminar variante"
-                                      >
-                                        <span className="material-symbols-outlined text-base">
-                                          delete
-                                        </span>
-                                      </button>
+                                        className="mt-1 w-full px-2 py-1 text-xs border border-gray-200 dark:border-gray-700 rounded bg-gray-50 dark:bg-gray-900/50"
+                                        placeholder="SKU"
+                                      />
                                     </div>
-                                  </td>
-                                  <td className="px-2 py-3">
-                                    <input
-                                      type="text"
-                                      value={variant.name}
-                                      onChange={(e) => {
-                                        setFormData((prev) => ({
-                                          ...prev,
-                                          variants: prev.variants.map((v) =>
-                                            v.id === variant.id
-                                              ? { ...v, name: e.target.value }
-                                              : v
-                                          ),
-                                        }));
+                                    <button 
+                                      onClick={() => {
+                                          setFormData(prev => ({
+                                              ...prev,
+                                              variants: prev.variants.filter(v => v.id !== variant.id)
+                                          }));
                                       }}
-                                      className="w-full px-2.5 py-1.5 border border-gray-200 dark:border-gray-700 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary focus:border-transparent transition-all"
-                                    />
-                                  </td>
-                                  <td className="px-2 py-3">
-                                    <input
-                                      type="text"
-                                      value={variant.title || variant.name}
-                                      onChange={(e) => {
-                                        setFormData((prev) => ({
-                                          ...prev,
-                                          variants: prev.variants.map((v) =>
-                                            v.id === variant.id
-                                              ? { ...v, title: e.target.value }
-                                              : v
-                                          ),
-                                        }));
-                                      }}
-                                      className="w-full px-2.5 py-1.5 border border-gray-200 dark:border-gray-700 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary focus:border-transparent transition-all"
-                                    />
-                                  </td>
-                                  <td className="px-2 py-3">
-                                    <input
-                                      type="text"
-                                      value={variant.sku || ""}
-                                      onChange={(e) => {
-                                        setFormData((prev) => ({
-                                          ...prev,
-                                          variants: prev.variants.map((v) =>
-                                            v.id === variant.id
-                                              ? { ...v, sku: e.target.value }
-                                              : v
-                                          ),
-                                        }));
-                                      }}
-                                      className="w-full px-2.5 py-1.5 border border-gray-200 dark:border-gray-700 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary focus:border-transparent transition-all"
-                                      placeholder="SKU"
-                                    />
-                                  </td>
-                                  <td className="px-2 py-3">
-                                    <div className="flex items-center justify-center">
+                                      className="text-gray-400 hover:text-red-500"
+                                    >
+                                      <span className="material-symbols-outlined">delete</span>
+                                    </button>
+                                  </div>
+
+                                  <div className="flex gap-2">
+                                    <div className="flex-1">
+                                      <label className="text-xs text-gray-500 block mb-1">Precio</label>
+                                      <div className="flex items-center gap-1">
+                                        <span className="text-gray-500 text-xs">$</span>
+                                        <input
+                                          type="number"
+                                          value={variant.priceCOP || ""}
+                                          onChange={(e) => {
+                                            setFormData((prev) => ({
+                                              ...prev,
+                                              variants: prev.variants.map((v) =>
+                                                v.id === variant.id
+                                                  ? { ...v, priceCOP: e.target.value }
+                                                  : v
+                                              ),
+                                            }));
+                                          }}
+                                          className="w-full px-2 py-1 text-sm border border-gray-200 dark:border-gray-700 rounded bg-white dark:bg-gray-900"
+                                          placeholder="0.00"
+                                        />
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  <div className="flex justify-between pt-2 border-t border-gray-100 dark:border-gray-700">
+                                    <label className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
                                       <input
                                         type="checkbox"
                                         checked={variant.managedInventory || false}
@@ -851,21 +1049,16 @@ const NewProductForm: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
                                             ...prev,
                                             variants: prev.variants.map((v) =>
                                               v.id === variant.id
-                                                ? {
-                                                    ...v,
-                                                    managedInventory:
-                                                      e.target.checked,
-                                                  }
+                                                ? { ...v, managedInventory: e.target.checked }
                                                 : v
                                             ),
                                           }));
                                         }}
-                                        className="w-4 h-4 text-echo-blue dark:text-primary border-gray-300 rounded focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary cursor-pointer"
+                                        className="rounded border-gray-300 text-echo-blue focus:ring-echo-blue"
                                       />
-                                    </div>
-                                  </td>
-                                  <td className="px-2 py-3">
-                                    <div className="flex items-center justify-center">
+                                      Inventario
+                                    </label>
+                                    <label className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
                                       <input
                                         type="checkbox"
                                         checked={variant.allowBackorder || false}
@@ -874,69 +1067,20 @@ const NewProductForm: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
                                             ...prev,
                                             variants: prev.variants.map((v) =>
                                               v.id === variant.id
-                                                ? {
-                                                    ...v,
-                                                    allowBackorder: e.target.checked,
-                                                  }
+                                                ? { ...v, allowBackorder: e.target.checked }
                                                 : v
                                             ),
                                           }));
                                         }}
-                                        className="w-4 h-4 text-echo-blue dark:text-primary border-gray-300 rounded focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary cursor-pointer"
+                                        className="rounded border-gray-300 text-echo-blue focus:ring-echo-blue"
                                       />
-                                    </div>
-                                  </td>
-                                  <td className="px-2 py-3">
-                                    <div className="flex items-center justify-center">
-                                      <input
-                                        type="checkbox"
-                                        checked={variant.hasInventoryKit || false}
-                                        onChange={(e) => {
-                                          setFormData((prev) => ({
-                                            ...prev,
-                                            variants: prev.variants.map((v) =>
-                                              v.id === variant.id
-                                                ? {
-                                                    ...v,
-                                                    hasInventoryKit: e.target.checked,
-                                                  }
-                                                : v
-                                            ),
-                                          }));
-                                        }}
-                                        className="w-4 h-4 text-echo-blue dark:text-primary border-gray-300 rounded focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary cursor-pointer"
-                                      />
-                                    </div>
-                                  </td>
-                                  <td className="px-2 py-3">
-                                    <div className="flex items-center gap-1">
-                                      <span className="text-gray-600 dark:text-gray-400 font-medium text-sm">
-                                        $
-                                      </span>
-                                      <input
-                                        type="number"
-                                        min="0"
-                                        step="0.01"
-                                        value={variant.priceCOP || ""}
-                                        onChange={(e) => {
-                                          setFormData((prev) => ({
-                                            ...prev,
-                                            variants: prev.variants.map((v) =>
-                                              v.id === variant.id
-                                                ? { ...v, priceCOP: e.target.value }
-                                                : v
-                                            ),
-                                          }));
-                                        }}
-                                        className="flex-1 px-2.5 py-1.5 border border-gray-200 dark:border-gray-700 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary focus:border-transparent transition-all"
-                                        placeholder="0.00"
-                                      />
-                                    </div>
-                                  </td>
-                                </tr>
+                                      Preventa
+                                    </label>
+                                  </div>
+                                </div>
                               ))}
-                          </tbody>
-                        </table>
+                          </div>
+                        </>
                       )}
                     </div>
               </div>
@@ -945,10 +1089,13 @@ const NewProductForm: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
 
           {activeTab === "organize" && (
             <div className="space-y-6">
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                  Organizar
+              {/* Tarjeta de Clasificación */}
+              <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-6 bg-white dark:bg-gray-800">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                  <span className="material-symbols-outlined text-echo-blue dark:text-primary">category</span>
+                  Clasificación
                 </h3>
+                
                 <div className="space-y-6">
                   {/* Descuento aplicable */}
                   <div>
@@ -1190,7 +1337,17 @@ const NewProductForm: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
                       </div>
                     </div>
                   </div>
+                </div>
+              </div>
 
+              {/* Tarjeta de Distribución */}
+              <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-6 bg-white dark:bg-gray-800">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                  <span className="material-symbols-outlined text-echo-blue dark:text-primary">local_shipping</span>
+                  Distribución
+                </h3>
+                
+                <div className="space-y-6">
                   {/* Perfil de envío */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -1308,6 +1465,7 @@ const NewProductForm: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
             </button>
           ) : (
             <button
+              disabled={!formData.title}
               onClick={() => {
                 if (activeTab === "details") {
                   setActiveTab("organize");
@@ -1315,7 +1473,12 @@ const NewProductForm: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
                   setActiveTab("variants");
                 }
               }}
-              className="px-3 md:px-4 py-1.5 md:py-2 text-sm md:text-base bg-echo-blue dark:bg-primary text-white rounded-lg hover:bg-echo-blue-variant dark:hover:bg-blue-700 transition-colors font-medium"
+              className={`px-3 md:px-4 py-1.5 md:py-2 text-sm md:text-base text-white rounded-lg transition-colors font-medium ${
+                !formData.title 
+                  ? "bg-gray-300 dark:bg-gray-700 cursor-not-allowed" 
+                  : "bg-echo-blue dark:bg-primary hover:bg-echo-blue-variant dark:hover:bg-blue-700"
+              }`}
+              title={!formData.title ? "Ingresa un título para continuar" : ""}
             >
               Continuar
             </button>

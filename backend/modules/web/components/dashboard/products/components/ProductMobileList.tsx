@@ -38,8 +38,8 @@ export const ProductMobileList: React.FC<ProductMobileListProps> = ({
           className="bg-white dark:bg-surface-dark p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700"
         >
           <div className="flex items-start justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0 border border-gray-100 dark:border-gray-600">
                 {product.image ? (
                   <img 
                     src={product.image} 
@@ -53,10 +53,13 @@ export const ProductMobileList: React.FC<ProductMobileListProps> = ({
                 )}
               </div>
               <div>
-                <h3 className="font-semibold text-gray-900 dark:text-white">
+                <h3 className="font-semibold text-gray-900 dark:text-white text-base">
                   {product.name}
                 </h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+                  {product.collection}
+                </p>
+                <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
                   {product.variants} variantes
                 </p>
               </div>
@@ -111,16 +114,21 @@ export const ProductMobileList: React.FC<ProductMobileListProps> = ({
               )}
             </div>
           </div>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
-              <span className="text-sm text-gray-600 dark:text-gray-300">
-                {product.status}
-              </span>
-            </div>
-            <span className="text-sm text-gray-500 dark:text-gray-400">
-              {product.salesChannel}
+          <div className="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-gray-700">
+            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
+              product.status === 'Publicado'
+                ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800'
+                : 'bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700'
+            }`}>
+              <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${
+                product.status === 'Publicado' ? 'bg-green-500' : 'bg-gray-500'
+              }`}></span>
+              {product.status}
             </span>
+            <div className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400">
+              <span className="material-symbols-outlined text-[16px]">store</span>
+              <span>{product.salesChannel}</span>
+            </div>
           </div>
         </div>
       ))}
