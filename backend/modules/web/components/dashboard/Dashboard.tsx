@@ -12,6 +12,8 @@ import DashboardContent from './DashboardContent';
 import OrdersManagement from './orders/OrdersManagement';
 import DraftsManagement from './drafts/DraftsManagement';
 import ProductsManagement from './products/ProductsManagement';
+import CategoriesManagement from './products/categories/CategoriesManagement';
+import TagsManagement from './products/tags/TagsManagement';
 import InventoryManagement from './inventory/InventoryManagement';
 import ClientsManagement from './clients/ClientsManagement';
 import PromotionsManagement from './promotions/PromotionsManagement';
@@ -24,8 +26,16 @@ interface DashboardProps {
 
 const NAV_ITEMS: NavItem[] = [
   { label: 'Pedidos', icon: 'shopping_cart', path: '/orders' },
-  { label: 'Borradores', icon: 'drafts', path: '/drafts' },
-  { label: 'Productos', icon: 'sell', path: '/products' },
+  { 
+    label: 'Productos', 
+    icon: 'sell', 
+    path: '/products',
+    subItems: [
+      { label: 'Borradores', icon: 'edit_note', path: '/drafts' },
+      { label: 'Categorías', icon: 'category', path: '/categories' },
+      { label: 'Etiquetas', icon: 'label', path: '/tags' }
+    ]
+  },
   { label: 'Inventario', icon: 'warehouse', path: '/inventory' },
   { label: 'Clientes', icon: 'people', path: '/clients' },
   { label: 'Promociones', icon: 'local_offer', path: '/promotions' },
@@ -43,19 +53,33 @@ const Dashboard: React.FC<DashboardProps> = ({
   // Mapear la vista inicial al path correspondiente
   const getInitialPath = () => {
     if (!initialView) return '/orders';
-    const validPaths = NAV_ITEMS.map(item => item.path);
+    const validPaths: string[] = [];
+    NAV_ITEMS.forEach(item => {
+      validPaths.push(item.path);
+      item.subItems?.forEach(sub => validPaths.push(sub.path));
+    });
     const path = `/${initialView}`;
     return validPaths.includes(path) ? path : '/orders';
   };
 
   const [activePath, setActivePath] = useState(getInitialPath);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState<string | null>(null);
 
   // Sincronizar URL cuando cambia activePath
   const handleNavigate = (path: string) => {
     setActivePath(path);
+    setMobileMenuOpen(null); // Cerrar menú móvil al navegar
     const view = path.substring(1); // Remover el '/' inicial
     router.push(`/dashboard?view=${view}`);
+  };
+
+  const toggleMobileMenu = (path: string) => {
+    if (mobileMenuOpen === path) {
+      setMobileMenuOpen(null);
+    } else {
+      setMobileMenuOpen(path);
+    }
   };
 
   // Escuchar cambios en la URL (por si el usuario usa botones de atrás/adelante)
@@ -80,6 +104,10 @@ const Dashboard: React.FC<DashboardProps> = ({
         return 'Borradores';
       case '/products':
         return 'Productos';
+      case '/categories':
+        return 'Categorías';
+      case '/tags':
+        return 'Etiquetas';
       case '/inventory':
         return 'Inventario';
       case '/clients':
@@ -101,6 +129,10 @@ const Dashboard: React.FC<DashboardProps> = ({
         return <DraftsManagement />;
       case '/products':
         return <ProductsManagement />;
+      case '/categories':
+        return <CategoriesManagement />;
+      case '/tags':
+        return <TagsManagement />;
       case '/inventory':
         return <InventoryManagement />;
       case '/clients':
@@ -152,24 +184,76 @@ const Dashboard: React.FC<DashboardProps> = ({
         </DashboardContent>
 
         {/* Mobile Navigation */}
-        <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-surface-dark border-t border-gray-200 dark:border-gray-700 flex justify-around py-2 z-20 overflow-x-auto">
-          {navItems.slice(0, 5).map((item) => (
-            <button
-              key={item.path}
-              onClick={() => handleNavigate(item.path)}
-              className={`flex flex-col items-center p-2 min-w-[60px] ${
-                activePath === item.path
-                  ? 'text-echo-blue dark:text-primary'
-                  : 'text-gray-500 dark:text-gray-400'
-              }`}
-            >
-              {item.icon && <span className="material-symbols-outlined">{item.icon}</span>}
-              <span className={`text-[10px] mt-1 ${activePath === item.path ? 'font-medium' : ''}`}>
-                {item.label}
-              </span>
-            </button>
-          ))}
+        <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-surface-dark border-t border-gray-200 dark:border-gray-700 flex justify-around py-2 z-20">
+          {navItems.slice(0, 5).map((item) => {
+             const hasSubItems = item.subItems && item.subItems.length > 0;
+             const isActive = activePath === item.path || item.subItems?.some(sub => sub.path === activePath);
+
+             return (
+              <div key={item.path} className="relative flex flex-col items-center">
+                {/* Menú flotante para sub-items */}
+                {hasSubItems && mobileMenuOpen === item.path && (
+                  <>
+                    <div className="absolute bottom-full mb-3 left-1/2 -translate-x-1/2 bg-white dark:bg-surface-dark rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 min-w-[160px] overflow-hidden z-30 transform transition-all duration-200 origin-bottom scale-100 opacity-100">
+                      <div className="flex flex-col py-1">
+                        {/* Opción principal */}
+                        <button
+                           onClick={() => handleNavigate(item.path)}
+                           className={`px-4 py-3 text-left text-sm flex items-center gap-3 border-b border-gray-100 dark:border-gray-800 ${
+                             activePath === item.path ? 'bg-echo-blue/5 text-echo-blue dark:text-primary font-medium' : 'text-gray-700 dark:text-gray-300'
+                           }`}
+                        >
+                           <span className="material-symbols-outlined text-[18px]">{item.icon}</span>
+                           <span>Todos</span>
+                        </button>
+                        
+                        {/* Sub-items */}
+                        {item.subItems!.map((subItem) => (
+                          <button
+                            key={subItem.path}
+                            onClick={() => handleNavigate(subItem.path)}
+                            className={`px-4 py-3 text-left text-sm flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${
+                              activePath === subItem.path ? 'text-echo-blue dark:text-primary font-medium' : 'text-gray-600 dark:text-gray-400'
+                            }`}
+                          >
+                            <span className="material-symbols-outlined text-[18px]">{subItem.icon}</span>
+                            <span>{subItem.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    {/* Flecha del bocadillo */}
+                    <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 w-4 h-4 bg-white dark:bg-surface-dark border-r border-b border-gray-200 dark:border-gray-700 transform rotate-45 z-30"></div>
+                  </>
+                )}
+                
+                {/* Botón principal de navegación */}
+                <button
+                  onClick={() => hasSubItems ? toggleMobileMenu(item.path) : handleNavigate(item.path)}
+                  className={`flex flex-col items-center p-2 min-w-[60px] ${
+                    isActive
+                      ? 'text-echo-blue dark:text-primary'
+                      : 'text-gray-500 dark:text-gray-400'
+                  }`}
+                >
+                  {item.icon && <span className="material-symbols-outlined">{item.icon}</span>}
+                  <span className={`text-[10px] mt-1 ${isActive ? 'font-medium' : ''}`}>
+                    {item.label}
+                  </span>
+                </button>
+              </div>
+            );
+          })}
         </nav>
+        
+        {/* Overlay para cerrar menú móvil al hacer click fuera */}
+        {mobileMenuOpen && (
+          <div 
+            className="fixed inset-0 z-10 bg-black/20 md:hidden"
+            onClick={() => setMobileMenuOpen(null)}
+          ></div>
+        )}
+
         <div className="h-16 md:hidden"></div>
       </main>
 
