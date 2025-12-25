@@ -93,32 +93,43 @@ const NewProductForm: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
   // Estados para dropdowns abiertos
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
-  // Función para generar variantes basadas en las opciones
-  // Las variantes son los valores individuales de cada opción
+  // Helper para producto cartesiano
+  const cartesian = (arrays: string[][]): string[][] => {
+    return arrays.reduce<string[][]>(
+      (acc, curr) => {
+        return acc.flatMap((x) => curr.map((y) => [...x, y]));
+      },
+      [[]]
+    );
+  };
+
+  // Función para generar variantes basadas en las opciones (Producto Cartesiano)
   const generateVariants = (options: ProductOption[]): ProductVariant[] => {
-    const variants: ProductVariant[] = [];
+    // Solo consideramos opciones que tengan valores
+    const validOptions = options.filter(opt => opt.values && opt.values.length > 0);
+    
+    if (validOptions.length === 0) return [];
 
-    options.forEach((option) => {
-      // Agregar el título de la opción como variante
-      if (option.title) {
-        variants.push({
-          id: `option-${option.id}`,
-          name: option.title,
-          selected: true,
-        });
-      }
+    const valuesArrays = validOptions.map(opt => opt.values);
+    const combinations = cartesian(valuesArrays);
 
-      // Agregar cada valor de la opción como variante
-      option.values.forEach((value, idx) => {
-        variants.push({
-          id: `value-${option.id}-${idx}`,
-          name: value,
-          selected: true,
-        });
-      });
+    return combinations.map((combo, idx) => {
+      const name = combo.join(" / ");
+      // Generamos un ID basado en la combinación para intentar mantenerlo estable
+      const safeId = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+      
+      return {
+        id: `variant-${safeId}-${idx}`,
+        name: name,
+        selected: true,
+        title: name, // El título por defecto es la combinación
+        sku: "",
+        managedInventory: false,
+        allowBackorder: false,
+        hasInventoryKit: false,
+        priceCOP: "",
+      };
     });
-
-    return variants;
   };
 
   const handleInputChange = (field: keyof ProductFormData, value: any) => {
@@ -138,10 +149,27 @@ const NewProductForm: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
 
       // Generar variantes cuando se activa el toggle de variantes
       if (field === "hasVariants") {
-        if (value === true && updated.options.length > 0) {
-          updated.variants = generateVariants(updated.options);
-        } else if (value === false) {
-          updated.variants = [];
+        if (value === true) {
+          // Si activamos variantes, generamos basadas en opciones si existen,
+          // o limpiamos la variante por defecto para que el usuario cree opciones
+          if (updated.options.length > 0) {
+            updated.variants = generateVariants(updated.options);
+          } else {
+            updated.variants = [];
+          }
+        } else {
+          // Si desactivamos variantes, volvemos a la variante por defecto única
+          updated.variants = [{
+            id: "default-variant",
+            name: updated.title || "Default Variant",
+            selected: true,
+            title: updated.title || "Default Variant",
+            sku: "",
+            priceCOP: "",
+            managedInventory: false,
+            allowBackorder: false,
+            hasInventoryKit: false
+          }];
         }
       }
 
