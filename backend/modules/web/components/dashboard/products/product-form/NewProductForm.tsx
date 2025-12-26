@@ -375,30 +375,40 @@ const NewProductForm: React.FC<NewProductFormProps> = ({ onClose, initialData })
                         Título
                         <span className="text-red-500 text-lg leading-none" title="Obligatorio">*</span>
                       </label>
-                      <input
-                        type="text"
-                        value={formData.title}
-                        onChange={(e) =>
-                          handleInputChange("title", e.target.value)
-                        }
-                        className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary focus:border-transparent"
-                        placeholder="Ej: Chaqueta de invierno"
-                      />
+                      <div className="relative group">
+                        <span className="material-symbols-outlined absolute left-3 top-2.5 text-gray-400 group-focus-within:text-echo-blue dark:group-focus-within:text-primary transition-colors text-[20px]">
+                          title
+                        </span>
+                        <input
+                          type="text"
+                          value={formData.title}
+                          onChange={(e) =>
+                            handleInputChange("title", e.target.value)
+                          }
+                          className="w-full pl-10 pr-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary focus:border-transparent"
+                          placeholder="Ej: Chaqueta de invierno"
+                        />
+                      </div>
                     </div>
 
                     <div>
                       <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Subtítulo
                       </label>
-                      <input
-                        type="text"
-                        value={formData.subtitle}
-                        onChange={(e) =>
-                          handleInputChange("subtitle", e.target.value)
-                        }
-                        className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary focus:border-transparent"
-                        placeholder="Ej: Cálido y acogedor"
-                      />
+                      <div className="relative group">
+                        <span className="material-symbols-outlined absolute left-3 top-2.5 text-gray-400 group-focus-within:text-echo-blue dark:group-focus-within:text-primary transition-colors text-[20px]">
+                          subtitles
+                        </span>
+                        <input
+                          type="text"
+                          value={formData.subtitle}
+                          onChange={(e) =>
+                            handleInputChange("subtitle", e.target.value)
+                          }
+                          className="w-full pl-10 pr-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary focus:border-transparent"
+                          placeholder="Ej: Cálido y acogedor"
+                        />
+                      </div>
                     </div>
                   </div>
 
@@ -412,8 +422,11 @@ const NewProductForm: React.FC<NewProductFormProps> = ({ onClose, initialData })
                         info
                       </span>
                     </label>
-                    <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">
+                    <div className="relative group">
+                      <span className="material-symbols-outlined absolute left-3 top-2.5 text-gray-400 group-focus-within:text-echo-blue dark:group-focus-within:text-primary transition-colors text-[20px]">
+                        link
+                      </span>
+                      <span className="absolute left-10 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">
                         /
                       </span>
                       <input
@@ -422,7 +435,7 @@ const NewProductForm: React.FC<NewProductFormProps> = ({ onClose, initialData })
                         onChange={(e) =>
                           handleInputChange("handle", e.target.value)
                         }
-                        className="w-full pl-8 pr-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary focus:border-transparent"
+                        className="w-full pl-14 pr-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary focus:border-transparent"
                         placeholder="chaqueta-de-invierno"
                       />
                     </div>
