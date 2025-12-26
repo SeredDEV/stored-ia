@@ -28,5 +28,6 @@ export function ensureSupabaseConfig() {
   return {
     url: env.supabaseUrl,
     anonKey: env.supabaseAnonKey,
+    serviceRoleKey: env.supabaseServiceRoleKey,
   };
 }

@@ -1,0 +1,2 @@
+export * from "./tipoDelete.builder";
+

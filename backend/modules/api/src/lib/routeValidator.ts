@@ -23,13 +23,13 @@ export type ValidationResult<T> =
  */
 export class RouteValidator {
   /**
-   * Valida el body usando un schema de Zod.
+   * Valida datos usando un schema de Zod.
    */
-  private static validateBody<T>(
-    body: unknown,
+  private static validate<T>(
+    data: unknown,
     schema: ZodSchema<T>
   ): ValidationResult<T> {
-    const result = schema.safeParse(body);
+    const result = schema.safeParse(data);
 
     if (!result.success) {
       const firstError = result.error.errors[0];
@@ -56,7 +56,7 @@ export class RouteValidator {
     schema: ZodSchema<T>
   ): (req: Request, res: Response, next: NextFunction) => void {
     return (req: Request, res: Response, next: NextFunction): void => {
-      const validation = this.validateBody(req.body, schema);
+      const validation = this.validate(req.body, schema);
 
       if (!validation.ok) {
         res.status(validation.status).json({
@@ -71,5 +71,54 @@ export class RouteValidator {
       next();
     };
   }
-}
 
+  /**
+   * Crea un middleware de Express que valida los params usando un schema de Zod.
+   * Si es válido, sobrescribe `req.params` con los datos validados y tipados.
+   * Si es inválido, responde con el código de error correspondiente.
+   */
+  public static params<T>(
+    schema: ZodSchema<T>
+  ): (req: Request, res: Response, next: NextFunction) => void {
+    return (req: Request, res: Response, next: NextFunction): void => {
+      const validation = this.validate(req.params, schema);
+
+      if (!validation.ok) {
+        res.status(validation.status).json({
+          error: validation.error,
+          details: validation.details,
+        });
+        return;
+      }
+
+      // Sobrescribimos los params con la versión ya validada y tipada
+      req.params = validation.data as any;
+      next();
+    };
+  }
+
+  /**
+   * Crea un middleware de Express que valida el query usando un schema de Zod.
+   * Si es válido, sobrescribe `req.query` con los datos validados y tipados.
+   * Si es inválido, responde con el código de error correspondiente.
+   */
+  public static query<T>(
+    schema: ZodSchema<T>
+  ): (req: Request, res: Response, next: NextFunction) => void {
+    return (req: Request, res: Response, next: NextFunction): void => {
+      const validation = this.validate(req.query, schema);
+
+      if (!validation.ok) {
+        res.status(validation.status).json({
+          error: validation.error,
+          details: validation.details,
+        });
+        return;
+      }
+
+      // Sobrescribimos el query con la versión ya validada y tipada
+      req.query = validation.data as any;
+      next();
+    };
+  }
+}

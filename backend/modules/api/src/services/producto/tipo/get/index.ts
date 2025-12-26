@@ -1,0 +1,2 @@
+export * from "./tipoGet.builder";
+
