@@ -112,7 +112,7 @@ export class RouteLoader {
     if (!services) return [];
 
     const className = RouteClass.name || "";
-    
+
     // Mapeo de nombres de clases a servicios
     // AuthRoute -> authService, resetPasswordService y newPasswordService
     if (className.includes("Auth") && className.includes("Route")) {
@@ -125,6 +125,27 @@ export class RouteLoader {
       }
       if (services.newPasswordService) {
         args.push(services.newPasswordService);
+      }
+      return args;
+    }
+
+    // ProductoRoute -> productoCreateService
+    if (className.includes("Producto") && className.includes("Route")) {
+      const args: any[] = [];
+      if (services.productoCreateService) {
+        args.push(services.productoCreateService);
+      }
+      if (services.productoGetService) {
+        args.push(services.productoGetService);
+      }
+      if (services.productoListService) {
+        args.push(services.productoListService);
+      }
+      if (services.productoUpdateService) {
+        args.push(services.productoUpdateService);
+      }
+      if (services.productoDeleteService) {
+        args.push(services.productoDeleteService);
       }
       return args;
     }

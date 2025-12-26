@@ -161,6 +161,34 @@ export class ProductoRoute {
     );
     productoCreateNetwork.setNetwork(productosRouter);
 
+    const productoListEndpoint = new ProductoListEndpoint({
+      productoService: productoListService,
+    });
+    const productoListNetwork = new ProductoListNetwork(productoListEndpoint);
+    productoListNetwork.setNetwork(productosRouter);
+
+    const productoGetEndpoint = new ProductoGetEndpoint({
+      productoService: productoGetService,
+    });
+    const productoGetNetwork = new ProductoGetNetwork(productoGetEndpoint);
+    productoGetNetwork.setNetwork(productosRouter);
+
+    const productoUpdateEndpoint = new ProductoUpdateEndpoint({
+      productoService: productoUpdateService,
+    });
+    const productoUpdateNetwork = new ProductoUpdateNetwork(
+      productoUpdateEndpoint
+    );
+    productoUpdateNetwork.setNetwork(productosRouter);
+
+    const productoDeleteEndpoint = new ProductoDeleteEndpoint({
+      productoService: productoDeleteService,
+    });
+    const productoDeleteNetwork = new ProductoDeleteNetwork(
+      productoDeleteEndpoint
+    );
+    productoDeleteNetwork.setNetwork(productosRouter);
+
     // ===== CATEGORÍAS =====
     // Create
     const categoriaCreateEndpoint = new CategoriaCreateEndpoint({
