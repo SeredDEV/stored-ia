@@ -376,7 +376,7 @@ const NewProductForm: React.FC<NewProductFormProps> = ({ onClose, initialData })
                         <span className="text-red-500 text-lg leading-none" title="Obligatorio">*</span>
                       </label>
                       <div className="relative group">
-                        <span className="material-symbols-outlined absolute left-3 top-2.5 text-gray-400 group-focus-within:text-echo-blue dark:group-focus-within:text-primary transition-colors text-[20px]">
+                        <span className="material-symbols-outlined absolute left-3 top-2.5 text-[#9CA3AF] dark:text-gray-400 transition-colors text-[20px]">
                           title
                         </span>
                         <input
@@ -396,7 +396,7 @@ const NewProductForm: React.FC<NewProductFormProps> = ({ onClose, initialData })
                         Subtítulo
                       </label>
                       <div className="relative group">
-                        <span className="material-symbols-outlined absolute left-3 top-2.5 text-gray-400 group-focus-within:text-echo-blue dark:group-focus-within:text-primary transition-colors text-[20px]">
+                        <span className="material-symbols-outlined absolute left-3 top-2.5 text-[#9CA3AF] group-focus-within:text-gray-700 dark:text-gray-400 dark:group-focus-within:text-gray-200 transition-colors text-[20px]">
                           subtitles
                         </span>
                         <input
@@ -416,14 +416,14 @@ const NewProductForm: React.FC<NewProductFormProps> = ({ onClose, initialData })
                     <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Manejo
                       <span
-                        className="material-symbols-outlined text-gray-400 text-sm cursor-help"
+                        className="material-symbols-outlined text-[#9CA3AF] text-sm cursor-help"
                         title="URL amigable para el producto"
                       >
                         info
                       </span>
                     </label>
                     <div className="relative group">
-                      <span className="material-symbols-outlined absolute left-3 top-2.5 text-gray-400 group-focus-within:text-echo-blue dark:group-focus-within:text-primary transition-colors text-[20px]">
+                      <span className="material-symbols-outlined absolute left-3 top-2.5 text-[#9CA3AF] dark:text-gray-400 transition-colors text-[20px]">
                         link
                       </span>
                       <span className="absolute left-10 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">
@@ -585,19 +585,24 @@ const NewProductForm: React.FC<NewProductFormProps> = ({ onClose, initialData })
                                   className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg"
                                 >
                                   <div className="flex items-center gap-4 mb-4">
-                                    <input
-                                      type="text"
-                                      value={option.title}
-                                      onChange={(e) =>
-                                        handleOptionChange(
-                                          option.id,
-                                          "title",
-                                          e.target.value
-                                        )
-                                      }
-                                      placeholder="Título (ej: Color)"
-                                      className="flex-1 px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary focus:border-transparent"
-                                    />
+                                    <div className="relative flex-1">
+                                      <span className="material-symbols-outlined absolute left-3 top-2.5 text-[#9CA3AF] group-focus-within:text-gray-700 dark:text-gray-400 dark:group-focus-within:text-gray-200 transition-colors text-[20px]">
+                                        title
+                                      </span>
+                                      <input
+                                        type="text"
+                                        value={option.title}
+                                        onChange={(e) =>
+                                          handleOptionChange(
+                                            option.id,
+                                            "title",
+                                            e.target.value
+                                          )
+                                        }
+                                        placeholder="Título (ej: Color)"
+                                        className="w-full pl-10 pr-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary focus:border-transparent"
+                                      />
+                                    </div>
                                     <button
                                       onClick={() =>
                                         handleRemoveOption(option.id)
@@ -615,6 +620,9 @@ const NewProductForm: React.FC<NewProductFormProps> = ({ onClose, initialData })
                                     </label>
                                     <div className="relative w-full border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 focus-within:ring-2 focus-within:ring-echo-blue dark:focus-within:ring-primary focus-within:border-transparent">
                                       <div className="flex flex-wrap items-center gap-2 p-2">
+                                        <span className="material-symbols-outlined text-[#9CA3AF] text-[20px] ml-1">
+                                          label
+                                        </span>
                                         {option.values.map((value, idx) => (
                                           <span
                                             key={idx}
@@ -1179,7 +1187,7 @@ const NewProductForm: React.FC<NewProductFormProps> = ({ onClose, initialData })
                         Tipo
                       </label>
                       <div className="relative group">
-                        <span className="material-symbols-outlined absolute left-3 top-2.5 text-gray-400 group-focus-within:text-echo-blue dark:group-focus-within:text-primary transition-colors text-[20px]">
+                        <span className="material-symbols-outlined absolute left-3 top-2.5 text-[#9CA3AF] dark:group-focus-within:text-primary transition-colors text-[20px]">
                           style
                         </span>
                         <input
@@ -1191,7 +1199,7 @@ const NewProductForm: React.FC<NewProductFormProps> = ({ onClose, initialData })
                           className="w-full pl-10 pr-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary focus:border-transparent"
                           placeholder="Seleccionar tipo"
                         />
-                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] pointer-events-none">
                           <span className="material-symbols-outlined">
                             expand_more
                           </span>
@@ -1205,7 +1213,7 @@ const NewProductForm: React.FC<NewProductFormProps> = ({ onClose, initialData })
                         Colección
                       </label>
                       <div className="relative group">
-                        <span className="material-symbols-outlined absolute left-3 top-2.5 text-gray-400 group-focus-within:text-echo-blue dark:group-focus-within:text-primary transition-colors text-[20px]">
+                        <span className="material-symbols-outlined absolute left-3 top-2.5 text-[#9CA3AF] dark:text-gray-400 transition-colors text-[20px]">
                           collections_bookmark
                         </span>
                         <input
@@ -1217,7 +1225,7 @@ const NewProductForm: React.FC<NewProductFormProps> = ({ onClose, initialData })
                           className="w-full pl-10 pr-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary focus:border-transparent"
                           placeholder="Seleccionar colección"
                         />
-                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] pointer-events-none">
                           <span className="material-symbols-outlined">
                             expand_more
                           </span>
@@ -1231,7 +1239,7 @@ const NewProductForm: React.FC<NewProductFormProps> = ({ onClose, initialData })
                         Categorías
                       </label>
                       <div className="relative group">
-                        <span className="material-symbols-outlined absolute left-3 top-2.5 text-gray-400 group-focus-within:text-echo-blue dark:group-focus-within:text-primary transition-colors text-[20px] z-10">
+                        <span className="material-symbols-outlined absolute left-3 top-2.5 text-gray-400 group-focus-within:text-gray-600 dark:group-focus-within:text-gray-300 transition-colors text-[20px] z-10">
                           category
                         </span>
                         <div
@@ -1267,7 +1275,7 @@ const NewProductForm: React.FC<NewProductFormProps> = ({ onClose, initialData })
                               </span>
                             </button>
                           )}
-                          <span className="material-symbols-outlined text-gray-400">
+                          <span className="material-symbols-outlined text-[#9CA3AF]">
                             expand_more
                           </span>
                         </div>
@@ -1318,7 +1326,7 @@ const NewProductForm: React.FC<NewProductFormProps> = ({ onClose, initialData })
                         Etiquetas
                       </label>
                       <div className="relative group">
-                        <span className="material-symbols-outlined absolute left-3 top-2.5 text-gray-400 group-focus-within:text-echo-blue dark:group-focus-within:text-primary transition-colors text-[20px] z-10">
+                        <span className="material-symbols-outlined absolute left-3 top-2.5 text-[#9CA3AF] dark:text-gray-400 transition-colors text-[20px] z-10">
                           label
                         </span>
                         <div
@@ -1424,11 +1432,11 @@ const NewProductForm: React.FC<NewProductFormProps> = ({ onClose, initialData })
                         className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary focus:border-transparent pr-10"
                         placeholder="Seleccionar perfil de envío"
                       />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
-                        <span className="material-symbols-outlined">
-                          expand_more
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] pointer-events-none">
+                          <span className="material-symbols-outlined">
+                            expand_more
+                          </span>
                         </span>
-                      </span>
                     </div>
                   </div>
 

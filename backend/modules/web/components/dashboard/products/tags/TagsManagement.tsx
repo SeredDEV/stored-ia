@@ -154,7 +154,7 @@ const TagsManagement = () => {
       {/* Buscador (Placeholder visual) */}
       <div className="mb-6">
         <div className="relative">
-          <span className="material-symbols-outlined absolute left-3 top-2.5 text-gray-400 text-[20px]">search</span>
+          <span className="material-symbols-outlined absolute left-3 top-2.5 text-[#9CA3AF] text-[20px]">search</span>
           <input 
             type="text" 
             placeholder="Buscar" 

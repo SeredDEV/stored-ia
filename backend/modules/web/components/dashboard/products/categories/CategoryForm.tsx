@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CreateCategoryInput, CategoryStatus, CategoryVisibility } from './types';
+import { CategoryStatus, CategoryVisibility, CreateCategoryInput } from './types';
 
 interface CategoryFormProps {
   onSubmit: (data: CreateCategoryInput) => void;
@@ -56,7 +56,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({ onSubmit, onCancel, 
               Título
             </label>
             <div className="relative group">
-              <span className="material-symbols-outlined absolute left-3 top-2.5 text-gray-400 group-focus-within:text-echo-blue transition-colors text-[20px]">
+              <span className="material-symbols-outlined absolute left-3 top-2.5 text-[#9CA3AF] dark:text-gray-400 transition-colors text-[20px]">
                 title
               </span>
               <input
@@ -78,7 +78,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({ onSubmit, onCancel, 
               Manejo <span className="text-gray-400 font-normal">(Optional)</span>
             </label>
             <div className="relative group">
-              <span className="material-symbols-outlined absolute left-3 top-2.5 text-gray-400 group-focus-within:text-echo-blue transition-colors text-[20px]">
+              <span className="material-symbols-outlined absolute left-3 top-2.5 text-[#9CA3AF] dark:text-gray-400 transition-colors text-[20px]">
                 link
               </span>
               <input
@@ -122,8 +122,8 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({ onSubmit, onCancel, 
                 <option value="Activa">Activa</option>
                 <option value="Inactiva">Inactiva</option>
               </select>
-              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-500 dark:text-gray-400">
-                <span className="material-symbols-outlined">unfold_more</span>
+              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                <span className="material-symbols-outlined text-[#9CA3AF]">unfold_more</span>
               </div>
             </div>
           </div>
@@ -143,8 +143,8 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({ onSubmit, onCancel, 
                 <option value="Pública">Pública</option>
                 <option value="Interna">Interna</option>
               </select>
-              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-500 dark:text-gray-400">
-                <span className="material-symbols-outlined">unfold_more</span>
+              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                <span className="material-symbols-outlined text-[#9CA3AF]">unfold_more</span>
               </div>
             </div>
           </div>

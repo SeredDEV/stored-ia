@@ -76,7 +76,7 @@ export const TagList: React.FC<TagListProps> = ({ tags, onDelete, onEdit }) => {
                 >
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-echo-blue/10 dark:bg-primary/10 flex items-center justify-center text-echo-blue dark:text-primary">
+                      <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-500 dark:text-gray-400">
                         <span className="material-symbols-outlined text-[18px]">label</span>
                       </div>
                       <span className="font-medium text-gray-900 dark:text-white">{tag.name}</span>

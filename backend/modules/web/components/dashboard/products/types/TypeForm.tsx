@@ -33,7 +33,7 @@ export const TypeForm: React.FC<TypeFormProps> = ({ onSubmit, onCancel, initialD
               Valor
             </label>
             <div className="relative group">
-              <span className="material-symbols-outlined absolute left-3 top-2.5 text-gray-400 group-focus-within:text-echo-blue transition-colors text-[20px]">
+              <span className="material-symbols-outlined absolute left-3 top-2.5 text-[#9CA3AF] dark:text-gray-400 transition-colors text-[20px]">
                 title
               </span>
               <input
