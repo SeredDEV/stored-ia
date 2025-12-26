@@ -14,15 +14,12 @@ import DraftsManagement from './drafts/DraftsManagement';
 import ProductsManagement from './products/ProductsManagement';
 import CategoriesManagement from './products/categories/CategoriesManagement';
 import TagsManagement from './products/tags/TagsManagement';
+import CollectionsManagement from './products/collections/CollectionsManagement';
+import TypesManagement from './products/types/TypesManagement';
 import InventoryManagement from './inventory/InventoryManagement';
 import ClientsManagement from './clients/ClientsManagement';
 import PromotionsManagement from './promotions/PromotionsManagement';
 import PriceListsManagement from './price-lists/PriceListsManagement';
-
-interface DashboardProps {
-  user?: User | null;
-  onLogout?: () => void;
-}
 
 const NAV_ITEMS: NavItem[] = [
   { label: 'Pedidos', icon: 'shopping_cart', path: '/orders' },
@@ -33,7 +30,9 @@ const NAV_ITEMS: NavItem[] = [
     subItems: [
       { label: 'Borradores', icon: 'edit_note', path: '/drafts' },
       { label: 'Categorías', icon: 'category', path: '/categories' },
-      { label: 'Etiquetas', icon: 'label', path: '/tags' }
+      { label: 'Etiquetas', icon: 'label', path: '/tags' },
+      { label: 'Colecciones', icon: 'collections_bookmark', path: '/collections' },
+      { label: 'Tipos', icon: 'style', path: '/types' }
     ]
   },
   { label: 'Inventario', icon: 'warehouse', path: '/inventory' },
@@ -41,6 +40,11 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Promociones', icon: 'local_offer', path: '/promotions' },
   { label: 'Listas de Precios', icon: 'attach_money', path: '/price-lists' },
 ];
+
+interface DashboardProps {
+  user?: User | null;
+  onLogout?: () => void;
+}
 
 const Dashboard: React.FC<DashboardProps> = ({
   user = { name: 'Admin User', role: 'Administrator' },
@@ -108,6 +112,8 @@ const Dashboard: React.FC<DashboardProps> = ({
         return 'Categorías';
       case '/tags':
         return 'Etiquetas';
+      case '/collections':
+        return 'Colecciones';
       case '/inventory':
         return 'Inventario';
       case '/clients':
@@ -133,6 +139,10 @@ const Dashboard: React.FC<DashboardProps> = ({
         return <CategoriesManagement />;
       case '/tags':
         return <TagsManagement />;
+      case '/collections':
+        return <CollectionsManagement />;
+      case '/types':
+        return <TypesManagement />;
       case '/inventory':
         return <InventoryManagement />;
       case '/clients':
