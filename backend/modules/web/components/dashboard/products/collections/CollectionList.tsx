@@ -44,7 +44,7 @@ export const CollectionList: React.FC<CollectionListProps> = ({ collections, onD
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-gray-50/50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-700">
-              <th className="px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Título</th>
+              <th className="px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Nombre</th>
               <th className="px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Manejo</th>
               <th className="px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Productos</th>
               <th className="px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Creado</th>
@@ -70,7 +70,7 @@ export const CollectionList: React.FC<CollectionListProps> = ({ collections, onD
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-lg bg-echo-blue/10 dark:bg-primary/10 flex items-center justify-center text-echo-blue dark:text-primary">
-                        <span className="material-symbols-outlined text-[18px]">folder</span>
+                        <span className="material-symbols-outlined text-[18px]">collections_bookmark</span>
                       </div>
                       <span className="font-medium text-gray-900 dark:text-white">{collection.title}</span>
                     </div>

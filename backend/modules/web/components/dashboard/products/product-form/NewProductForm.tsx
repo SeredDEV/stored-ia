@@ -1178,14 +1178,17 @@ const NewProductForm: React.FC<NewProductFormProps> = ({ onClose, initialData })
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Tipo
                       </label>
-                      <div className="relative">
+                      <div className="relative group">
+                        <span className="material-symbols-outlined absolute left-3 top-2.5 text-gray-400 group-focus-within:text-echo-blue dark:group-focus-within:text-primary transition-colors text-[20px]">
+                          style
+                        </span>
                         <input
                           type="text"
                           value={formData.type}
                           onChange={(e) =>
                             handleInputChange("type", e.target.value)
                           }
-                          className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary focus:border-transparent pr-10"
+                          className="w-full pl-10 pr-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary focus:border-transparent"
                           placeholder="Seleccionar tipo"
                         />
                         <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
@@ -1201,14 +1204,17 @@ const NewProductForm: React.FC<NewProductFormProps> = ({ onClose, initialData })
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Colección
                       </label>
-                      <div className="relative">
+                      <div className="relative group">
+                        <span className="material-symbols-outlined absolute left-3 top-2.5 text-gray-400 group-focus-within:text-echo-blue dark:group-focus-within:text-primary transition-colors text-[20px]">
+                          collections_bookmark
+                        </span>
                         <input
                           type="text"
                           value={formData.collection}
                           onChange={(e) =>
                             handleInputChange("collection", e.target.value)
                           }
-                          className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary focus:border-transparent pr-10"
+                          className="w-full pl-10 pr-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary focus:border-transparent"
                           placeholder="Seleccionar colección"
                         />
                         <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
@@ -1224,7 +1230,10 @@ const NewProductForm: React.FC<NewProductFormProps> = ({ onClose, initialData })
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Categorías
                       </label>
-                      <div className="relative">
+                      <div className="relative group">
+                        <span className="material-symbols-outlined absolute left-3 top-2.5 text-gray-400 group-focus-within:text-echo-blue dark:group-focus-within:text-primary transition-colors text-[20px] z-10">
+                          category
+                        </span>
                         <div
                           onClick={(e) => {
                             e.stopPropagation();
@@ -1232,7 +1241,7 @@ const NewProductForm: React.FC<NewProductFormProps> = ({ onClose, initialData })
                               openDropdown === "categories" ? null : "categories"
                             );
                           }}
-                          className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white cursor-pointer flex items-center justify-between"
+                          className="w-full pl-10 pr-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white cursor-pointer flex items-center justify-between"
                         >
                           <span
                             className={
@@ -1308,7 +1317,10 @@ const NewProductForm: React.FC<NewProductFormProps> = ({ onClose, initialData })
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Etiquetas
                       </label>
-                      <div className="relative">
+                      <div className="relative group">
+                        <span className="material-symbols-outlined absolute left-3 top-2.5 text-gray-400 group-focus-within:text-echo-blue dark:group-focus-within:text-primary transition-colors text-[20px] z-10">
+                          label
+                        </span>
                         <div
                           onClick={(e) => {
                             e.stopPropagation();
@@ -1316,7 +1328,7 @@ const NewProductForm: React.FC<NewProductFormProps> = ({ onClose, initialData })
                               openDropdown === "tags" ? null : "tags"
                             );
                           }}
-                          className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white cursor-pointer flex items-center justify-between"
+                          className="w-full pl-10 pr-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white cursor-pointer flex items-center justify-between"
                         >
                           <span
                             className={

@@ -52,7 +52,7 @@ export const TagList: React.FC<TagListProps> = ({ tags, onDelete, onEdit }) => {
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-gray-50/50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700">
-              <th className="px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Valor</th>
+              <th className="px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Nombre</th>
               <th className="px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Creado en</th>
               <th className="px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actualizado en</th>
               <th className="px-6 py-4 text-right text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Acciones</th>
@@ -75,7 +75,12 @@ export const TagList: React.FC<TagListProps> = ({ tags, onDelete, onEdit }) => {
                   className="group hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-all duration-200"
                 >
                   <td className="px-6 py-4">
-                    <span className="font-medium text-gray-900 dark:text-white">{tag.name}</span>
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-echo-blue/10 dark:bg-primary/10 flex items-center justify-center text-echo-blue dark:text-primary">
+                        <span className="material-symbols-outlined text-[18px]">label</span>
+                      </div>
+                      <span className="font-medium text-gray-900 dark:text-white">{tag.name}</span>
+                    </div>
                   </td>
                   <td className="px-6 py-4">
                     <span className="text-sm text-gray-500 dark:text-gray-400">{formatDate(tag.createdAt)}</span>

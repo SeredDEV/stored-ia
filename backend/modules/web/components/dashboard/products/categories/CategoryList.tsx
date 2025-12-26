@@ -68,7 +68,12 @@ export const CategoryList: React.FC<CategoryListProps> = ({ categories, onDelete
                   className="group hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-all duration-200"
                 >
                   <td className="px-6 py-4">
-                    <span className="font-medium text-gray-900 dark:text-white">{category.name}</span>
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-echo-blue/10 dark:bg-primary/10 flex items-center justify-center text-echo-blue dark:text-primary">
+                        <span className="material-symbols-outlined text-[18px]">category</span>
+                      </div>
+                      <span className="font-medium text-gray-900 dark:text-white">{category.name}</span>
+                    </div>
                   </td>
                   <td className="px-6 py-4">
                     <code className="px-2 py-1 rounded bg-gray-100 dark:bg-gray-800 text-xs font-mono text-gray-600 dark:text-gray-300">

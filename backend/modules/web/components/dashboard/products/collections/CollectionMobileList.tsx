@@ -49,7 +49,7 @@ export const CollectionMobileList: React.FC<CollectionMobileListProps> = ({
               <div className="flex items-center gap-4">
                 <div className="w-16 h-16 bg-echo-blue/10 dark:bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0 border border-echo-blue/5 dark:border-primary/5">
                   <span className="material-symbols-outlined text-2xl text-echo-blue dark:text-primary">
-                    folder
+                    collections_bookmark
                   </span>
                 </div>
                 <div>
