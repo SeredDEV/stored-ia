@@ -10,7 +10,7 @@ import SidebarFooter from './SidebarFooter';
 import DashboardContent from './DashboardContent';
 // Importaciones de componentes de gestión
 import OrdersManagement from './orders/OrdersManagement';
-import DraftsManagement from './drafts/DraftsManagement';
+import DraftsManagement from './products/drafts/DraftsManagement';
 import ProductsManagement from './products/ProductsManagement';
 import CategoriesManagement from './products/categories/CategoriesManagement';
 import TagsManagement from './products/tags/TagsManagement';
@@ -55,18 +55,14 @@ const Dashboard: React.FC<DashboardProps> = ({
   const initialView = searchParams.get('view');
   
   // Mapear la vista inicial al path correspondiente
-  const getInitialPath = () => {
+  const [activePath, setActivePath] = useState(() => {
     if (!initialView) return '/orders';
-    const validPaths: string[] = [];
-    NAV_ITEMS.forEach(item => {
-      validPaths.push(item.path);
-      item.subItems?.forEach(sub => validPaths.push(sub.path));
-    });
     const path = `/${initialView}`;
-    return validPaths.includes(path) ? path : '/orders';
-  };
-
-  const [activePath, setActivePath] = useState(getInitialPath);
+    const isValid = NAV_ITEMS.some(item => 
+      item.path === path || item.subItems?.some(sub => sub.path === path)
+    );
+    return isValid ? path : '/orders';
+  });
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState<string | null>(null);
 

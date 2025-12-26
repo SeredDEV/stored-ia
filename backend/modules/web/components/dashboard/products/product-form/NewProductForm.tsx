@@ -40,7 +40,12 @@ interface ProductVariant {
   priceCol?: string;
 }
 
-const NewProductForm: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
+interface NewProductFormProps {
+  onClose?: () => void;
+  initialData?: Partial<ProductFormData>;
+}
+
+const NewProductForm: React.FC<NewProductFormProps> = ({ onClose, initialData }) => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const currentTab = (searchParams.get("tab") as "details" | "organize" | "variants") || "details";
@@ -73,21 +78,21 @@ const NewProductForm: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
   const activeTab = currentTab;
 
   const [formData, setFormData] = useState<ProductFormData>({
-    title: "",
-    subtitle: "",
-    handle: "",
-    description: "",
-    hasVariants: false,
-    media: [],
-    options: [],
-    variants: [],
-    discountApplicable: false,
-    type: "",
-    collection: "",
-    categories: [],
-    tags: [],
-    shippingProfile: "",
-    salesChannels: ["Default Sales Channel"],
+    title: initialData?.title || "",
+    subtitle: initialData?.subtitle || "",
+    handle: initialData?.handle || "",
+    description: initialData?.description || "",
+    hasVariants: initialData?.hasVariants || false,
+    media: initialData?.media || [],
+    options: initialData?.options || [],
+    variants: initialData?.variants || [],
+    discountApplicable: initialData?.discountApplicable || false,
+    type: initialData?.type || "",
+    collection: initialData?.collection || "",
+    categories: initialData?.categories || [],
+    tags: initialData?.tags || [],
+    shippingProfile: initialData?.shippingProfile || "",
+    salesChannels: initialData?.salesChannels || ["Default Sales Channel"],
   });
 
   // Estados para dropdowns abiertos
