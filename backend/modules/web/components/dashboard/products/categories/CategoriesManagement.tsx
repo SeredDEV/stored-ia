@@ -1,56 +1,28 @@
+"use client";
 import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import type { Category, CreateCategoryInput } from './types';
 import { CategoryForm } from './CategoryForm';
-import { CategoryList } from './CategoryList';
-import { CategoryMobileList } from './CategoryMobileList';
+import { CategoryTable } from './CategoryTable';
 import { CategoryRanking } from './CategoryRanking';
 import { DeleteConfirmationModal } from '../collections/DeleteConfirmationModal';
+import { faker } from '@faker-js/faker';
 
-// Mock data
-const MOCK_CATEGORIES: Category[] = [
-  { 
-    id: '1', 
-    name: 'Camisetas', 
-    slug: '/camisetas',
-    description: 'Camisetas de algodón de alta calidad',
-    status: 'Activa',
-    visibility: 'Pública',
-    productsCount: 150,
-    createdAt: new Date('2024-01-10').toISOString(), 
-    updatedAt: new Date('2024-01-10').toISOString() 
-  },
-  { 
-    id: '2', 
-    name: 'Sudaderas', 
-    slug: '/sudaderas',
-    status: 'Activa',
-    visibility: 'Pública',
-    productsCount: 89,
-    createdAt: new Date('2024-02-05').toISOString(), 
-    updatedAt: new Date('2024-02-05').toISOString() 
-  },
-  { 
-    id: '3', 
-    name: 'Merchandising', 
-    slug: '/merchandising',
-    status: 'Activa',
-    visibility: 'Pública',
-    productsCount: 45,
-    createdAt: new Date('2024-03-12').toISOString(), 
-    updatedAt: new Date('2024-03-12').toISOString() 
-  },
-  { 
-    id: '4', 
-    name: 'Pantalones', 
-    slug: '/pantalones',
-    status: 'Activa',
-    visibility: 'Pública',
-    productsCount: 67,
-    createdAt: new Date('2024-04-01').toISOString(), 
-    updatedAt: new Date('2024-04-01').toISOString() 
-  },
-];
+// Establecer una semilla para tener datos consistentes
+faker.seed(789);
+
+// Mock data generado con faker
+const MOCK_CATEGORIES: Category[] = Array.from({ length: 50 }, () => ({
+  id: faker.string.uuid(),
+  name: faker.commerce.department(),
+  slug: `/${faker.commerce.department().toLowerCase().replace(/[^a-z0-9]+/g, '-')}`,
+  description: faker.commerce.productDescription(),
+  status: faker.helpers.arrayElement(['Activa', 'Inactiva']),
+  visibility: faker.helpers.arrayElement(['Pública', 'Interna']),
+  productsCount: faker.number.int({ min: 0, max: 200 }),
+  createdAt: faker.date.past().toISOString(),
+  updatedAt: faker.date.recent().toISOString()
+}));
 
 const CategoriesManagement = () => {
   const router = useRouter();
@@ -62,6 +34,9 @@ const CategoriesManagement = () => {
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null);
+  
+  // Estado para la búsqueda global
+  const [searchTerm, setSearchTerm] = useState("");
 
   // Sincronizar estado con URL
   useEffect(() => {
@@ -80,9 +55,9 @@ const CategoriesManagement = () => {
         setIsRanking(false);
       }
     } else if (action === 'ranking') {
-      setIsRanking(true);
       setIsCreating(false);
       setEditingCategory(null);
+      setIsRanking(true);
     } else {
       setIsCreating(false);
       setEditingCategory(null);
@@ -176,6 +151,16 @@ const CategoriesManagement = () => {
     );
   }
 
+  if (isRanking) {
+    return (
+      <CategoryRanking 
+        categories={categories}
+        onSave={handleSaveRanking}
+        onCancel={() => router.push('/dashboard?view=categories')}
+      />
+    );
+  }
+
   return (
     <div className="max-w-6xl mx-auto p-6 relative">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
@@ -204,26 +189,33 @@ const CategoriesManagement = () => {
       {/* Buscador (Placeholder visual) */}
       <div className="mb-6">
         <div className="relative">
-          <span className="material-symbols-outlined absolute left-3 top-2.5 text-gray-400 text-[20px]">search</span>
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+            <span className="material-symbols-outlined text-xl">search</span>
+          </span>
           <input 
             type="text" 
             placeholder="Buscar" 
-            className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-echo-blue/20 focus:border-echo-blue transition-all"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary focus:border-transparent dark:text-gray-200 dark:placeholder-gray-500 transition-shadow"
           />
         </div>
       </div>
 
-      <CategoryList 
-        categories={categories} 
-        onDelete={handleDeleteClick}
+      <CategoryTable 
+        categories={categories}
+        globalFilter={searchTerm}
         onEdit={handleEdit}
+        onDelete={handleDeleteClick}
       />
-
+      
+      {/* 
       <CategoryMobileList 
         categories={categories} 
         onEdit={handleEdit} 
         onDelete={handleDeleteClick} 
       />
+      */}
 
       <DeleteConfirmationModal
         isOpen={deleteModalOpen}
@@ -231,14 +223,6 @@ const CategoriesManagement = () => {
         onConfirm={handleConfirmDelete}
         itemName={categoryToDelete?.name}
       />
-
-      {isRanking && (
-        <CategoryRanking 
-          categories={categories}
-          onSave={handleSaveRanking}
-          onCancel={handleCancel}
-        />
-      )}
     </div>
   );
 };
