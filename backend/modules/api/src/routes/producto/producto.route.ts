@@ -63,6 +63,8 @@ import { VarianteUpdateEndpoint } from "./variante/update/varianteUpdate.endpoin
 import { VarianteUpdateNetwork } from "./variante/update/varianteUpdate.network";
 import { VarianteDeleteEndpoint } from "./variante/delete/varianteDelete.endpoint";
 import { VarianteDeleteNetwork } from "./variante/delete/varianteDelete.network";
+import { PrecioCreateEndpoint } from "./variante/precio/create/precioCreate.endpoint";
+import { PrecioCreateNetwork } from "./variante/precio/create/precioCreate.network";
 import { ProductoGetServiceBuilder } from "../../services/producto/get";
 import { ProductoListServiceBuilder } from "../../services/producto/list";
 import { ProductoUpdateServiceBuilder } from "../../services/producto/update";
@@ -97,6 +99,7 @@ import { VarianteGetServiceBuilder } from "../../services/producto/variante/get"
 import { VarianteListServiceBuilder } from "../../services/producto/variante/list";
 import { VarianteUpdateServiceBuilder } from "../../services/producto/variante/update";
 import { VarianteDeleteServiceBuilder } from "../../services/producto/variante/delete";
+import { PrecioCreateServiceBuilder } from "../../services/producto/variante/precio/create";
 
 /**
  * Router de productos.
@@ -151,6 +154,7 @@ export class ProductoRoute {
     const varianteListService = new VarianteListServiceBuilder().build();
     const varianteUpdateService = new VarianteUpdateServiceBuilder().build();
     const varianteDeleteService = new VarianteDeleteServiceBuilder().build();
+    const precioCreateService = new PrecioCreateServiceBuilder().build();
 
     // ===== PRODUCTOS =====
     const productoCreateEndpoint = new ProductoCreateEndpoint({
@@ -406,6 +410,14 @@ export class ProductoRoute {
       varianteDeleteEndpoint
     );
     varianteDeleteNetwork.setNetwork(variantesRouter);
+
+    // ===== PRECIOS DE VARIANTES =====
+    // Create precio
+    const precioCreateEndpoint = new PrecioCreateEndpoint({
+      precioService: precioCreateService,
+    });
+    const precioCreateNetwork = new PrecioCreateNetwork(precioCreateEndpoint);
+    precioCreateNetwork.setNetwork(variantesRouter);
 
     // Registrar routers en el servidor
     server.use("/api/productos", productosRouter);
