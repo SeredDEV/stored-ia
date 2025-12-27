@@ -1478,7 +1478,7 @@ const NewProductForm: React.FC<NewProductFormProps> = ({
                             {formData.collection
                               ? collections.find(
                                   (c) => c.id === formData.collection
-                                )?.nombre || "Seleccionar colección"
+                                )?.titulo || "Seleccionar colección"
                               : "Seleccionar colección"}
                           </span>
                           <span className="material-symbols-outlined text-[#9CA3AF]">
