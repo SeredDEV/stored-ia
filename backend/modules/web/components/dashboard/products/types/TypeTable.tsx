@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useMemo, useEffect } from "react";
-import { ProductTag } from "./types";
+import { ProductType } from "./types";
 import {
   createColumnHelper,
   flexRender,
@@ -31,20 +31,20 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
-interface TagTableProps {
-  tags: ProductTag[];
+interface TypeTableProps {
+  types: ProductType[];
   globalFilter: string;
   onEdit?: (id: string) => void;
   onDelete?: (id: string) => void;
 }
 
-const columnHelper = createColumnHelper<ProductTag>();
+const columnHelper = createColumnHelper<ProductType>();
 
 const DraggableTableHeader = ({
   header,
   children,
 }: {
-  header: Header<ProductTag, unknown>;
+  header: Header<ProductType, unknown>;
   children: React.ReactNode;
 }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
@@ -91,8 +91,8 @@ const DraggableTableHeader = ({
   );
 };
 
-export const TagTable: React.FC<TagTableProps> = ({
-  tags,
+export const TypeTable: React.FC<TypeTableProps> = ({
+  types,
   globalFilter,
   onEdit,
   onDelete,
@@ -137,7 +137,7 @@ export const TagTable: React.FC<TagTableProps> = ({
         cell: (info) => (
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-500 dark:text-gray-400 flex-shrink-0">
-              <span className="material-symbols-outlined text-[18px]">label</span>
+              <span className="material-symbols-outlined text-[18px]">style</span>
             </div>
             <span className="font-medium text-gray-900 dark:text-white">
               {info.getValue()}
@@ -201,68 +201,24 @@ export const TagTable: React.FC<TagTableProps> = ({
                   const rect = e.currentTarget.getBoundingClientRect();
                   setActiveMenu({
                     id: info.row.original.id,
-                    top: rect.bottom,
-                    left: rect.right - 192,
+                    top: rect.bottom + window.scrollY + 4,
+                    left: rect.right + window.scrollX - 160,
                   });
                 }
               }}
-              className={`transition-colors p-1.5 rounded-lg ${
-                activeMenu?.id === info.row.original.id
-                  ? "bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-white"
-                  : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-              }`}
+              className="transition-colors p-1.5 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
             >
-              <span className="material-symbols-outlined text-[20px]">
-                more_vert
-              </span>
+              <span className="material-symbols-outlined text-[20px]">more_vert</span>
             </button>
-            {activeMenu?.id === info.row.original.id && (
-              <div
-                className="fixed w-48 bg-white dark:bg-surface-dark rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 z-[9999] overflow-hidden animate-in fade-in zoom-in-95 duration-100 origin-top-right ring-1 ring-black ring-opacity-5"
-                style={{
-                  top: `${activeMenu.top}px`,
-                  left: `${activeMenu.left}px`,
-                }}
-              >
-                <div className="p-1">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onEdit?.(info.row.original.id);
-                      setActiveMenu(null);
-                    }}
-                    className="w-full px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg flex items-center gap-2.5 transition-colors"
-                  >
-                    <span className="material-symbols-outlined text-[20px] text-gray-500 dark:text-gray-400">
-                      edit
-                    </span>
-                    Editar
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onDelete?.(info.row.original.id);
-                      setActiveMenu(null);
-                    }}
-                    className="w-full px-3 py-2 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg flex items-center gap-2.5 transition-colors"
-                  >
-                    <span className="material-symbols-outlined text-[20px]">
-                      delete
-                    </span>
-                    Eliminar
-                  </button>
-                </div>
-              </div>
-            )}
           </div>
         ),
       }),
     ],
-    [activeMenu, onEdit, onDelete, sorting]
+    [activeMenu]
   );
 
   const table = useReactTable({
-    data: tags,
+    data: types,
     columns,
     state: {
       sorting,
@@ -285,11 +241,7 @@ export const TagTable: React.FC<TagTableProps> = ({
   });
 
   const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 8,
-      },
-    }),
+    useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
@@ -308,35 +260,47 @@ export const TagTable: React.FC<TagTableProps> = ({
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        activeMenu &&
-        !(event.target as Element).closest(".action-menu-container")
-      ) {
+      if (activeMenu && !(event.target as Element).closest('.action-menu-container')) {
         setActiveMenu(null);
       }
     };
-
-    const handleScroll = () => {
-      if (activeMenu) {
-        setActiveMenu(null);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    window.addEventListener("scroll", handleScroll, true);
-    window.addEventListener("resize", handleScroll);
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-      window.removeEventListener("scroll", handleScroll, true);
-      window.removeEventListener("resize", handleScroll);
-    };
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
   }, [activeMenu]);
 
   return (
-    <div className="bg-white dark:bg-surface-dark border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm overflow-hidden">
+    <div className="overflow-x-auto">
+      {activeMenu && (
+        <div 
+          className="fixed z-50 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-100 dark:border-gray-700 py-1 w-40 animate-in fade-in zoom-in-95 duration-100"
+          style={{ top: activeMenu.top, left: activeMenu.left }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <button
+            onClick={() => {
+              onEdit?.(activeMenu.id);
+              setActiveMenu(null);
+            }}
+            className="w-full text-left px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/50 flex items-center gap-2"
+          >
+            <span className="material-symbols-outlined text-[18px]">edit</span>
+            Editar
+          </button>
+          <button
+            onClick={() => {
+              onDelete?.(activeMenu.id);
+              setActiveMenu(null);
+            }}
+            className="w-full text-left px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 flex items-center gap-2"
+          >
+            <span className="material-symbols-outlined text-[18px]">delete</span>
+            Eliminar
+          </button>
+        </div>
+      )}
+
       <DndContext
-        id="dnd-context-tags"
+        id="dnd-context-types"
         collisionDetection={closestCenter}
         modifiers={[
           (args) => ({
@@ -347,104 +311,77 @@ export const TagTable: React.FC<TagTableProps> = ({
         sensors={sensors}
         onDragEnd={handleDragEnd}
       >
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700">
+        <table className="w-full text-left border-collapse">
+          <thead>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <tr
+                key={headerGroup.id}
+                className="bg-gray-50/50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700"
+              >
                 <SortableContext
                   items={columnOrder}
                   strategy={horizontalListSortingStrategy}
                 >
-                  {table.getHeaderGroups().map((headerGroup) =>
-                    headerGroup.headers.map((header) => (
-                      <DraggableTableHeader key={header.id} header={header}>
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
-                      </DraggableTableHeader>
-                    ))
-                  )}
+                  {headerGroup.headers.map((header) => (
+                    <DraggableTableHeader key={header.id} header={header}>
+                      {flexRender(
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
+                    </DraggableTableHeader>
+                  ))}
                 </SortableContext>
               </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-              {table.getRowModel().rows.length === 0 ? (
-                <tr>
-                   <td colSpan={columns.length} className="px-6 py-12 text-center">
-                    <div className="flex flex-col items-center justify-center text-gray-500 dark:text-gray-400">
-                      <span className="material-symbols-outlined text-4xl mb-2 opacity-50">label</span>
-                      <p className="text-sm">No se encontraron etiquetas</p>
-                    </div>
+            ))}
+          </thead>
+          <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+            {table.getRowModel().rows.map((row) => (
+              <tr
+                key={row.id}
+                className="group hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-all duration-200"
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <td key={cell.id} className="px-6 py-4">
+                    <SortableContext
+                      items={columnOrder}
+                      strategy={horizontalListSortingStrategy}
+                    >
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </SortableContext>
                   </td>
-                </tr>
-              ) : (
-                table.getRowModel().rows.map((row) => (
-                  <tr
-                    key={row.id}
-                    className="hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors"
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <td key={cell.id} className="px-8 py-4">
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
-                      </td>
-                    ))}
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </DndContext>
-      <div className="px-8 py-5 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between bg-white dark:bg-surface-dark">
-        <div className="text-sm text-gray-500 dark:text-gray-400">
-          Mostrando{" "}
-          <span className="font-medium text-gray-900 dark:text-gray-100">
-            {table.getFilteredRowModel().rows.length > 0
-              ? table.getState().pagination.pageIndex *
-                  table.getState().pagination.pageSize +
-                1
-              : 0}
-          </span>{" "}
-          a{" "}
-          <span className="font-medium text-gray-900 dark:text-gray-100">
-            {Math.min(
-              (table.getState().pagination.pageIndex + 1) *
-                table.getState().pagination.pageSize,
-              table.getFilteredRowModel().rows.length
-            )}
-          </span>{" "}
-          de{" "}
-          <span className="font-medium text-gray-900 dark:text-gray-100">
-            {table.getFilteredRowModel().rows.length}
-          </span>{" "}
-          resultados
-        </div>
-        <div className="flex items-center gap-4">
-          <div className="text-sm text-gray-500 dark:text-gray-400">
-            {table.getPageCount() > 0 ? table.getState().pagination.pageIndex + 1 : 0} de {table.getPageCount()} páginas
-          </div>
-          <div className="flex gap-2">
-            <button
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
-              className="px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              Anterior
-            </button>
-            <button
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
-              className="px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              Siguiente
-            </button>
-          </div>
+
+      {/* Pagination */}
+      <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
+        <span className="text-sm text-gray-500 dark:text-gray-400">
+          Mostrando {table.getRowModel().rows.length} de {types.length} tipos
+        </span>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+            className="p-1.5 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            <span className="material-symbols-outlined text-[20px]">chevron_left</span>
+          </button>
+          <span className="text-sm text-gray-600 dark:text-gray-300 min-w-[3ch] text-center">
+            {table.getState().pagination.pageIndex + 1}
+          </span>
+          <button
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+            className="p-1.5 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            <span className="material-symbols-outlined text-[20px]">chevron_right</span>
+          </button>
         </div>
       </div>
     </div>

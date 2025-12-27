@@ -356,9 +356,15 @@ export const CollectionTable: React.FC<CollectionTableProps> = ({
   return (
     <div className="bg-white dark:bg-surface-dark border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm overflow-hidden">
       <DndContext
-        id="collection-table-dnd"
-        sensors={sensors}
+        id="dnd-context-collections"
         collisionDetection={closestCenter}
+        modifiers={[
+          (args) => ({
+            ...args.transform,
+            y: 0,
+          }),
+        ]}
+        sensors={sensors}
         onDragEnd={handleDragEnd}
       >
         <div className="overflow-x-auto">

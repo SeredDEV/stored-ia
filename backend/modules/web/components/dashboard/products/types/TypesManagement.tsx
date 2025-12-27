@@ -1,42 +1,36 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { fakerES as faker } from '@faker-js/faker';
 import { ProductType, CreateProductTypeInput } from './types';
 import { TypeForm } from './TypeForm';
-import { TypeList } from './TypeList';
+import { TypeTable } from './TypeTable';
 import { TypeMobileList } from './TypeMobileList';
 import { DeleteConfirmationModal } from '../collections/DeleteConfirmationModal';
 
 // Mock data
-const MOCK_TYPES: ProductType[] = [
-  { 
-    id: '1', 
-    name: 'ropa', 
-    createdAt: new Date('2025-12-21').toISOString(), 
-    updatedAt: new Date('2025-12-21').toISOString() 
-  },
-  { 
-    id: '2', 
-    name: 'calzado', 
-    createdAt: new Date('2025-12-21').toISOString(), 
-    updatedAt: new Date('2025-12-21').toISOString() 
-  },
-  { 
-    id: '3', 
-    name: 'accesorios', 
-    createdAt: new Date('2025-12-21').toISOString(), 
-    updatedAt: new Date('2025-12-21').toISOString() 
-  },
-];
+const generateMockTypes = (count: number): ProductType[] => {
+  return Array.from({ length: count }).map(() => ({
+    id: faker.string.uuid(),
+    name: faker.commerce.department().toLowerCase(),
+    createdAt: faker.date.past().toISOString(),
+    updatedAt: faker.date.recent().toISOString(),
+  }));
+};
 
 const TypesManagement = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [types, setTypes] = useState<ProductType[]>(MOCK_TYPES);
+  const [types, setTypes] = useState<ProductType[]>([]);
+  const [globalFilter, setGlobalFilter] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const [editingType, setEditingType] = useState<ProductType | null>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [typeToDelete, setTypeToDelete] = useState<ProductType | null>(null);
+
+  useEffect(() => {
+    setTypes(generateMockTypes(20));
+  }, []);
 
   // Sincronizar estado con URL
   useEffect(() => {
@@ -151,23 +145,30 @@ const TypesManagement = () => {
         </div>
       </div>
 
-      {/* Buscador (Placeholder visual) */}
+      {/* Buscador */}
       <div className="mb-6">
         <div className="relative">
-          <span className="material-symbols-outlined absolute left-3 top-2.5 text-gray-400 text-[20px]">search</span>
-          <input 
-            type="text" 
-            placeholder="Buscar" 
-            className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-echo-blue/20 focus:border-echo-blue transition-all"
+          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[20px]">
+            search
+          </span>
+          <input
+            type="text"
+            placeholder="Buscar tipos..."
+            value={globalFilter}
+            onChange={(e) => setGlobalFilter(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-echo-blue/50 text-gray-700 dark:text-gray-200 placeholder-gray-400 transition-all"
           />
         </div>
       </div>
 
-      <TypeList 
-        types={types} 
-        onDelete={handleDeleteClick}
-        onEdit={handleEdit}
-      />
+      <div className="hidden md:block bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <TypeTable 
+          types={types} 
+          globalFilter={globalFilter}
+          onEdit={handleEdit}
+          onDelete={handleDeleteClick}
+        />
+      </div>
 
       <TypeMobileList 
         types={types} 
