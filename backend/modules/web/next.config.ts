@@ -9,6 +9,16 @@ const nextConfig: NextConfig = {
   },
   // Especificar el root del workspace para evitar advertencias de múltiples lockfiles
   outputFileTracingRoot: path.join(__dirname, '../../'),
+  
+  // Configurar rewrites para hacer proxy a la API
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: 'http://localhost:3001/api/:path*',
+      },
+    ];
+  },
 };
 
 export default nextConfig;

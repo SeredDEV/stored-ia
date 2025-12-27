@@ -9,7 +9,11 @@ interface CategoryFormProps {
 
 export const CategoryForm: React.FC<CategoryFormProps> = ({ onSubmit, onCancel, initialData }) => {
   const [name, setName] = useState(initialData?.name || '');
-  const [slug, setSlug] = useState(initialData?.slug || '');
+  // Asegurar que el slug siempre tenga el "/" inicial
+  const [slug, setSlug] = useState(() => {
+    const initial = initialData?.slug || '';
+    return initial && !initial.startsWith('/') ? `/${initial}` : initial;
+  });
   const [description, setDescription] = useState(initialData?.description || '');
   const [status, setStatus] = useState<CategoryStatus>(initialData?.status || 'Activa');
   const [visibility, setVisibility] = useState<CategoryVisibility>(initialData?.visibility || 'Pública');
@@ -29,13 +33,26 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({ onSubmit, onCancel, 
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/^-+|-+$/g, '');
-      setSlug(generatedSlug ? `/${generatedSlug}` : '');
+      // Siempre agregar el "/" inicial, incluso si está vacío
+      setSlug(generatedSlug ? `/${generatedSlug}` : '/');
     }
   };
 
   const handleSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setIsAutoSlug(false);
-    setSlug(e.target.value);
+    let value = e.target.value;
+    
+    // Asegurar que siempre empiece con "/"
+    if (value && !value.startsWith('/')) {
+      value = `/${value}`;
+    }
+    
+    // Si el usuario borra todo, dejar solo "/"
+    if (!value) {
+      value = '/';
+    }
+    
+    setSlug(value);
   };
 
   return (
