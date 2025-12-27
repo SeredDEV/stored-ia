@@ -2,7 +2,7 @@
 
 # Instalar paquetes base
 apt-get update
-apt-get install -y git curl wget zsh
+apt-get install -y git curl
 
 # Configurar bash con uv en PATH y prompt personalizado
 cat >> ~/.bashrc << 'EOF'
@@ -19,8 +19,5 @@ EOF
 
 # Instalar uv/uvx
 curl -LsSf https://astral.sh/uv/install.sh | sh
-
-# Cambiar shell por defecto a zsh
-chsh -s $(which zsh)
 
 echo "✅ Terminal configurada con éxito!"
