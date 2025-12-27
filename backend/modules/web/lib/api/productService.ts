@@ -61,6 +61,23 @@ export const productService = {
     return result.data;
   },
 
+  async createWithImages(formData: FormData): Promise<ApiProduct> {
+    const response = await fetch(`${API_URL}/api/productos`, {
+      method: "POST",
+      credentials: "include",
+      body: formData,
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      console.error("Error del servidor:", error);
+      throw new Error(
+        error.error || error.message || "Error al crear producto"
+      );
+    }
+    const result = await response.json();
+    return result.data.producto;
+  },
+
   async update(id: string, product: Partial<ApiProduct>): Promise<ApiProduct> {
     const response = await fetch(`${API_URL}/api/productos/${id}`, {
       method: "PUT",

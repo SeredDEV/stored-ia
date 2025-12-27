@@ -61,6 +61,8 @@ const ProductsManagement: React.FC = () => {
   const handleCloseNewProduct = () => {
     setShowNewProductForm(false);
     router.push("/dashboard?view=products");
+    // Recargar la lista de productos después de cerrar el formulario
+    loadProducts();
   };
 
   const handleEditProduct = (product: Product) => {

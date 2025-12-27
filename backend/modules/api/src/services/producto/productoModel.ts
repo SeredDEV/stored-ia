@@ -60,6 +60,9 @@ export interface CreateProductoInput {
     titulo: string;
     valores: string[];
   }>;
+
+  // Estado
+  estado?: "borrador" | "publicado" | "inactivo";
 }
 
 export interface CreateVarianteBasicInput {
