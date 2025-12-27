@@ -106,6 +106,9 @@ import { PrecioListNetwork } from "./variante/precio/list/precioList.network";
 import { buildPrecioUpdateService } from "../../services/producto/precio/update/precioUpdate.builder";
 import { PrecioUpdateEndpoint } from "./precio/update/precioUpdate.endpoint";
 import { PrecioUpdateNetwork } from "./precio/update/precioUpdate.network";
+import { CategoriasAssignEndpoint } from "./categorias/assign/categoriasAssign.endpoint";
+import { CategoriasAssignNetwork } from "./categorias/assign/categoriasAssign.network";
+import { CategoriaAssignServiceBuilder } from "../../services/producto/categoria/assign";
 
 /**
  * Router de productos.
@@ -442,6 +445,13 @@ export class ProductoRoute {
     });
     const precioUpdateNetwork = new PrecioUpdateNetwork(precioUpdateEndpoint);
     precioUpdateNetwork.setNetwork(preciosRouter);
+
+    // ===== ASIGNAR CATEGORÍAS A PRODUCTOS =====
+    const categoriasAssignService = new CategoriaAssignServiceBuilder().build();
+    const categoriasAssignNetwork = new CategoriasAssignNetwork(
+      categoriasAssignService
+    );
+    categoriasAssignNetwork.setNetwork(productosRouter);
 
     // Registrar routers en el servidor
     server.use("/api/productos", productosRouter);
