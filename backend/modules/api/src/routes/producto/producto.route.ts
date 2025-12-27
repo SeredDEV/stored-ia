@@ -153,6 +153,7 @@ export class ProductoRoute {
     const varianteDeleteService = new VarianteDeleteServiceBuilder().build();
 
     // ===== PRODUCTOS =====
+    // Create
     const productoCreateEndpoint = new ProductoCreateEndpoint({
       productoCreateService,
     });
@@ -160,6 +161,38 @@ export class ProductoRoute {
       productoCreateEndpoint
     );
     productoCreateNetwork.setNetwork(productosRouter);
+
+    // List
+    const productoListEndpoint = new ProductoListEndpoint({
+      productoService: productoListService,
+    });
+    const productoListNetwork = new ProductoListNetwork(productoListEndpoint);
+    productoListNetwork.setNetwork(productosRouter);
+
+    // Get
+    const productoGetEndpoint = new ProductoGetEndpoint({
+      productoService: productoGetService,
+    });
+    const productoGetNetwork = new ProductoGetNetwork(productoGetEndpoint);
+    productoGetNetwork.setNetwork(productosRouter);
+
+    // Update
+    const productoUpdateEndpoint = new ProductoUpdateEndpoint({
+      productoService: productoUpdateService,
+    });
+    const productoUpdateNetwork = new ProductoUpdateNetwork(
+      productoUpdateEndpoint
+    );
+    productoUpdateNetwork.setNetwork(productosRouter);
+
+    // Delete
+    const productoDeleteEndpoint = new ProductoDeleteEndpoint({
+      productoService: productoDeleteService,
+    });
+    const productoDeleteNetwork = new ProductoDeleteNetwork(
+      productoDeleteEndpoint
+    );
+    productoDeleteNetwork.setNetwork(productosRouter);
 
     // ===== CATEGORÍAS =====
     // Create
