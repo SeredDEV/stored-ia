@@ -17,18 +17,20 @@ const generateMockTags = (count: number): ProductTag[] => {
   }));
 };
 
-const MOCK_TAGS: ProductTag[] = generateMockTags(20);
-
 const TagsManagement = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [tags, setTags] = useState<ProductTag[]>(MOCK_TAGS);
+  const [tags, setTags] = useState<ProductTag[]>([]);
   const [globalFilter, setGlobalFilter] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const [editingTag, setEditingTag] = useState<ProductTag | null>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [tagToDelete, setTagToDelete] = useState<ProductTag | null>(null);
+
+  useEffect(() => {
+    setTags(generateMockTags(20));
+  }, []);
 
   // Sincronizar estado con URL
   useEffect(() => {
