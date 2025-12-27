@@ -44,6 +44,7 @@ export class VarianteCreateService implements IVarianteCreateService {
     const { data, error } = await this.supabaseClient
       .from("variante_producto")
       .insert({
+        id: crypto.randomUUID(),
         producto_id,
         sku,
         ...varianteData,

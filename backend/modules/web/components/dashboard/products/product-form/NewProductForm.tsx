@@ -492,42 +492,14 @@ const NewProductForm: React.FC<NewProductFormProps> = ({
         throw new Error("El título es requerido");
       }
 
-      // Convertir imágenes a base64 si existen
-      const convertFileToBase64 = (
-        file: File
-      ): Promise<{ buffer: string; fileName: string; contentType: string }> => {
-        return new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = () => {
-            const base64 = reader.result as string;
-            resolve({
-              buffer: base64,
-              fileName: file.name,
-              contentType: file.type,
-            });
-          };
-          reader.onerror = reject;
-          reader.readAsDataURL(file);
-        });
-      };
+      // TODO: Conversión de imágenes a base64 se moverá al endpoint de imágenes
+      // cuando se implemente POST /api/productos/:id/imagenes
 
-      // Procesar imágenes si existen
-      let miniatura = undefined;
-      let imagenes = undefined;
-
-      if (formData.media.length > 0) {
-        const imagenesBase64 = await Promise.all(
-          formData.media.map((file) => convertFileToBase64(file))
-        );
-        miniatura = imagenesBase64[0];
-        imagenes = imagenesBase64;
-        console.log(`${imagenes.length} imágenes convertidas a base64`);
-      }
-
-      // Crear objeto JSON simple
+      // Crear objeto JSON simple (SOLO datos básicos del producto)
       const productData: any = {
         titulo: formData.title.trim(),
         slug: formData.handle.trim(),
+        tiene_descuento: formData.discountApplicable,
       };
 
       // Agregar campos opcionales solo si tienen valor
@@ -537,42 +509,51 @@ const NewProductForm: React.FC<NewProductFormProps> = ({
       if (formData.description?.trim()) {
         productData.descripcion = formData.description.trim();
       }
-      if (miniatura) {
-        productData.miniatura = miniatura;
-      }
-      if (imagenes && imagenes.length > 0) {
-        productData.imagenes = imagenes;
-      }
-
-      productData.tiene_descuento = formData.discountApplicable;
-      productData.tiene_variantes = formData.hasVariants;
-
       if (formData.type) {
         productData.tipo_producto_id = formData.type;
       }
       if (formData.collection) {
         productData.coleccion_id = formData.collection;
       }
-      if (formData.categories.length > 0) {
-        productData.categorias = formData.categories;
-      }
-      if (formData.tags.length > 0) {
-        productData.etiquetas = formData.tags;
-      }
-      if (formData.hasVariants && formData.options.length > 0) {
-        productData.opciones = formData.options.map((opt) => ({
-          titulo: opt.name,
-          valores: opt.values,
-        }));
-      }
 
       console.log("=== Enviando al backend ===");
-      console.log("Datos:", productData);
+      console.log("Datos (solo producto básico):", productData);
 
+      // 1. Crear el producto básico
       const producto = await productService.create(productData);
 
       console.log("=== Producto creado exitosamente ===");
       console.log("Producto:", producto);
+      console.log("Producto ID:", producto?.id);
+
+      // 2. Subir imágenes si existen
+      // TODO: Cuando se implemente el endpoint POST /api/productos/:id/imagenes
+      if (formData.media && formData.media.length > 0) {
+        console.log("=== Intentando subir imágenes ===");
+        console.log("Número de imágenes:", formData.media.length);
+        try {
+          await productService.uploadImages(producto.id, formData.media);
+          console.log("=== Imágenes subidas exitosamente ===");
+        } catch (error: any) {
+          console.warn("⚠️ No se pudieron subir las imágenes (endpoint no implementado):", error.message);
+          // No lanzamos el error, solo advertimos. El producto ya fue creado.
+        }
+      }
+
+      // 3. Relacionar categorías si existen
+      if (formData.categories && formData.categories.length > 0) {
+        console.log("=== Asignando categorías ===");
+        await productService.assignCategories(producto.id, formData.categories);
+      }
+
+      // 4. Relacionar etiquetas si existen
+      if (formData.tags && formData.tags.length > 0) {
+        console.log("=== Asignando etiquetas ===");
+        await productService.assignTags(producto.id, formData.tags);
+      }
+
+      // TODO: Después del MVP, agregar:
+      // 5. Crear variantes si existen: POST /api/productos/${producto.id}/variantes
 
       // Limpiar localStorage después de guardar exitosamente
       clearLocalStorage();

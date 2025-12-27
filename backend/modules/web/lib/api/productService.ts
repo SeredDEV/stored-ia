@@ -55,10 +55,21 @@ export const productService = {
       body: JSON.stringify(product),
     });
     if (!response.ok) {
-      throw new Error("Error al crear producto");
+      let errorMessage = "Error al crear producto";
+      try {
+        // Intentar parsear como JSON
+        const error = await response.json();
+        console.error("Error del servidor:", error);
+        errorMessage = error.error || error.message || JSON.stringify(error);
+      } catch (e) {
+        // Si falla el JSON, usar el statusText
+        console.error("Error del servidor (sin JSON):", response.status, response.statusText);
+        errorMessage = `Error ${response.status}: ${response.statusText}`;
+      }
+      throw new Error(errorMessage);
     }
     const result = await response.json();
-    return result.data;
+    return result.data.producto; // Backend devuelve { data: { producto: {...} } }
   },
 
   async createWithImages(formData: FormData): Promise<ApiProduct> {
@@ -99,6 +110,51 @@ export const productService = {
     }
     const result = await response.json();
     return result.data;
+  },
+
+  // Asignar categorías a un producto
+  async assignCategories(productId: string, categoryIds: string[]): Promise<void> {
+    const response = await fetch(`${API_URL}/api/productos/${productId}/categorias`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ categoria_ids: categoryIds }),
+    });
+    if (!response.ok) {
+      throw new Error("Error al asignar categorías");
+    }
+  },
+
+  // Asignar etiquetas a un producto
+  async assignTags(productId: string, tagIds: string[]): Promise<void> {
+    const response = await fetch(`${API_URL}/api/productos/${productId}/etiquetas`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ etiqueta_ids: tagIds }),
+    });
+    if (!response.ok) {
+      throw new Error("Error al asignar etiquetas");
+    }
+  },
+
+  // Subir imágenes a un producto
+  // TODO: Implementar endpoint POST /api/productos/:id/imagenes en el backend
+  async uploadImages(productId: string, images: File[]): Promise<void> {
+    const formData = new FormData();
+    images.forEach((image, index) => {
+      formData.append(`imagenes`, image);
+    });
+
+    const response = await fetch(`${API_URL}/api/productos/${productId}/imagenes`, {
+      method: "POST",
+      body: formData, // No incluir Content-Type, el browser lo añade automáticamente con boundary
+    });
+    if (!response.ok) {
+      throw new Error("Error al subir imágenes");
+    }
   },
 
   async delete(id: string): Promise<void> {

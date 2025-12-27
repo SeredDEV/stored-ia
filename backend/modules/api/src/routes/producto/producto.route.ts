@@ -63,6 +63,12 @@ import { VarianteUpdateEndpoint } from "./variante/update/varianteUpdate.endpoin
 import { VarianteUpdateNetwork } from "./variante/update/varianteUpdate.network";
 import { VarianteDeleteEndpoint } from "./variante/delete/varianteDelete.endpoint";
 import { VarianteDeleteNetwork } from "./variante/delete/varianteDelete.network";
+import { CategoriasAssignEndpoint } from "./categorias/assign/categoriasAssign.endpoint";
+import { CategoriasAssignNetwork } from "./categorias/assign/categoriasAssign.network";
+import { EtiquetasAssignEndpoint } from "./etiquetas/assign/etiquetasAssign.endpoint";
+import { EtiquetasAssignNetwork } from "./etiquetas/assign/etiquetasAssign.network";
+import { PrecioCreateEndpoint } from "./variante/precio/create/precioCreate.endpoint";
+import { PrecioCreateNetwork } from "./variante/precio/create/precioCreate.network";
 import { ProductoGetServiceBuilder } from "../../services/producto/get";
 import { ProductoListServiceBuilder } from "../../services/producto/list";
 import { ProductoUpdateServiceBuilder } from "../../services/producto/update";
@@ -97,6 +103,9 @@ import { VarianteGetServiceBuilder } from "../../services/producto/variante/get"
 import { VarianteListServiceBuilder } from "../../services/producto/variante/list";
 import { VarianteUpdateServiceBuilder } from "../../services/producto/variante/update";
 import { VarianteDeleteServiceBuilder } from "../../services/producto/variante/delete";
+import { CategoriaAssignServiceBuilder } from "../../services/producto/categoria/assign";
+import { EtiquetaAssignServiceBuilder } from "../../services/producto/etiqueta/assign";
+import { PrecioCreateServiceBuilder } from "../../services/producto/variante/precio/create";
 
 /**
  * Router de productos.
@@ -152,6 +161,10 @@ export class ProductoRoute {
     const varianteUpdateService = new VarianteUpdateServiceBuilder().build();
     const varianteDeleteService = new VarianteDeleteServiceBuilder().build();
 
+    const categoriaAssignService = new CategoriaAssignServiceBuilder().build();
+    const etiquetaAssignService = new EtiquetaAssignServiceBuilder().build();
+    const precioCreateService = new PrecioCreateServiceBuilder().build();
+
     // ===== PRODUCTOS =====
     // Create
     const productoCreateEndpoint = new ProductoCreateEndpoint({
@@ -193,6 +206,18 @@ export class ProductoRoute {
       productoDeleteEndpoint
     );
     productoDeleteNetwork.setNetwork(productosRouter);
+
+    // Assign Categorias
+    const categoriasAssignNetwork = new CategoriasAssignNetwork(
+      categoriaAssignService
+    );
+    categoriasAssignNetwork.setNetwork(productosRouter);
+
+    // Assign Etiquetas
+    const etiquetasAssignNetwork = new EtiquetasAssignNetwork(
+      etiquetaAssignService
+    );
+    etiquetasAssignNetwork.setNetwork(productosRouter);
 
     // ===== CATEGORÍAS =====
     // Create
@@ -401,6 +426,13 @@ export class ProductoRoute {
       varianteDeleteEndpoint
     );
     varianteDeleteNetwork.setNetwork(variantesRouter);
+
+    // Precio - Create
+    const precioCreateEndpoint = new PrecioCreateEndpoint({
+      precioService: precioCreateService,
+    });
+    const precioCreateNetwork = new PrecioCreateNetwork(precioCreateEndpoint);
+    precioCreateNetwork.setNetwork(variantesRouter);
 
     // Registrar routers en el servidor
     server.use("/api/productos", productosRouter);
