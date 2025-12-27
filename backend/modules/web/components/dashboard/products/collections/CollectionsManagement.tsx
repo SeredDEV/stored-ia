@@ -1,48 +1,41 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { fakerES as faker } from '@faker-js/faker';
 import { Collection, CreateCollectionInput } from './types';
 import { CollectionForm } from './CollectionForm';
-import { CollectionList } from './CollectionList';
+import { CollectionTable } from './CollectionTable';
 import { CollectionMobileList } from './CollectionMobileList';
 import { DeleteConfirmationModal } from './DeleteConfirmationModal';
 
-// Mock data
-const MOCK_COLLECTIONS: Collection[] = [
-  { 
-    id: '1', 
-    title: 'Verano 2025', 
-    slug: '/verano-2025', 
-    productsCount: 12, 
-    createdAt: new Date('2024-01-15').toISOString(), 
-    updatedAt: new Date('2024-01-15').toISOString() 
-  },
-  { 
-    id: '2', 
-    title: 'Invierno 2025', 
-    slug: '/invierno-2025', 
-    productsCount: 8, 
-    createdAt: new Date('2024-02-01').toISOString(), 
-    updatedAt: new Date('2024-02-01').toISOString() 
-  },
-  { 
-    id: '3', 
-    title: 'Ofertas Especiales', 
-    slug: '/ofertas-especiales', 
-    productsCount: 5, 
-    createdAt: new Date('2024-03-10').toISOString(), 
-    updatedAt: new Date('2024-03-10').toISOString() 
-  },
-];
+const generateMockCollections = (count: number): Collection[] => {
+  return Array.from({ length: count }).map(() => {
+    const title = faker.commerce.department() + ' ' + faker.date.future().getFullYear();
+    return {
+      id: faker.string.uuid(),
+      title: title,
+      slug: `/${title.toLowerCase().replace(/\s+/g, '-')}`,
+      productsCount: faker.number.int({ min: 0, max: 100 }),
+      createdAt: faker.date.past().toISOString(),
+      updatedAt: faker.date.recent().toISOString(),
+    };
+  });
+};
 
 const CollectionsManagement = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [collections, setCollections] = useState<Collection[]>(MOCK_COLLECTIONS);
+  const [collections, setCollections] = useState<Collection[]>([]);
+  const [globalFilter, setGlobalFilter] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const [editingCollection, setEditingCollection] = useState<Collection | null>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [collectionToDelete, setCollectionToDelete] = useState<Collection | null>(null);
+
+  // Generar datos mock al montar el componente para evitar errores de hidratación
+  useEffect(() => {
+    setCollections(generateMockCollections(20));
+  }, []);
 
   // Sincronizar estado con URL
   useEffect(() => {
@@ -158,17 +151,37 @@ const CollectionsManagement = () => {
         </button>
       </div>
 
-      <CollectionList 
-        collections={collections} 
-        onDelete={handleDeleteClick}
-        onEdit={handleEdit}
-      />
+      <div className="mb-6">
+        <div className="relative">
+          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[20px]">
+            search
+          </span>
+          <input
+            type="text"
+            placeholder="Buscar colecciones..."
+            value={globalFilter}
+            onChange={(e) => setGlobalFilter(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-echo-blue/50 text-gray-700 dark:text-gray-200 placeholder-gray-400 transition-all"
+          />
+        </div>
+      </div>
 
-      <CollectionMobileList 
-        collections={collections} 
-        onEdit={handleEdit} 
-        onDelete={handleDeleteClick} 
-      />
+      <div className="hidden md:block bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <CollectionTable
+          collections={collections}
+          globalFilter={globalFilter}
+          onEdit={handleEdit}
+          onDelete={handleDeleteClick}
+        />
+      </div>
+
+      <div className="mt-6 md:hidden">
+        <CollectionMobileList 
+          collections={collections} 
+          onEdit={handleEdit} 
+          onDelete={handleDeleteClick} 
+        />
+      </div>
 
       <DeleteConfirmationModal
         isOpen={deleteModalOpen}
