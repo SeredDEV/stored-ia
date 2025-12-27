@@ -1,8 +1,9 @@
 // Si estamos en el navegador, usar ruta relativa para aprovechar el proxy de Next.js
 // Si estamos en el servidor (SSR), usar la URL completa
-const API_URL = typeof window === 'undefined' 
-  ? (process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001")
-  : ""; // En el navegador, usar ruta relativa
+const API_URL =
+  typeof window === "undefined"
+    ? process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"
+    : ""; // En el navegador, usar ruta relativa
 
 export interface Category {
   id: string;
