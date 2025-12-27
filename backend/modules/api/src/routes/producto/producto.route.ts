@@ -109,6 +109,12 @@ import { PrecioUpdateNetwork } from "./precio/update/precioUpdate.network";
 import { CategoriasAssignEndpoint } from "./categorias/assign/categoriasAssign.endpoint";
 import { CategoriasAssignNetwork } from "./categorias/assign/categoriasAssign.network";
 import { CategoriaAssignServiceBuilder } from "../../services/producto/categoria/assign";
+import { CategoriasListEndpoint } from "./categorias/list/categoriasList.endpoint";
+import { CategoriasListNetwork } from "./categorias/list/categoriasList.network";
+import { CategoriaListByProductoServiceBuilder } from "../../services/producto/categoria/list-by-producto";
+import { CategoriaRemoveEndpoint } from "./categorias/remove/categoriaRemove.endpoint";
+import { CategoriaRemoveNetwork } from "./categorias/remove/categoriaRemove.network";
+import { CategoriaRemoveServiceBuilder } from "../../services/producto/categoria/remove-from-producto";
 
 /**
  * Router de productos.
@@ -452,6 +458,21 @@ export class ProductoRoute {
       categoriasAssignService
     );
     categoriasAssignNetwork.setNetwork(productosRouter);
+
+    // ===== LISTAR CATEGORÍAS DE UN PRODUCTO =====
+    const categoriasListService =
+      new CategoriaListByProductoServiceBuilder().build();
+    const categoriasListNetwork = new CategoriasListNetwork(
+      categoriasListService
+    );
+    categoriasListNetwork.setNetwork(productosRouter);
+
+    // ===== REMOVER CATEGORÍA DE UN PRODUCTO =====
+    const categoriaRemoveService = new CategoriaRemoveServiceBuilder().build();
+    const categoriaRemoveNetwork = new CategoriaRemoveNetwork(
+      categoriaRemoveService
+    );
+    categoriaRemoveNetwork.setNetwork(productosRouter);
 
     // Registrar routers en el servidor
     server.use("/api/productos", productosRouter);
