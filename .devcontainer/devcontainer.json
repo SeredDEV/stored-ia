@@ -35,8 +35,6 @@
   },
 
   "postCreateCommand": "bash /workspace/.devcontainer/setup.sh",
-  
-  "remoteUser": "root",
-  
-  "terminal.integrated.defaultProfile.linux": "zsh",
-  "terminal.integrated.fontFamily": "MesloLGS NF, 'Courier New', monospace"
+
+  "remoteUser": "root"
+}
