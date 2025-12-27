@@ -118,6 +118,9 @@ import { CategoriaRemoveServiceBuilder } from "../../services/producto/categoria
 import { EtiquetasAssignEndpoint } from "./etiquetas/assign/etiquetasAssign.endpoint";
 import { EtiquetasAssignNetwork } from "./etiquetas/assign/etiquetasAssign.network";
 import { EtiquetaAssignServiceBuilder } from "../../services/producto/etiqueta/assign";
+import { EtiquetasListEndpoint } from "./etiquetas/list/etiquetasList.endpoint";
+import { EtiquetasListNetwork } from "./etiquetas/list/etiquetasList.network";
+import { EtiquetaListByProductoServiceBuilder } from "../../services/producto/etiqueta/list-by-producto";
 
 /**
  * Router de productos.
@@ -483,6 +486,12 @@ export class ProductoRoute {
       etiquetasAssignService
     );
     etiquetasAssignNetwork.setNetwork(productosRouter);
+
+    // ===== LISTAR ETIQUETAS DE UN PRODUCTO =====
+    const etiquetasListService =
+      new EtiquetaListByProductoServiceBuilder().build();
+    const etiquetasListNetwork = new EtiquetasListNetwork(etiquetasListService);
+    etiquetasListNetwork.setNetwork(productosRouter);
 
     // Registrar routers en el servidor
     server.use("/api/productos", productosRouter);
