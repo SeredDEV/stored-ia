@@ -2,37 +2,29 @@ import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ProductTag, CreateProductTagInput } from './types';
 import { TagForm } from './TagForm';
-import { TagList } from './TagList';
+import { TagTable } from './TagTable';
 import { TagMobileList } from './TagMobileList';
 import { DeleteConfirmationModal } from '../collections/DeleteConfirmationModal';
+import { fakerES as faker } from '@faker-js/faker';
 
 // Mock data
-const MOCK_TAGS: ProductTag[] = [
-  { 
-    id: '1', 
-    name: 'Nuevo', 
-    createdAt: new Date('2025-12-21').toISOString(), 
-    updatedAt: new Date('2025-12-21').toISOString() 
-  },
-  { 
-    id: '2', 
-    name: 'Oferta', 
-    createdAt: new Date('2025-12-21').toISOString(), 
-    updatedAt: new Date('2025-12-21').toISOString() 
-  },
-  { 
-    id: '3', 
-    name: 'Verano', 
-    createdAt: new Date('2025-12-21').toISOString(), 
-    updatedAt: new Date('2025-12-21').toISOString() 
-  },
-];
+const generateMockTags = (count: number): ProductTag[] => {
+  return Array.from({ length: count }).map(() => ({
+    id: faker.string.uuid(),
+    name: faker.commerce.productAdjective(),
+    createdAt: faker.date.past().toISOString(),
+    updatedAt: faker.date.recent().toISOString(),
+  }));
+};
+
+const MOCK_TAGS: ProductTag[] = generateMockTags(20);
 
 const TagsManagement = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
   const [tags, setTags] = useState<ProductTag[]>(MOCK_TAGS);
+  const [globalFilter, setGlobalFilter] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const [editingTag, setEditingTag] = useState<ProductTag | null>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -151,23 +143,28 @@ const TagsManagement = () => {
         </div>
       </div>
 
-      {/* Buscador (Placeholder visual) */}
+      {/* Buscador */}
       <div className="mb-6">
         <div className="relative">
           <span className="material-symbols-outlined absolute left-3 top-2.5 text-[#9CA3AF] text-[20px]">search</span>
           <input 
             type="text" 
             placeholder="Buscar" 
+            value={globalFilter}
+            onChange={(e) => setGlobalFilter(e.target.value)}
             className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-echo-blue/20 focus:border-echo-blue transition-all"
           />
         </div>
       </div>
 
-      <TagList 
-        tags={tags} 
-        onDelete={handleDeleteClick}
-        onEdit={handleEdit}
-      />
+      <div className="hidden md:block">
+        <TagTable 
+          tags={tags} 
+          globalFilter={globalFilter}
+          onEdit={handleEdit}
+          onDelete={handleDeleteClick}
+        />
+      </div>
 
       <TagMobileList 
         tags={tags} 
