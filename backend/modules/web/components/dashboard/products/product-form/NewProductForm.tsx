@@ -1564,7 +1564,7 @@ const NewProductForm: React.FC<NewProductFormProps> = ({
                       </label>
                       {!showNewTypeInput ? (
                         <div className="relative group">
-                          <span className="material-symbols-outlined absolute left-3 top-2.5 text-[#9CA3AF] dark:group-focus-within:text-primary transition-colors text-[20px] z-10">
+                          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] dark:group-focus-within:text-primary transition-colors text-[20px] z-10 leading-none flex items-center justify-center">
                             style
                           </span>
                           <div
@@ -1574,7 +1574,7 @@ const NewProductForm: React.FC<NewProductFormProps> = ({
                                 openDropdown === "type" ? null : "type"
                               );
                             }}
-                            className="w-full pl-10 pr-10 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white cursor-pointer flex items-center justify-between"
+                            className="w-full pl-10 pr-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white cursor-pointer flex items-center justify-between min-h-[46px] transition-all hover:border-gray-300 dark:hover:border-gray-600 focus-within:ring-2 focus-within:ring-echo-blue dark:focus-within:ring-primary focus-within:border-transparent shadow-sm"
                           >
                             <span
                               className={!formData.type ? "text-gray-400" : ""}
@@ -1584,12 +1584,27 @@ const NewProductForm: React.FC<NewProductFormProps> = ({
                                     ?.valor || "Seleccionar tipo"
                                 : "Seleccionar tipo"}
                             </span>
-                            <span className="material-symbols-outlined text-[#9CA3AF]">
-                              expand_more
-                            </span>
+                            <div className="flex items-center gap-2">
+                              {formData.type && (
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleInputChange("type", "");
+                                  }}
+                                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
+                                >
+                                  <span className="material-symbols-outlined text-sm font-bold">
+                                    close
+                                  </span>
+                                </button>
+                              )}
+                              <span className="material-symbols-outlined text-gray-400">
+                                expand_more
+                              </span>
+                            </div>
                           </div>
                           {openDropdown === "type" && (
-                            <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                            <div className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto">
                               {loadingOrganizeData ? (
                                 <div className="px-4 py-8 text-center text-sm text-gray-500">
                                   Cargando...
@@ -1684,7 +1699,7 @@ const NewProductForm: React.FC<NewProductFormProps> = ({
                         Colección
                       </label>
                       <div className="relative group">
-                        <span className="material-symbols-outlined absolute left-3 top-2.5 text-[#9CA3AF] dark:text-gray-400 transition-colors text-[20px] z-10">
+                        <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] dark:text-gray-400 transition-colors text-[20px] z-10 leading-none flex items-center justify-center">
                           collections_bookmark
                         </span>
                         <div
@@ -1696,7 +1711,7 @@ const NewProductForm: React.FC<NewProductFormProps> = ({
                                 : "collection"
                             );
                           }}
-                          className="w-full pl-10 pr-10 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white cursor-pointer flex items-center justify-between"
+                          className="w-full pl-10 pr-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white cursor-pointer flex items-center justify-between min-h-[46px] transition-all hover:border-gray-300 dark:hover:border-gray-600 focus-within:ring-2 focus-within:ring-echo-blue dark:focus-within:ring-primary focus-within:border-transparent shadow-sm"
                         >
                           <span
                             className={
@@ -1706,15 +1721,30 @@ const NewProductForm: React.FC<NewProductFormProps> = ({
                             {formData.collection
                               ? collections.find(
                                   (c) => c.id === formData.collection
-                                )?.nombre || "Seleccionar colección"
+                                )?.titulo || "Seleccionar colección"
                               : "Seleccionar colección"}
                           </span>
-                          <span className="material-symbols-outlined text-[#9CA3AF]">
-                            expand_more
-                          </span>
+                          <div className="flex items-center gap-2">
+                            {formData.collection && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleInputChange("collection", "");
+                                }}
+                                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
+                              >
+                                <span className="material-symbols-outlined text-sm font-bold">
+                                  close
+                                </span>
+                              </button>
+                            )}
+                            <span className="material-symbols-outlined text-gray-400">
+                              expand_more
+                            </span>
+                          </div>
                         </div>
                         {openDropdown === "collection" && (
-                          <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                          <div className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto">
                             {loadingOrganizeData ? (
                               <div className="px-4 py-8 text-center text-sm text-gray-500">
                                 Cargando...
@@ -1763,7 +1793,7 @@ const NewProductForm: React.FC<NewProductFormProps> = ({
                         Categorías
                       </label>
                       <div className="relative group">
-                        <span className="material-symbols-outlined absolute left-3 top-2.5 text-gray-400 group-focus-within:text-gray-600 dark:group-focus-within:text-gray-300 transition-colors text-[20px] z-10">
+                        <span className="material-symbols-outlined absolute left-3 top-[13px] text-gray-400 group-focus-within:text-gray-600 dark:group-focus-within:text-gray-300 transition-colors text-[20px] z-10 leading-none flex items-center justify-center">
                           category
                         </span>
                         <div
@@ -1775,38 +1805,69 @@ const NewProductForm: React.FC<NewProductFormProps> = ({
                                 : "categories"
                             );
                           }}
-                          className="w-full pl-10 pr-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white cursor-pointer flex items-center justify-between"
+                          className="w-full pl-10 pr-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white cursor-pointer flex items-center justify-between min-h-[46px] h-auto transition-all hover:border-gray-300 dark:hover:border-gray-600 focus-within:ring-2 focus-within:ring-echo-blue dark:focus-within:ring-primary focus-within:border-transparent shadow-sm"
                         >
-                          <span
-                            className={
-                              formData.categories.length === 0
-                                ? "text-gray-400"
-                                : ""
-                            }
-                          >
-                            {formData.categories.length > 0
-                              ? `${formData.categories.length}x Seleccionado`
-                              : "Seleccionar categorías"}
-                          </span>
-                          {formData.categories.length > 0 && (
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleInputChange("categories", []);
-                              }}
-                              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                            >
-                              <span className="material-symbols-outlined text-sm">
-                                close
+                          <div className="flex flex-wrap gap-2 flex-1 items-center">
+                            {formData.categories.length > 0 ? (
+                              formData.categories.map((catId) => {
+                                const cat = categories.find(
+                                  (c) => c.id === catId
+                                );
+                                return (
+                                  <span
+                                    key={catId}
+                                    className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-echo-blue/10 dark:bg-primary/20 text-echo-blue dark:text-primary rounded-md text-sm font-medium group/tag transition-colors hover:bg-echo-blue/20 dark:hover:bg-primary/30"
+                                  >
+                                    {cat?.nombre || "..."}
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        const newCategories =
+                                          formData.categories.filter(
+                                            (c) => c !== catId
+                                          );
+                                        handleInputChange(
+                                          "categories",
+                                          newCategories
+                                        );
+                                      }}
+                                      className="text-echo-blue/60 hover:text-echo-blue dark:text-primary/60 dark:hover:text-primary transition-colors ml-0.5"
+                                    >
+                                      <span className="material-symbols-outlined text-[16px] font-bold">
+                                        close
+                                      </span>
+                                    </button>
+                                  </span>
+                                );
+                              })
+                            ) : (
+                              <span className="text-gray-400">
+                                Seleccionar categorías
                               </span>
-                            </button>
-                          )}
-                          <span className="material-symbols-outlined text-[#9CA3AF]">
-                            expand_more
-                          </span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2 ml-2">
+                            {formData.categories.length > 0 && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleInputChange("categories", []);
+                                }}
+                                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
+                                title="Borrar todo"
+                              >
+                                <span className="material-symbols-outlined text-sm font-bold">
+                                  close
+                                </span>
+                              </button>
+                            )}
+                            <span className="material-symbols-outlined text-gray-400">
+                              expand_more
+                            </span>
+                          </div>
                         </div>
                         {openDropdown === "categories" && (
-                          <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                          <div className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto">
                             {loadingOrganizeData ? (
                               <div className="px-4 py-8 text-center text-sm text-gray-500">
                                 Cargando...
@@ -1860,7 +1921,7 @@ const NewProductForm: React.FC<NewProductFormProps> = ({
                         Etiquetas
                       </label>
                       <div className="relative group">
-                        <span className="material-symbols-outlined absolute left-3 top-2.5 text-[#9CA3AF] dark:text-gray-400 transition-colors text-[20px] z-10">
+                        <span className="material-symbols-outlined absolute left-3 top-[13px] text-[#9CA3AF] dark:text-gray-400 transition-colors text-[20px] z-10 leading-none flex items-center justify-center">
                           label
                         </span>
                         <div
@@ -1870,36 +1931,63 @@ const NewProductForm: React.FC<NewProductFormProps> = ({
                               openDropdown === "tags" ? null : "tags"
                             );
                           }}
-                          className="w-full pl-10 pr-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white cursor-pointer flex items-center justify-between"
+                          className="w-full pl-10 pr-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white cursor-pointer flex items-center justify-between min-h-[46px] h-auto transition-all hover:border-gray-300 dark:hover:border-gray-600 focus-within:ring-2 focus-within:ring-echo-blue dark:focus-within:ring-primary focus-within:border-transparent shadow-sm"
                         >
-                          <span
-                            className={
-                              formData.tags.length === 0 ? "text-gray-400" : ""
-                            }
-                          >
-                            {formData.tags.length > 0
-                              ? `${formData.tags.length}x Seleccionado`
-                              : "Seleccionar etiquetas"}
-                          </span>
-                          {formData.tags.length > 0 && (
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleInputChange("tags", []);
-                              }}
-                              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                            >
-                              <span className="material-symbols-outlined text-sm">
-                                close
+                          <div className="flex flex-wrap gap-2 flex-1 items-center">
+                            {formData.tags.length > 0 ? (
+                              formData.tags.map((tagId) => {
+                                const tag = tags.find((t) => t.id === tagId);
+                                return (
+                                  <span
+                                    key={tagId}
+                                    className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-echo-blue/10 dark:bg-primary/20 text-echo-blue dark:text-primary rounded-md text-sm font-medium group/tag transition-colors hover:bg-echo-blue/20 dark:hover:bg-primary/30"
+                                  >
+                                    {tag?.valor || "..."}
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        const newTags = formData.tags.filter(
+                                          (t) => t !== tagId
+                                        );
+                                        handleInputChange("tags", newTags);
+                                      }}
+                                      className="text-echo-blue/60 hover:text-echo-blue dark:text-primary/60 dark:hover:text-primary transition-colors ml-0.5"
+                                    >
+                                      <span className="material-symbols-outlined text-[16px] font-bold">
+                                        close
+                                      </span>
+                                    </button>
+                                  </span>
+                                );
+                              })
+                            ) : (
+                              <span className="text-gray-400">
+                                Seleccionar etiquetas
                               </span>
-                            </button>
-                          )}
-                          <span className="material-symbols-outlined text-gray-400">
-                            expand_more
-                          </span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2 ml-2">
+                            {formData.tags.length > 0 && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleInputChange("tags", []);
+                                }}
+                                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
+                                title="Borrar todo"
+                              >
+                                <span className="material-symbols-outlined text-sm font-bold">
+                                  close
+                                </span>
+                              </button>
+                            )}
+                            <span className="material-symbols-outlined text-gray-400">
+                              expand_more
+                            </span>
+                          </div>
                         </div>
                         {openDropdown === "tags" && (
-                          <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                          <div className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto">
                             {loadingOrganizeData ? (
                               <div className="px-4 py-8 text-center text-sm text-gray-500">
                                 Cargando...
