@@ -189,6 +189,16 @@ export class ProductoRoute {
     );
     productoDeleteNetwork.setNetwork(productosRouter);
 
+    // Variantes de producto (nested route)
+    const productoVarianteListEndpoint = new VarianteListEndpoint({
+      varianteService: varianteListService,
+    });
+    // GET /api/productos/:producto_id/variantes
+    productosRouter.get(
+      "/:producto_id/variantes",
+      productoVarianteListEndpoint.controller.listByProductoWithProduct
+    );
+
     // ===== CATEGORÍAS =====
     // Create
     const categoriaCreateEndpoint = new CategoriaCreateEndpoint({
