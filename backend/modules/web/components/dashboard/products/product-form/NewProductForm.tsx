@@ -1,6 +1,10 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { categoryService } from "@/lib/api/categoryService";
+import { tagService } from "@/lib/api/tagService";
+import { collectionService } from "@/lib/api/collectionService";
+import { typeService } from "@/lib/api/typeService";
 
 interface ProductFormData {
   title: string;
@@ -45,28 +49,40 @@ interface NewProductFormProps {
   initialData?: Partial<ProductFormData>;
 }
 
-const NewProductForm: React.FC<NewProductFormProps> = ({ onClose, initialData }) => {
+const NewProductForm: React.FC<NewProductFormProps> = ({
+  onClose,
+  initialData,
+}) => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const currentTab = (searchParams.get("tab") as "details" | "organize" | "variants") || "details";
+  const currentTab =
+    (searchParams.get("tab") as "details" | "organize" | "variants") ||
+    "details";
 
   const setActiveTab = (tab: "details" | "organize" | "variants") => {
     // Si cambiamos a la pestaña de variantes y no hay variantes creadas (ni opción de variantes activada),
     // creamos una variante por defecto basada en el título del producto
-    if (tab === "variants" && !formData.hasVariants && formData.variants.length === 0 && formData.title) {
-      setFormData(prev => ({
+    if (
+      tab === "variants" &&
+      !formData.hasVariants &&
+      formData.variants.length === 0 &&
+      formData.title
+    ) {
+      setFormData((prev) => ({
         ...prev,
-        variants: [{
-          id: "default-variant",
-          name: prev.title, // Usamos el título del producto
-          selected: true,
-          title: prev.title, // Usamos el título del producto
-          sku: "",
-          priceCOP: "",
-          managedInventory: false,
-          allowBackorder: false,
-          hasInventoryKit: false
-        }]
+        variants: [
+          {
+            id: "default-variant",
+            name: prev.title, // Usamos el título del producto
+            selected: true,
+            title: prev.title, // Usamos el título del producto
+            sku: "",
+            priceCOP: "",
+            managedInventory: false,
+            allowBackorder: false,
+            hasInventoryKit: false,
+          },
+        ],
       }));
     }
 
@@ -98,6 +114,64 @@ const NewProductForm: React.FC<NewProductFormProps> = ({ onClose, initialData })
   // Estados para dropdowns abiertos
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
+  // Estados para las listas de organizar
+  const [categories, setCategories] = useState<any[]>([]);
+  const [tags, setTags] = useState<any[]>([]);
+  const [collections, setCollections] = useState<any[]>([]);
+  const [types, setTypes] = useState<any[]>([]);
+  const [loadingOrganizeData, setLoadingOrganizeData] = useState(false);
+  const [showNewTypeInput, setShowNewTypeInput] = useState(false);
+  const [newTypeName, setNewTypeName] = useState("");
+  const [creatingType, setCreatingType] = useState(false);
+
+  // Cargar datos de organizar
+  useEffect(() => {
+    const fetchOrganizeData = async () => {
+      setLoadingOrganizeData(true);
+      try {
+        const [categoriesData, tagsData, collectionsData, typesData] =
+          await Promise.all([
+            categoryService.getAll(),
+            tagService.getAll(),
+            collectionService.getAll(),
+            typeService.getAll(),
+          ]);
+
+        setCategories(categoriesData || []);
+        setTags(tagsData || []);
+        setCollections(collectionsData || []);
+        setTypes(typesData || []);
+      } catch (error) {
+        console.error("Error al cargar datos de organizar:", error);
+      } finally {
+        setLoadingOrganizeData(false);
+      }
+    };
+
+    fetchOrganizeData();
+  }, []);
+
+  // Función para crear un nuevo tipo
+  const handleCreateType = async () => {
+    if (!newTypeName.trim()) return;
+
+    setCreatingType(true);
+    try {
+      const newType = await typeService.create({
+        valor: newTypeName.trim(),
+      });
+
+      setTypes([...types, newType]);
+      handleInputChange("type", newType.id);
+      setNewTypeName("");
+      setShowNewTypeInput(false);
+    } catch (error) {
+      console.error("Error al crear tipo:", error);
+    } finally {
+      setCreatingType(false);
+    }
+  };
+
   // Helper para producto cartesiano
   const cartesian = (arrays: string[][]): string[][] => {
     return arrays.reduce<string[][]>(
@@ -111,18 +185,20 @@ const NewProductForm: React.FC<NewProductFormProps> = ({ onClose, initialData })
   // Función para generar variantes basadas en las opciones (Producto Cartesiano)
   const generateVariants = (options: ProductOption[]): ProductVariant[] => {
     // Solo consideramos opciones que tengan valores
-    const validOptions = options.filter(opt => opt.values && opt.values.length > 0);
-    
+    const validOptions = options.filter(
+      (opt) => opt.values && opt.values.length > 0
+    );
+
     if (validOptions.length === 0) return [];
 
-    const valuesArrays = validOptions.map(opt => opt.values);
+    const valuesArrays = validOptions.map((opt) => opt.values);
     const combinations = cartesian(valuesArrays);
 
     return combinations.map((combo, idx) => {
       const name = combo.join(" / ");
       // Generamos un ID basado en la combinación para intentar mantenerlo estable
-      const safeId = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-      
+      const safeId = name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+
       return {
         id: `variant-${safeId}-${idx}`,
         name: name,
@@ -164,17 +240,19 @@ const NewProductForm: React.FC<NewProductFormProps> = ({ onClose, initialData })
           }
         } else {
           // Si desactivamos variantes, volvemos a la variante por defecto única
-          updated.variants = [{
-            id: "default-variant",
-            name: updated.title || "Default Variant",
-            selected: true,
-            title: updated.title || "Default Variant",
-            sku: "",
-            priceCOP: "",
-            managedInventory: false,
-            allowBackorder: false,
-            hasInventoryKit: false
-          }];
+          updated.variants = [
+            {
+              id: "default-variant",
+              name: updated.title || "Default Variant",
+              selected: true,
+              title: updated.title || "Default Variant",
+              sku: "",
+              priceCOP: "",
+              managedInventory: false,
+              allowBackorder: false,
+              hasInventoryKit: false,
+            },
+          ];
         }
       }
 
@@ -311,13 +389,15 @@ const NewProductForm: React.FC<NewProductFormProps> = ({ onClose, initialData })
                     : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
                 }`}
               >
-                <span className="material-symbols-outlined text-[20px]">description</span>
+                <span className="material-symbols-outlined text-[20px]">
+                  description
+                </span>
                 Detalles
                 {activeTab === "details" && (
                   <span className="absolute bottom-0 left-0 w-full h-0.5 bg-echo-blue dark:bg-primary rounded-t-full" />
                 )}
               </button>
-              
+
               <button
                 onClick={() => setActiveTab("organize")}
                 className={`relative flex-1 md:flex-none px-2 md:px-3 py-4 text-sm font-medium whitespace-nowrap text-center transition-colors flex items-center justify-center gap-2 ${
@@ -326,13 +406,15 @@ const NewProductForm: React.FC<NewProductFormProps> = ({ onClose, initialData })
                     : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
                 }`}
               >
-                <span className="material-symbols-outlined text-[20px]">category</span>
+                <span className="material-symbols-outlined text-[20px]">
+                  category
+                </span>
                 Organizar
                 {activeTab === "organize" && (
                   <span className="absolute bottom-0 left-0 w-full h-0.5 bg-echo-blue dark:bg-primary rounded-t-full" />
                 )}
               </button>
-              
+
               <button
                 onClick={() => setActiveTab("variants")}
                 className={`relative flex-1 md:flex-none px-2 md:px-3 py-4 text-sm font-medium whitespace-nowrap text-center transition-colors flex items-center justify-center gap-2 ${
@@ -341,7 +423,9 @@ const NewProductForm: React.FC<NewProductFormProps> = ({ onClose, initialData })
                     : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
                 }`}
               >
-                <span className="material-symbols-outlined text-[20px]">style</span>
+                <span className="material-symbols-outlined text-[20px]">
+                  style
+                </span>
                 Variantes
                 {activeTab === "variants" && (
                   <span className="absolute bottom-0 left-0 w-full h-0.5 bg-echo-blue dark:bg-primary rounded-t-full" />
@@ -349,8 +433,8 @@ const NewProductForm: React.FC<NewProductFormProps> = ({ onClose, initialData })
               </button>
             </div>
           </div>
-          
-          <button 
+
+          <button
             onClick={onClose}
             className="flex-shrink-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
             title="Cerrar formulario"
@@ -373,7 +457,12 @@ const NewProductForm: React.FC<NewProductFormProps> = ({ onClose, initialData })
                     <div>
                       <label className="flex items-center gap-1 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Título
-                        <span className="text-red-500 text-lg leading-none" title="Obligatorio">*</span>
+                        <span
+                          className="text-red-500 text-lg leading-none"
+                          title="Obligatorio"
+                        >
+                          *
+                        </span>
                       </label>
                       <div className="relative group">
                         <span className="material-symbols-outlined absolute left-3 top-2.5 text-[#9CA3AF] dark:text-gray-400 transition-colors text-[20px]">
@@ -778,365 +867,422 @@ const NewProductForm: React.FC<NewProductFormProps> = ({ onClose, initialData })
           {activeTab === "variants" && (
             <div className="w-full">
               <div className="bg-white dark:bg-surface-dark rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
-                    <div className="max-h-[500px] overflow-y-auto">
-                      {formData.variants.filter((v) => !v.id.startsWith("option-")).length === 0 ? (
-                        <div className="p-8 text-center text-gray-500 dark:text-gray-400 bg-white dark:bg-surface-dark">
-                          <span className="material-symbols-outlined text-4xl mb-2 block mx-auto opacity-50">
-                            inventory_2
-                          </span>
-                          <p>No hay variantes generadas.</p>
-                          <p className="text-sm mt-1">
-                            Agrega opciones en la pestaña "Detalles" para generar variantes.
-                          </p>
-                        </div>
-                      ) : (
-                        <>
-                          {/* Vista Desktop (Tabla) */}
-                          <div className="hidden md:block overflow-x-auto">
-                            <table className="w-full relative">
-                              <thead className="sticky top-0 z-10 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm">
-                                <tr>
-                                  <th className="px-2 py-3 text-left w-16 bg-gray-50 dark:bg-gray-800">
-                                    <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">
-                                      Acciones
-                                    </span>
-                                  </th>
-                                  <th className="px-2 py-3 text-left bg-gray-50 dark:bg-gray-800">
-                                    <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">
-                                      Variantes
-                                    </span>
-                                  </th>
-                                  <th className="px-2 py-3 text-left bg-gray-50 dark:bg-gray-800">
-                                    <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">
-                                      Título
-                                    </span>
-                                  </th>
-                                  <th className="px-2 py-3 text-left bg-gray-50 dark:bg-gray-800">
-                                    <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">
-                                      SKU
-                                    </span>
-                                  </th>
-                                  <th className="px-2 py-3 text-center w-24 bg-gray-50 dark:bg-gray-800">
-                                    <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase block" title="Inventario Gestionado">
-                                      Inv. Gest.
-                                    </span>
-                                  </th>
-                                  <th className="px-2 py-3 text-center w-28 bg-gray-50 dark:bg-gray-800">
-                                    <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase block" title="Pedido Pendiente">
-                                      Ped. Pend.
-                                    </span>
-                                  </th>
-                                  <th className="px-2 py-3 text-center w-24 bg-gray-50 dark:bg-gray-800">
-                                    <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase block" title="Kit Inventario">
-                                      Kit Inv.
-                                    </span>
-                                  </th>
-                                  <th className="px-2 py-3 text-left w-32 bg-gray-50 dark:bg-gray-800">
-                                    <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">
-                                      Precio COP
-                                    </span>
-                                  </th>
-                                </tr>
-                              </thead>
-                              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                                {formData.variants
-                                  .filter((v) => !v.id.startsWith("option-"))
-                                  .map((variant) => (
-                                    <tr
-                                      key={variant.id}
-                                      className="hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors bg-white dark:bg-surface-dark group"
-                                    >
-                                      <td className="px-2 py-3">
-                                        <div className="flex items-center justify-center gap-1">
-                                          <button 
-                                            className="text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors p-1 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20"
-                                            title="Ver detalles"
-                                          >
-                                            <span className="material-symbols-outlined text-base">
-                                              visibility
-                                            </span>
-                                          </button>
-                                          <button 
-                                            onClick={() => {
-                                                setFormData(prev => ({
-                                                    ...prev,
-                                                    variants: prev.variants.filter(v => v.id !== variant.id)
-                                                }));
-                                            }}
-                                            className="text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors p-1 rounded hover:bg-red-50 dark:hover:bg-red-900/20"
-                                            title="Eliminar variante"
-                                          >
-                                            <span className="material-symbols-outlined text-base">
-                                              delete
-                                            </span>
-                                          </button>
-                                        </div>
-                                      </td>
-                                      <td className="px-2 py-3">
-                                        <input
-                                          type="text"
-                                          value={variant.id.startsWith('default-variant') ? "" : variant.name}
-                                          disabled={variant.id.startsWith('default-variant')}
-                                          onChange={(e) => {
-                                            setFormData((prev) => ({
-                                              ...prev,
-                                              variants: prev.variants.map((v) =>
-                                                v.id === variant.id
-                                                  ? { ...v, name: e.target.value }
-                                                  : v
-                                              ),
-                                            }));
-                                          }}
-                                          className={`w-full px-2.5 py-1.5 border border-gray-200 dark:border-gray-700 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary focus:border-transparent transition-all ${variant.id.startsWith('default-variant') ? 'bg-gray-100 dark:bg-gray-700 text-gray-400' : ''}`}
-                                          placeholder={variant.id.startsWith('default-variant') ? "-" : ""}
-                                        />
-                                      </td>
-                                      <td className="px-2 py-3">
-                                        <input
-                                          type="text"
-                                          value={variant.title || variant.name}
-                                          onChange={(e) => {
-                                            setFormData((prev) => ({
-                                              ...prev,
-                                              variants: prev.variants.map((v) =>
-                                                v.id === variant.id
-                                                  ? { ...v, title: e.target.value }
-                                                  : v
-                                              ),
-                                            }));
-                                          }}
-                                          className="w-full px-2.5 py-1.5 border border-gray-200 dark:border-gray-700 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary focus:border-transparent transition-all"
-                                        />
-                                      </td>
-                                      <td className="px-2 py-3">
-                                        <input
-                                          type="text"
-                                          value={variant.sku || ""}
-                                          onChange={(e) => {
-                                            setFormData((prev) => ({
-                                              ...prev,
-                                              variants: prev.variants.map((v) =>
-                                                v.id === variant.id
-                                                  ? { ...v, sku: e.target.value }
-                                                  : v
-                                              ),
-                                            }));
-                                          }}
-                                          className="w-full px-2.5 py-1.5 border border-gray-200 dark:border-gray-700 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary focus:border-transparent transition-all"
-                                          placeholder="SKU"
-                                        />
-                                      </td>
-                                      <td className="px-2 py-3">
-                                        <div className="flex items-center justify-center">
-                                          <input
-                                            type="checkbox"
-                                            checked={variant.managedInventory || false}
-                                            onChange={(e) => {
-                                              setFormData((prev) => ({
-                                                ...prev,
-                                                variants: prev.variants.map((v) =>
-                                                  v.id === variant.id
-                                                    ? {
-                                                        ...v,
-                                                        managedInventory:
-                                                          e.target.checked,
-                                                      }
-                                                    : v
-                                                ),
-                                              }));
-                                            }}
-                                            className="w-4 h-4 text-echo-blue dark:text-primary border-gray-300 rounded focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary cursor-pointer"
-                                          />
-                                        </div>
-                                      </td>
-                                      <td className="px-2 py-3">
-                                        <div className="flex items-center justify-center">
-                                          <input
-                                            type="checkbox"
-                                            checked={variant.allowBackorder || false}
-                                            onChange={(e) => {
-                                              setFormData((prev) => ({
-                                                ...prev,
-                                                variants: prev.variants.map((v) =>
-                                                  v.id === variant.id
-                                                    ? {
-                                                        ...v,
-                                                        allowBackorder: e.target.checked,
-                                                      }
-                                                    : v
-                                                ),
-                                              }));
-                                            }}
-                                            className="w-4 h-4 text-echo-blue dark:text-primary border-gray-300 rounded focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary cursor-pointer"
-                                          />
-                                        </div>
-                                      </td>
-                                      <td className="px-2 py-3">
-                                        <div className="flex items-center justify-center">
-                                          <input
-                                            type="checkbox"
-                                            checked={variant.hasInventoryKit || false}
-                                            onChange={(e) => {
-                                              setFormData((prev) => ({
-                                                ...prev,
-                                                variants: prev.variants.map((v) =>
-                                                  v.id === variant.id
-                                                    ? {
-                                                        ...v,
-                                                        hasInventoryKit: e.target.checked,
-                                                      }
-                                                    : v
-                                                ),
-                                              }));
-                                            }}
-                                            className="w-4 h-4 text-echo-blue dark:text-primary border-gray-300 rounded focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary cursor-pointer"
-                                          />
-                                        </div>
-                                      </td>
-                                      <td className="px-2 py-3">
-                                        <div className="flex items-center gap-1">
-                                          <span className="text-gray-600 dark:text-gray-400 font-medium text-sm">
-                                            $
-                                          </span>
-                                          <input
-                                            type="number"
-                                            min="0"
-                                            step="0.01"
-                                            value={variant.priceCOP || ""}
-                                            onChange={(e) => {
-                                              setFormData((prev) => ({
-                                                ...prev,
-                                                variants: prev.variants.map((v) =>
-                                                  v.id === variant.id
-                                                    ? { ...v, priceCOP: e.target.value }
-                                                    : v
-                                                ),
-                                              }));
-                                            }}
-                                            className="flex-1 px-2.5 py-1.5 border border-gray-200 dark:border-gray-700 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary focus:border-transparent transition-all"
-                                            placeholder="0.00"
-                                          />
-                                        </div>
-                                      </td>
-                                    </tr>
-                                  ))}
-                              </tbody>
-                            </table>
-                          </div>
-
-                          {/* Vista Móvil (Tarjetas) */}
-                          <div className="md:hidden space-y-4 p-4">
+                <div className="max-h-[500px] overflow-y-auto">
+                  {formData.variants.filter((v) => !v.id.startsWith("option-"))
+                    .length === 0 ? (
+                    <div className="p-8 text-center text-gray-500 dark:text-gray-400 bg-white dark:bg-surface-dark">
+                      <span className="material-symbols-outlined text-4xl mb-2 block mx-auto opacity-50">
+                        inventory_2
+                      </span>
+                      <p>No hay variantes generadas.</p>
+                      <p className="text-sm mt-1">
+                        Agrega opciones en la pestaña "Detalles" para generar
+                        variantes.
+                      </p>
+                    </div>
+                  ) : (
+                    <>
+                      {/* Vista Desktop (Tabla) */}
+                      <div className="hidden md:block overflow-x-auto">
+                        <table className="w-full relative">
+                          <thead className="sticky top-0 z-10 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm">
+                            <tr>
+                              <th className="px-2 py-3 text-left w-16 bg-gray-50 dark:bg-gray-800">
+                                <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">
+                                  Acciones
+                                </span>
+                              </th>
+                              <th className="px-2 py-3 text-left bg-gray-50 dark:bg-gray-800">
+                                <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">
+                                  Variantes
+                                </span>
+                              </th>
+                              <th className="px-2 py-3 text-left bg-gray-50 dark:bg-gray-800">
+                                <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">
+                                  Título
+                                </span>
+                              </th>
+                              <th className="px-2 py-3 text-left bg-gray-50 dark:bg-gray-800">
+                                <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">
+                                  SKU
+                                </span>
+                              </th>
+                              <th className="px-2 py-3 text-center w-24 bg-gray-50 dark:bg-gray-800">
+                                <span
+                                  className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase block"
+                                  title="Inventario Gestionado"
+                                >
+                                  Inv. Gest.
+                                </span>
+                              </th>
+                              <th className="px-2 py-3 text-center w-28 bg-gray-50 dark:bg-gray-800">
+                                <span
+                                  className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase block"
+                                  title="Pedido Pendiente"
+                                >
+                                  Ped. Pend.
+                                </span>
+                              </th>
+                              <th className="px-2 py-3 text-center w-24 bg-gray-50 dark:bg-gray-800">
+                                <span
+                                  className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase block"
+                                  title="Kit Inventario"
+                                >
+                                  Kit Inv.
+                                </span>
+                              </th>
+                              <th className="px-2 py-3 text-left w-32 bg-gray-50 dark:bg-gray-800">
+                                <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">
+                                  Precio COP
+                                </span>
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                             {formData.variants
                               .filter((v) => !v.id.startsWith("option-"))
                               .map((variant) => (
-                                <div
+                                <tr
                                   key={variant.id}
-                                  className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 space-y-3"
+                                  className="hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors bg-white dark:bg-surface-dark group"
                                 >
-                                  <div className="flex justify-between items-start">
-                                    <div>
-                                      <h4 className="font-medium text-gray-900 dark:text-white">
-                                        {variant.name}
-                                      </h4>
-                                      <input
-                                        type="text"
-                                        value={variant.sku || ""}
-                                        onChange={(e) => {
+                                  <td className="px-2 py-3">
+                                    <div className="flex items-center justify-center gap-1">
+                                      <button
+                                        className="text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors p-1 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                                        title="Ver detalles"
+                                      >
+                                        <span className="material-symbols-outlined text-base">
+                                          visibility
+                                        </span>
+                                      </button>
+                                      <button
+                                        onClick={() => {
                                           setFormData((prev) => ({
                                             ...prev,
-                                            variants: prev.variants.map((v) =>
-                                              v.id === variant.id
-                                                ? { ...v, sku: e.target.value }
-                                                : v
+                                            variants: prev.variants.filter(
+                                              (v) => v.id !== variant.id
                                             ),
                                           }));
                                         }}
-                                        className="mt-1 w-full px-2 py-1 text-xs border border-gray-200 dark:border-gray-700 rounded bg-gray-50 dark:bg-gray-900/50"
-                                        placeholder="SKU"
-                                      />
+                                        className="text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors p-1 rounded hover:bg-red-50 dark:hover:bg-red-900/20"
+                                        title="Eliminar variante"
+                                      >
+                                        <span className="material-symbols-outlined text-base">
+                                          delete
+                                        </span>
+                                      </button>
                                     </div>
-                                    <button 
-                                      onClick={() => {
-                                          setFormData(prev => ({
-                                              ...prev,
-                                              variants: prev.variants.filter(v => v.id !== variant.id)
-                                          }));
+                                  </td>
+                                  <td className="px-2 py-3">
+                                    <input
+                                      type="text"
+                                      value={
+                                        variant.id.startsWith("default-variant")
+                                          ? ""
+                                          : variant.name
+                                      }
+                                      disabled={variant.id.startsWith(
+                                        "default-variant"
+                                      )}
+                                      onChange={(e) => {
+                                        setFormData((prev) => ({
+                                          ...prev,
+                                          variants: prev.variants.map((v) =>
+                                            v.id === variant.id
+                                              ? { ...v, name: e.target.value }
+                                              : v
+                                          ),
+                                        }));
                                       }}
-                                      className="text-gray-400 hover:text-red-500"
-                                    >
-                                      <span className="material-symbols-outlined">delete</span>
-                                    </button>
-                                  </div>
-
-                                  <div className="flex gap-2">
-                                    <div className="flex-1">
-                                      <label className="text-xs text-gray-500 block mb-1">Precio</label>
-                                      <div className="flex items-center gap-1">
-                                        <span className="text-gray-500 text-xs">$</span>
-                                        <input
-                                          type="number"
-                                          value={variant.priceCOP || ""}
-                                          onChange={(e) => {
-                                            setFormData((prev) => ({
-                                              ...prev,
-                                              variants: prev.variants.map((v) =>
-                                                v.id === variant.id
-                                                  ? { ...v, priceCOP: e.target.value }
-                                                  : v
-                                              ),
-                                            }));
-                                          }}
-                                          className="w-full px-2 py-1 text-sm border border-gray-200 dark:border-gray-700 rounded bg-white dark:bg-gray-900"
-                                          placeholder="0.00"
-                                        />
-                                      </div>
+                                      className={`w-full px-2.5 py-1.5 border border-gray-200 dark:border-gray-700 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary focus:border-transparent transition-all ${
+                                        variant.id.startsWith("default-variant")
+                                          ? "bg-gray-100 dark:bg-gray-700 text-gray-400"
+                                          : ""
+                                      }`}
+                                      placeholder={
+                                        variant.id.startsWith("default-variant")
+                                          ? "-"
+                                          : ""
+                                      }
+                                    />
+                                  </td>
+                                  <td className="px-2 py-3">
+                                    <input
+                                      type="text"
+                                      value={variant.title || variant.name}
+                                      onChange={(e) => {
+                                        setFormData((prev) => ({
+                                          ...prev,
+                                          variants: prev.variants.map((v) =>
+                                            v.id === variant.id
+                                              ? { ...v, title: e.target.value }
+                                              : v
+                                          ),
+                                        }));
+                                      }}
+                                      className="w-full px-2.5 py-1.5 border border-gray-200 dark:border-gray-700 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary focus:border-transparent transition-all"
+                                    />
+                                  </td>
+                                  <td className="px-2 py-3">
+                                    <input
+                                      type="text"
+                                      value={variant.sku || ""}
+                                      onChange={(e) => {
+                                        setFormData((prev) => ({
+                                          ...prev,
+                                          variants: prev.variants.map((v) =>
+                                            v.id === variant.id
+                                              ? { ...v, sku: e.target.value }
+                                              : v
+                                          ),
+                                        }));
+                                      }}
+                                      className="w-full px-2.5 py-1.5 border border-gray-200 dark:border-gray-700 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary focus:border-transparent transition-all"
+                                      placeholder="SKU"
+                                    />
+                                  </td>
+                                  <td className="px-2 py-3">
+                                    <div className="flex items-center justify-center">
+                                      <input
+                                        type="checkbox"
+                                        checked={
+                                          variant.managedInventory || false
+                                        }
+                                        onChange={(e) => {
+                                          setFormData((prev) => ({
+                                            ...prev,
+                                            variants: prev.variants.map((v) =>
+                                              v.id === variant.id
+                                                ? {
+                                                    ...v,
+                                                    managedInventory:
+                                                      e.target.checked,
+                                                  }
+                                                : v
+                                            ),
+                                          }));
+                                        }}
+                                        className="w-4 h-4 text-echo-blue dark:text-primary border-gray-300 rounded focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary cursor-pointer"
+                                      />
                                     </div>
-                                  </div>
+                                  </td>
+                                  <td className="px-2 py-3">
+                                    <div className="flex items-center justify-center">
+                                      <input
+                                        type="checkbox"
+                                        checked={
+                                          variant.allowBackorder || false
+                                        }
+                                        onChange={(e) => {
+                                          setFormData((prev) => ({
+                                            ...prev,
+                                            variants: prev.variants.map((v) =>
+                                              v.id === variant.id
+                                                ? {
+                                                    ...v,
+                                                    allowBackorder:
+                                                      e.target.checked,
+                                                  }
+                                                : v
+                                            ),
+                                          }));
+                                        }}
+                                        className="w-4 h-4 text-echo-blue dark:text-primary border-gray-300 rounded focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary cursor-pointer"
+                                      />
+                                    </div>
+                                  </td>
+                                  <td className="px-2 py-3">
+                                    <div className="flex items-center justify-center">
+                                      <input
+                                        type="checkbox"
+                                        checked={
+                                          variant.hasInventoryKit || false
+                                        }
+                                        onChange={(e) => {
+                                          setFormData((prev) => ({
+                                            ...prev,
+                                            variants: prev.variants.map((v) =>
+                                              v.id === variant.id
+                                                ? {
+                                                    ...v,
+                                                    hasInventoryKit:
+                                                      e.target.checked,
+                                                  }
+                                                : v
+                                            ),
+                                          }));
+                                        }}
+                                        className="w-4 h-4 text-echo-blue dark:text-primary border-gray-300 rounded focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary cursor-pointer"
+                                      />
+                                    </div>
+                                  </td>
+                                  <td className="px-2 py-3">
+                                    <div className="flex items-center gap-1">
+                                      <span className="text-gray-600 dark:text-gray-400 font-medium text-sm">
+                                        $
+                                      </span>
+                                      <input
+                                        type="number"
+                                        min="0"
+                                        step="0.01"
+                                        value={variant.priceCOP || ""}
+                                        onChange={(e) => {
+                                          setFormData((prev) => ({
+                                            ...prev,
+                                            variants: prev.variants.map((v) =>
+                                              v.id === variant.id
+                                                ? {
+                                                    ...v,
+                                                    priceCOP: e.target.value,
+                                                  }
+                                                : v
+                                            ),
+                                          }));
+                                        }}
+                                        className="flex-1 px-2.5 py-1.5 border border-gray-200 dark:border-gray-700 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary focus:border-transparent transition-all"
+                                        placeholder="0.00"
+                                      />
+                                    </div>
+                                  </td>
+                                </tr>
+                              ))}
+                          </tbody>
+                        </table>
+                      </div>
 
-                                  <div className="flex justify-between pt-2 border-t border-gray-100 dark:border-gray-700">
-                                    <label className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
-                                      <input
-                                        type="checkbox"
-                                        checked={variant.managedInventory || false}
-                                        onChange={(e) => {
-                                          setFormData((prev) => ({
-                                            ...prev,
-                                            variants: prev.variants.map((v) =>
-                                              v.id === variant.id
-                                                ? { ...v, managedInventory: e.target.checked }
-                                                : v
-                                            ),
-                                          }));
-                                        }}
-                                        className="rounded border-gray-300 text-echo-blue focus:ring-echo-blue"
-                                      />
-                                      Inventario
-                                    </label>
-                                    <label className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
-                                      <input
-                                        type="checkbox"
-                                        checked={variant.allowBackorder || false}
-                                        onChange={(e) => {
-                                          setFormData((prev) => ({
-                                            ...prev,
-                                            variants: prev.variants.map((v) =>
-                                              v.id === variant.id
-                                                ? { ...v, allowBackorder: e.target.checked }
-                                                : v
-                                            ),
-                                          }));
-                                        }}
-                                        className="rounded border-gray-300 text-echo-blue focus:ring-echo-blue"
-                                      />
-                                      Preventa
-                                    </label>
+                      {/* Vista Móvil (Tarjetas) */}
+                      <div className="md:hidden space-y-4 p-4">
+                        {formData.variants
+                          .filter((v) => !v.id.startsWith("option-"))
+                          .map((variant) => (
+                            <div
+                              key={variant.id}
+                              className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 space-y-3"
+                            >
+                              <div className="flex justify-between items-start">
+                                <div>
+                                  <h4 className="font-medium text-gray-900 dark:text-white">
+                                    {variant.name}
+                                  </h4>
+                                  <input
+                                    type="text"
+                                    value={variant.sku || ""}
+                                    onChange={(e) => {
+                                      setFormData((prev) => ({
+                                        ...prev,
+                                        variants: prev.variants.map((v) =>
+                                          v.id === variant.id
+                                            ? { ...v, sku: e.target.value }
+                                            : v
+                                        ),
+                                      }));
+                                    }}
+                                    className="mt-1 w-full px-2 py-1 text-xs border border-gray-200 dark:border-gray-700 rounded bg-gray-50 dark:bg-gray-900/50"
+                                    placeholder="SKU"
+                                  />
+                                </div>
+                                <button
+                                  onClick={() => {
+                                    setFormData((prev) => ({
+                                      ...prev,
+                                      variants: prev.variants.filter(
+                                        (v) => v.id !== variant.id
+                                      ),
+                                    }));
+                                  }}
+                                  className="text-gray-400 hover:text-red-500"
+                                >
+                                  <span className="material-symbols-outlined">
+                                    delete
+                                  </span>
+                                </button>
+                              </div>
+
+                              <div className="flex gap-2">
+                                <div className="flex-1">
+                                  <label className="text-xs text-gray-500 block mb-1">
+                                    Precio
+                                  </label>
+                                  <div className="flex items-center gap-1">
+                                    <span className="text-gray-500 text-xs">
+                                      $
+                                    </span>
+                                    <input
+                                      type="number"
+                                      value={variant.priceCOP || ""}
+                                      onChange={(e) => {
+                                        setFormData((prev) => ({
+                                          ...prev,
+                                          variants: prev.variants.map((v) =>
+                                            v.id === variant.id
+                                              ? {
+                                                  ...v,
+                                                  priceCOP: e.target.value,
+                                                }
+                                              : v
+                                          ),
+                                        }));
+                                      }}
+                                      className="w-full px-2 py-1 text-sm border border-gray-200 dark:border-gray-700 rounded bg-white dark:bg-gray-900"
+                                      placeholder="0.00"
+                                    />
                                   </div>
                                 </div>
-                              ))}
-                          </div>
-                        </>
-                      )}
-                    </div>
+                              </div>
+
+                              <div className="flex justify-between pt-2 border-t border-gray-100 dark:border-gray-700">
+                                <label className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
+                                  <input
+                                    type="checkbox"
+                                    checked={variant.managedInventory || false}
+                                    onChange={(e) => {
+                                      setFormData((prev) => ({
+                                        ...prev,
+                                        variants: prev.variants.map((v) =>
+                                          v.id === variant.id
+                                            ? {
+                                                ...v,
+                                                managedInventory:
+                                                  e.target.checked,
+                                              }
+                                            : v
+                                        ),
+                                      }));
+                                    }}
+                                    className="rounded border-gray-300 text-echo-blue focus:ring-echo-blue"
+                                  />
+                                  Inventario
+                                </label>
+                                <label className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
+                                  <input
+                                    type="checkbox"
+                                    checked={variant.allowBackorder || false}
+                                    onChange={(e) => {
+                                      setFormData((prev) => ({
+                                        ...prev,
+                                        variants: prev.variants.map((v) =>
+                                          v.id === variant.id
+                                            ? {
+                                                ...v,
+                                                allowBackorder:
+                                                  e.target.checked,
+                                              }
+                                            : v
+                                        ),
+                                      }));
+                                    }}
+                                    className="rounded border-gray-300 text-echo-blue focus:ring-echo-blue"
+                                  />
+                                  Preventa
+                                </label>
+                              </div>
+                            </div>
+                          ))}
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
           )}
@@ -1146,10 +1292,12 @@ const NewProductForm: React.FC<NewProductFormProps> = ({ onClose, initialData })
               {/* Tarjeta de Clasificación */}
               <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-6 bg-white dark:bg-gray-800">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-echo-blue dark:text-primary">category</span>
+                  <span className="material-symbols-outlined text-echo-blue dark:text-primary">
+                    category
+                  </span>
                   Clasificación
                 </h3>
-                
+
                 <div className="space-y-6">
                   {/* Descuento aplicable */}
                   <div>
@@ -1186,25 +1334,120 @@ const NewProductForm: React.FC<NewProductFormProps> = ({ onClose, initialData })
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Tipo
                       </label>
-                      <div className="relative group">
-                        <span className="material-symbols-outlined absolute left-3 top-2.5 text-[#9CA3AF] dark:group-focus-within:text-primary transition-colors text-[20px]">
-                          style
-                        </span>
-                        <input
-                          type="text"
-                          value={formData.type}
-                          onChange={(e) =>
-                            handleInputChange("type", e.target.value)
-                          }
-                          className="w-full pl-10 pr-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary focus:border-transparent"
-                          placeholder="Seleccionar tipo"
-                        />
-                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] pointer-events-none">
-                          <span className="material-symbols-outlined">
-                            expand_more
+                      {!showNewTypeInput ? (
+                        <div className="relative group">
+                          <span className="material-symbols-outlined absolute left-3 top-2.5 text-[#9CA3AF] dark:group-focus-within:text-primary transition-colors text-[20px] z-10">
+                            style
                           </span>
-                        </span>
-                      </div>
+                          <div
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setOpenDropdown(
+                                openDropdown === "type" ? null : "type"
+                              );
+                            }}
+                            className="w-full pl-10 pr-10 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white cursor-pointer flex items-center justify-between"
+                          >
+                            <span
+                              className={!formData.type ? "text-gray-400" : ""}
+                            >
+                              {formData.type
+                                ? types.find((t) => t.id === formData.type)
+                                    ?.valor || "Seleccionar tipo"
+                                : "Seleccionar tipo"}
+                            </span>
+                            <span className="material-symbols-outlined text-[#9CA3AF]">
+                              expand_more
+                            </span>
+                          </div>
+                          {openDropdown === "type" && (
+                            <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                              {loadingOrganizeData ? (
+                                <div className="px-4 py-8 text-center text-sm text-gray-500">
+                                  Cargando...
+                                </div>
+                              ) : (
+                                <>
+                                  {types.map((type) => (
+                                    <div
+                                      key={type.id}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleInputChange("type", type.id);
+                                        setOpenDropdown(null);
+                                      }}
+                                      className={`px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer flex items-center gap-2 ${
+                                        formData.type === type.id
+                                          ? "bg-echo-blue/10 dark:bg-primary/20"
+                                          : ""
+                                      }`}
+                                    >
+                                      {formData.type === type.id && (
+                                        <span className="material-symbols-outlined text-echo-blue dark:text-primary text-sm">
+                                          check
+                                        </span>
+                                      )}
+                                      <span className="text-sm text-gray-700 dark:text-gray-300">
+                                        {type.valor}
+                                      </span>
+                                    </div>
+                                  ))}
+                                  <div
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setShowNewTypeInput(true);
+                                      setOpenDropdown(null);
+                                    }}
+                                    className="px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer flex items-center gap-2 border-t border-gray-200 dark:border-gray-700"
+                                  >
+                                    <span className="material-symbols-outlined text-echo-blue dark:text-primary text-sm">
+                                      add
+                                    </span>
+                                    <span className="text-sm text-echo-blue dark:text-primary font-medium">
+                                      Crear nuevo tipo
+                                    </span>
+                                  </div>
+                                </>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            value={newTypeName}
+                            onChange={(e) => setNewTypeName(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                handleCreateType();
+                              } else if (e.key === "Escape") {
+                                setShowNewTypeInput(false);
+                                setNewTypeName("");
+                              }
+                            }}
+                            placeholder="Nombre del nuevo tipo"
+                            className="flex-1 px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary focus:border-transparent"
+                            autoFocus
+                          />
+                          <button
+                            onClick={handleCreateType}
+                            disabled={creatingType || !newTypeName.trim()}
+                            className="px-4 py-2.5 bg-echo-blue dark:bg-primary text-white rounded-lg hover:bg-echo-blue/90 dark:hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            {creatingType ? "..." : "Crear"}
+                          </button>
+                          <button
+                            onClick={() => {
+                              setShowNewTypeInput(false);
+                              setNewTypeName("");
+                            }}
+                            className="px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
+                          >
+                            Cancelar
+                          </button>
+                        </div>
+                      )}
                     </div>
 
                     {/* Colección */}
@@ -1213,23 +1456,76 @@ const NewProductForm: React.FC<NewProductFormProps> = ({ onClose, initialData })
                         Colección
                       </label>
                       <div className="relative group">
-                        <span className="material-symbols-outlined absolute left-3 top-2.5 text-[#9CA3AF] dark:text-gray-400 transition-colors text-[20px]">
+                        <span className="material-symbols-outlined absolute left-3 top-2.5 text-[#9CA3AF] dark:text-gray-400 transition-colors text-[20px] z-10">
                           collections_bookmark
                         </span>
-                        <input
-                          type="text"
-                          value={formData.collection}
-                          onChange={(e) =>
-                            handleInputChange("collection", e.target.value)
-                          }
-                          className="w-full pl-10 pr-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-echo-blue dark:focus:ring-primary focus:border-transparent"
-                          placeholder="Seleccionar colección"
-                        />
-                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] pointer-events-none">
-                          <span className="material-symbols-outlined">
+                        <div
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setOpenDropdown(
+                              openDropdown === "collection"
+                                ? null
+                                : "collection"
+                            );
+                          }}
+                          className="w-full pl-10 pr-10 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white cursor-pointer flex items-center justify-between"
+                        >
+                          <span
+                            className={
+                              !formData.collection ? "text-gray-400" : ""
+                            }
+                          >
+                            {formData.collection
+                              ? collections.find(
+                                  (c) => c.id === formData.collection
+                                )?.nombre || "Seleccionar colección"
+                              : "Seleccionar colección"}
+                          </span>
+                          <span className="material-symbols-outlined text-[#9CA3AF]">
                             expand_more
                           </span>
-                        </span>
+                        </div>
+                        {openDropdown === "collection" && (
+                          <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                            {loadingOrganizeData ? (
+                              <div className="px-4 py-8 text-center text-sm text-gray-500">
+                                Cargando...
+                              </div>
+                            ) : collections.length === 0 ? (
+                              <div className="px-4 py-8 text-center text-sm text-gray-500">
+                                No hay colecciones disponibles
+                              </div>
+                            ) : (
+                              collections.map((collection) => (
+                                <div
+                                  key={collection.id}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleInputChange(
+                                      "collection",
+                                      collection.id
+                                    );
+                                    setOpenDropdown(null);
+                                  }}
+                                  className={`px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer flex items-center gap-2 ${
+                                    formData.collection === collection.id
+                                      ? "bg-echo-blue/10 dark:bg-primary/20"
+                                      : ""
+                                  }`}
+                                >
+                                  {formData.collection === collection.id && (
+                                    <span className="material-symbols-outlined text-echo-blue dark:text-primary text-sm">
+                                      check
+                                    </span>
+                                  )}
+                                  <span className="text-sm text-gray-700 dark:text-gray-300">
+                                    {collection.titulo}
+                                  </span>
+                                </div>
+                              ))
+                            )}
+                          </div>
+                        )}
                       </div>
                     </div>
 
@@ -1246,7 +1542,9 @@ const NewProductForm: React.FC<NewProductFormProps> = ({ onClose, initialData })
                           onClick={(e) => {
                             e.stopPropagation();
                             setOpenDropdown(
-                              openDropdown === "categories" ? null : "categories"
+                              openDropdown === "categories"
+                                ? null
+                                : "categories"
                             );
                           }}
                           className="w-full pl-10 pr-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white cursor-pointer flex items-center justify-between"
@@ -1281,40 +1579,48 @@ const NewProductForm: React.FC<NewProductFormProps> = ({ onClose, initialData })
                         </div>
                         {openDropdown === "categories" && (
                           <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                            {[
-                              "Camisetas",
-                              "Sudaderas",
-                              "Pantalones",
-                              "Merchandising",
-                            ].map((cat) => (
-                              <div
-                                key={cat}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  const newCategories =
-                                    formData.categories.includes(cat)
-                                      ? formData.categories.filter(
-                                          (c) => c !== cat
-                                        )
-                                      : [...formData.categories, cat];
-                                  handleInputChange("categories", newCategories);
-                                }}
-                                className={`px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer flex items-center gap-2 ${
-                                  formData.categories.includes(cat)
-                                    ? "bg-echo-blue/10 dark:bg-primary/20"
-                                    : ""
-                                }`}
-                              >
-                                {formData.categories.includes(cat) && (
-                                  <span className="material-symbols-outlined text-echo-blue dark:text-primary text-sm">
-                                    check
-                                  </span>
-                                )}
-                                <span className="text-sm text-gray-700 dark:text-gray-300">
-                                  {cat}
-                                </span>
+                            {loadingOrganizeData ? (
+                              <div className="px-4 py-8 text-center text-sm text-gray-500">
+                                Cargando...
                               </div>
-                            ))}
+                            ) : categories.length === 0 ? (
+                              <div className="px-4 py-8 text-center text-sm text-gray-500">
+                                No hay categorías disponibles
+                              </div>
+                            ) : (
+                              categories.map((cat) => (
+                                <div
+                                  key={cat.id}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    const newCategories =
+                                      formData.categories.includes(cat.id)
+                                        ? formData.categories.filter(
+                                            (c) => c !== cat.id
+                                          )
+                                        : [...formData.categories, cat.id];
+                                    handleInputChange(
+                                      "categories",
+                                      newCategories
+                                    );
+                                  }}
+                                  className={`px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer flex items-center gap-2 ${
+                                    formData.categories.includes(cat.id)
+                                      ? "bg-echo-blue/10 dark:bg-primary/20"
+                                      : ""
+                                  }`}
+                                >
+                                  {formData.categories.includes(cat.id) && (
+                                    <span className="material-symbols-outlined text-echo-blue dark:text-primary text-sm">
+                                      check
+                                    </span>
+                                  )}
+                                  <span className="text-sm text-gray-700 dark:text-gray-300">
+                                    {cat.nombre}
+                                  </span>
+                                </div>
+                              ))
+                            )}
                           </div>
                         )}
                       </div>
@@ -1366,38 +1672,46 @@ const NewProductForm: React.FC<NewProductFormProps> = ({ onClose, initialData })
                         </div>
                         {openDropdown === "tags" && (
                           <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                            {[
-                              "temporada",
-                              "nuevo",
-                              "premium",
-                              "oferta",
-                              "popular",
-                            ].map((tag) => (
-                              <div
-                                key={tag}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  const newTags = formData.tags.includes(tag)
-                                    ? formData.tags.filter((t) => t !== tag)
-                                    : [...formData.tags, tag];
-                                  handleInputChange("tags", newTags);
-                                }}
-                                className={`px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer flex items-center gap-2 ${
-                                  formData.tags.includes(tag)
-                                    ? "bg-echo-blue/10 dark:bg-primary/20"
-                                    : ""
-                                }`}
-                              >
-                                {formData.tags.includes(tag) && (
-                                  <span className="material-symbols-outlined text-echo-blue dark:text-primary text-sm">
-                                    check
-                                  </span>
-                                )}
-                                <span className="text-sm text-gray-700 dark:text-gray-300">
-                                  {tag}
-                                </span>
+                            {loadingOrganizeData ? (
+                              <div className="px-4 py-8 text-center text-sm text-gray-500">
+                                Cargando...
                               </div>
-                            ))}
+                            ) : tags.length === 0 ? (
+                              <div className="px-4 py-8 text-center text-sm text-gray-500">
+                                No hay etiquetas disponibles
+                              </div>
+                            ) : (
+                              tags.map((tag) => (
+                                <div
+                                  key={tag.id}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    const newTags = formData.tags.includes(
+                                      tag.id
+                                    )
+                                      ? formData.tags.filter(
+                                          (t) => t !== tag.id
+                                        )
+                                      : [...formData.tags, tag.id];
+                                    handleInputChange("tags", newTags);
+                                  }}
+                                  className={`px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer flex items-center gap-2 ${
+                                    formData.tags.includes(tag.id)
+                                      ? "bg-echo-blue/10 dark:bg-primary/20"
+                                      : ""
+                                  }`}
+                                >
+                                  {formData.tags.includes(tag.id) && (
+                                    <span className="material-symbols-outlined text-echo-blue dark:text-primary text-sm">
+                                      check
+                                    </span>
+                                  )}
+                                  <span className="text-sm text-gray-700 dark:text-gray-300">
+                                    {tag.valor}
+                                  </span>
+                                </div>
+                              ))
+                            )}
                           </div>
                         )}
                       </div>
@@ -1409,10 +1723,12 @@ const NewProductForm: React.FC<NewProductFormProps> = ({ onClose, initialData })
               {/* Tarjeta de Distribución */}
               <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-6 bg-white dark:bg-gray-800">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-echo-blue dark:text-primary">local_shipping</span>
+                  <span className="material-symbols-outlined text-echo-blue dark:text-primary">
+                    local_shipping
+                  </span>
                   Distribución
                 </h3>
-                
+
                 <div className="space-y-6">
                   {/* Perfil de envío */}
                   <div>
@@ -1433,10 +1749,10 @@ const NewProductForm: React.FC<NewProductFormProps> = ({ onClose, initialData })
                         placeholder="Seleccionar perfil de envío"
                       />
                       <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] pointer-events-none">
-                          <span className="material-symbols-outlined">
-                            expand_more
-                          </span>
+                        <span className="material-symbols-outlined">
+                          expand_more
                         </span>
+                      </span>
                     </div>
                   </div>
 
@@ -1540,8 +1856,8 @@ const NewProductForm: React.FC<NewProductFormProps> = ({ onClose, initialData })
                 }
               }}
               className={`px-3 md:px-4 py-1.5 md:py-2 text-sm md:text-base text-white rounded-lg transition-colors font-medium ${
-                !formData.title 
-                  ? "bg-gray-300 dark:bg-gray-700 cursor-not-allowed" 
+                !formData.title
+                  ? "bg-gray-300 dark:bg-gray-700 cursor-not-allowed"
                   : "bg-echo-blue dark:bg-primary hover:bg-echo-blue-variant dark:hover:bg-blue-700"
               }`}
               title={!formData.title ? "Ingresa un título para continuar" : ""}
