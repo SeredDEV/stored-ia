@@ -349,6 +349,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
   return (
     <div className="bg-white dark:bg-surface-dark border border-gray-200 dark:border-gray-700 rounded-b-xl shadow-sm overflow-hidden hidden md:block">
       <DndContext
+        id="product-table-dnd"
         sensors={sensors}
         collisionDetection={closestCenter}
         onDragEnd={handleDragEnd}
