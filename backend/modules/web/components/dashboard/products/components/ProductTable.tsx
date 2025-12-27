@@ -6,28 +6,88 @@ import {
   getCoreRowModel,
   useReactTable,
   getPaginationRowModel,
+  getSortedRowModel,
+  getFilteredRowModel,
+  SortingState,
+  ColumnFiltersState,
 } from "@tanstack/react-table";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  horizontalListSortingStrategy,
+  useSortable,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 interface ProductTableProps {
   products: Product[];
-  currentPage: number;
-  itemsPerPage: number;
-  totalProducts: number;
-  totalPages: number;
-  onPageChange: (page: number) => void;
+  globalFilter: string;
   onEdit?: (product: Product) => void;
   onDelete?: (product: Product) => void;
 }
 
 const columnHelper = createColumnHelper<Product>();
 
+const DraggableTableHeader = ({
+  header,
+  children,
+}: {
+  header: any;
+  children: React.ReactNode;
+}) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
+    useSortable({
+      id: header.column.id,
+    });
+
+  const style: React.CSSProperties = {
+    transform: CSS.Translate.toString(transform),
+    transition,
+    opacity: isDragging ? 0.8 : 1,
+    zIndex: isDragging ? 1 : 0,
+    whiteSpace: "nowrap",
+  };
+
+  return (
+    <th
+      ref={setNodeRef}
+      style={style}
+      className={`group px-6 py-4 text-left transition-colors relative ${
+        header.column.getCanSort()
+          ? "cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
+          : ""
+      } ${header.column.id === "actions" ? "text-right" : ""}`}
+      onClick={header.column.getToggleSortingHandler()}
+      {...attributes}
+      {...listeners}
+    >
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2 flex-1">
+          {children}
+        </div>
+        {header.column.getCanSort() && header.id !== "actions" && (
+          <span className="material-symbols-outlined text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity text-sm cursor-grab active:cursor-grabbing select-none" title="Arrastrar para reordenar">
+            drag_indicator
+          </span>
+        )}
+      </div>
+    </th>
+  );
+};
+
 export const ProductTable: React.FC<ProductTableProps> = ({
   products,
-  currentPage,
-  itemsPerPage,
-  totalProducts,
-  totalPages,
-  onPageChange,
+  globalFilter,
   onEdit,
   onDelete,
 }) => {
@@ -36,6 +96,39 @@ export const ProductTable: React.FC<ProductTableProps> = ({
     top: number;
     left: number;
   } | null>(null);
+
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [columnOrder, setColumnOrder] = useState<string[]>([
+    "name",
+    "collection",
+    "salesChannel",
+    "variants",
+    "status",
+    "actions",
+  ]);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (active && over && active.id !== over.id) {
+      setColumnOrder((order) => {
+        const oldIndex = order.indexOf(active.id as string);
+        const newIndex = order.indexOf(over.id as string);
+        return arrayMove(order, oldIndex, newIndex);
+      });
+    }
+  };
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -111,7 +204,28 @@ export const ProductTable: React.FC<ProductTableProps> = ({
         ),
       }),
       columnHelper.accessor("status", {
-        header: "ESTADO",
+        header: ({ column }) => (
+          <div className="flex items-center gap-2">
+            <span>ESTADO</span>
+            <div className="relative group/select" onClick={(e) => e.stopPropagation()}>
+              <select
+                value={(column.getFilterValue() as string) ?? ""}
+                onChange={(e) => column.setFilterValue(e.target.value)}
+                className="appearance-none bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-md text-xs font-medium py-1 pl-2.5 pr-7 text-gray-600 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer transition-colors border-none"
+              >
+                <option value="">Todos</option>
+                <option value="Publicado">Publicado</option>
+                <option value="Borrador">Borrador</option>
+                <option value="Inactivo">Inactivo</option>
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-1.5 text-gray-500 group-hover/select:text-gray-700 dark:text-gray-400">
+                <span className="material-symbols-outlined text-[16px]">
+                  expand_more
+                </span>
+              </div>
+            </div>
+          </div>
+        ),
         cell: (info) => (
           <span
             className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
@@ -134,6 +248,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
       columnHelper.display({
         id: "actions",
         header: "ACCIONES",
+        enableSorting: false,
         cell: (info) => {
           const product = info.row.original;
           return (
@@ -211,41 +326,79 @@ export const ProductTable: React.FC<ProductTableProps> = ({
   const table = useReactTable({
     data: products,
     columns,
+    state: {
+      sorting,
+      columnFilters,
+      globalFilter,
+      columnOrder,
+    },
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    onColumnOrderChange: setColumnOrder,
     getCoreRowModel: getCoreRowModel(),
-    manualPagination: true,
-    pageCount: totalPages,
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    initialState: {
+      pagination: {
+        pageSize: 11,
+      },
+    },
   });
 
   return (
     <div className="bg-white dark:bg-surface-dark border border-gray-200 dark:border-gray-700 rounded-b-xl shadow-sm overflow-hidden hidden md:block">
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <tr
-                key={headerGroup.id}
-                className="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700"
-              >
-                {headerGroup.headers.map((header) => (
-                  <th
-                    key={header.id}
-                    className={`px-8 py-5 text-left ${
-                      header.id === "actions" ? "text-right" : ""
-                    }`}
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleDragEnd}
+      >
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <tr
+                  key={headerGroup.id}
+                  className="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700"
+                >
+                  <SortableContext
+                    items={columnOrder}
+                    strategy={horizontalListSortingStrategy}
                   >
-                    <span className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 font-semibold">
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </span>
-                  </th>
-                ))}
-              </tr>
-            ))}
-          </thead>
+                    {headerGroup.headers.map((header) => (
+                      <DraggableTableHeader key={header.id} header={header}>
+                        <div
+                          className={`flex items-center gap-2 w-full ${
+                            header.id === "actions" ? "justify-end" : ""
+                          }`}
+                        >
+                          <span className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 font-semibold">
+                            {header.isPlaceholder
+                              ? null
+                              : flexRender(
+                                  header.column.columnDef.header,
+                                  header.getContext()
+                                )}
+                          </span>
+                          {{
+                            asc: (
+                              <span className="material-symbols-outlined text-sm">
+                                keyboard_arrow_up
+                              </span>
+                            ),
+                            desc: (
+                              <span className="material-symbols-outlined text-sm">
+                                keyboard_arrow_down
+                              </span>
+                            ),
+                          }[header.column.getIsSorted() as string] ?? null}
+                        </div>
+                      </DraggableTableHeader>
+                    ))}
+                  </SortableContext>
+                </tr>
+              ))}
+            </thead>
           <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
             {table.getRowModel().rows.map((row) => (
               <tr
@@ -262,30 +415,30 @@ export const ProductTable: React.FC<ProductTableProps> = ({
           </tbody>
         </table>
       </div>
+      </DndContext>
       <div className="px-8 py-5 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between bg-white dark:bg-surface-dark">
         <div className="text-sm text-gray-500 dark:text-gray-400">
-          {currentPage === 1 ? 1 : (currentPage - 1) * itemsPerPage + 1}-
-          {Math.min(currentPage * itemsPerPage, totalProducts)} de{" "}
+          Mostrando {table.getRowModel().rows.length} de{" "}
           <span className="font-medium text-gray-900 dark:text-gray-100">
-            {totalProducts}
+            {table.getFilteredRowModel().rows.length}
           </span>{" "}
           resultados
         </div>
         <div className="flex items-center gap-4">
           <div className="text-sm text-gray-500 dark:text-gray-400">
-            {currentPage} de {totalPages} páginas
+            {table.getState().pagination.pageIndex + 1} de {table.getPageCount()} páginas
           </div>
           <div className="flex gap-2">
             <button
-              onClick={() => onPageChange(Math.max(1, currentPage - 1))}
-              disabled={currentPage === 1}
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
               className="px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               Anterior
             </button>
             <button
-              onClick={() => onPageChange(currentPage + 1)}
-              disabled={currentPage >= totalPages}
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
               className="px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               Siguiente

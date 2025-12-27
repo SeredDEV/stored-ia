@@ -14,12 +14,6 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
   return (
     <div className="bg-white dark:bg-surface-dark rounded-t-xl p-4 border border-gray-200 dark:border-gray-700 border-b-0 shadow-sm">
       <div className="flex flex-col md:flex-row gap-4 items-center">
-        {showActions && (
-          <button className="hidden md:block text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 text-sm font-medium px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-            Agregar filtro
-          </button>
-        )}
-
         <div className="relative flex-1 w-full">
           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
             <span className="material-symbols-outlined text-xl">search</span>

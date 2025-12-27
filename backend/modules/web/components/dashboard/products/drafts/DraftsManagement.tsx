@@ -1,7 +1,6 @@
 "use client";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useProductFiltering } from "../hooks/useProductFiltering";
 import { ProductFilters } from "../components/ProductFilters";
 import { ProductTable } from "../components/ProductTable";
 import { ProductMobileList } from "../components/ProductMobileList";
@@ -52,17 +51,9 @@ const DraftsManagement: React.FC = () => {
   const router = useRouter();
   const [showNewProductForm, setShowNewProductForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-
-  // Hook personalizado para lógica de filtrado y paginación
-  const {
-    searchTerm,
-    setSearchTerm,
-    currentPage,
-    setCurrentPage,
-    paginatedProducts,
-    totalProducts,
-    totalPages,
-  } = useProductFiltering(DRAFT_PRODUCTS);
+  
+  // Estado para la búsqueda global
+  const [searchTerm, setSearchTerm] = useState("");
 
   const handleOpenNewProduct = () => {
     setEditingProduct(null);
@@ -131,18 +122,16 @@ const DraftsManagement: React.FC = () => {
       />
 
       <ProductTable
-        products={paginatedProducts}
-        currentPage={currentPage}
-        itemsPerPage={11}
-        totalProducts={totalProducts}
-        totalPages={totalPages}
-        onPageChange={setCurrentPage}
+        products={DRAFT_PRODUCTS}
+        globalFilter={searchTerm}
         onEdit={handleEditProduct}
         onDelete={handleDeleteProduct}
       />
 
       <ProductMobileList 
-        products={paginatedProducts} 
+        products={DRAFT_PRODUCTS.filter((product) =>
+          product.name.toLowerCase().includes(searchTerm.toLowerCase())
+        )} 
         onEdit={handleEditProduct}
         onDelete={handleDeleteProduct}
       />
