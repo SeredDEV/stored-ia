@@ -100,7 +100,34 @@ const NewProductForm: React.FC<NewProductFormProps> = ({
     router.push(`?${params.toString()}`);
   };
 
+  // Función para manejar el cierre del formulario
+  const handleClose = () => {
+    // Solo preguntar si hay datos ingresados
+    if (formData.title || formData.description || formData.handle) {
+      const confirmar = window.confirm(
+        "¿Deseas descartar los cambios? Se perderá el borrador guardado."
+      );
+      if (confirmar) {
+        clearLocalStorage();
+        if (onClose) {
+          onClose();
+        } else {
+          router.push("/dashboard?view=products");
+        }
+      }
+    } else {
+      clearLocalStorage();
+      if (onClose) {
+        onClose();
+      } else {
+        router.push("/dashboard?view=products");
+      }
+    }
+  };
+
   const activeTab = currentTab;
+
+  const STORAGE_KEY = "product-form-draft";
 
   const [formData, setFormData] = useState<ProductFormData>({
     title: initialData?.title || "",
@@ -120,8 +147,51 @@ const NewProductForm: React.FC<NewProductFormProps> = ({
     salesChannels: initialData?.salesChannels || ["Default Sales Channel"],
   });
 
+  const [mounted, setMounted] = useState(false);
+
+  // Cargar desde localStorage después del montaje
+  useEffect(() => {
+    setMounted(true);
+
+    if (!initialData && typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          // No cargamos las imágenes (media) desde localStorage ya que son archivos
+          setFormData({ ...parsed, media: [] });
+        }
+      } catch (error) {
+        console.error("Error al cargar borrador:", error);
+      }
+    }
+  }, [initialData]);
+
   // Estados para dropdowns abiertos
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+
+  // Guardar automáticamente en localStorage cuando cambie formData
+  useEffect(() => {
+    if (!mounted || typeof window === "undefined") return;
+
+    // Solo guardar si hay algún dato ingresado
+    if (formData.title || formData.description || formData.handle) {
+      try {
+        // No guardamos las imágenes (media) en localStorage
+        const dataToSave = { ...formData, media: [] };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
+      } catch (error) {
+        console.error("Error al guardar borrador:", error);
+      }
+    }
+  }, [formData]);
+
+  // Limpiar localStorage al guardar exitosamente
+  const clearLocalStorage = () => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem(STORAGE_KEY);
+    }
+  };
 
   // Estados para las listas de organizar
   const [categories, setCategories] = useState<any[]>([]);
@@ -502,6 +572,9 @@ const NewProductForm: React.FC<NewProductFormProps> = ({
       console.log("=== Producto creado exitosamente ===");
       console.log("Producto:", producto);
 
+      // Limpiar localStorage después de guardar exitosamente
+      clearLocalStorage();
+
       // Redirigir al listado de productos
       if (onClose) {
         onClose();
@@ -581,8 +654,16 @@ const NewProductForm: React.FC<NewProductFormProps> = ({
             </div>
           </div>
 
+          {/* Mensaje de borrador guardado */}
+          {mounted && formData.title && (
+            <div className="hidden md:flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+              <span className="material-symbols-outlined text-base">save</span>
+              <span>Borrador guardado automáticamente</span>
+            </div>
+          )}
+
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="flex-shrink-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
             title="Cerrar formulario"
           >
@@ -1986,7 +2067,7 @@ const NewProductForm: React.FC<NewProductFormProps> = ({
           )}
           <div className="flex flex-col sm:flex-row justify-end gap-2 md:gap-3">
             <button
-              onClick={onClose}
+              onClick={handleClose}
               disabled={isSaving}
               className="px-3 md:px-4 py-1.5 md:py-2 text-sm md:text-base text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
