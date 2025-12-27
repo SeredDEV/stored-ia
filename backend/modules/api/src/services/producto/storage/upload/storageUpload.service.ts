@@ -67,8 +67,15 @@ export class StorageUploadService implements IStorageUploadService {
       });
 
     if (error) {
+      console.error("Error de Supabase Storage:", error);
       const errorDict = generateErrorDictionary("ERROR_UPLOADING");
-      throw new Error(JSON.stringify(errorDict));
+      throw new Error(
+        JSON.stringify({
+          ...errorDict,
+          supabaseError: error.message,
+          details: error,
+        })
+      );
     }
 
     // Obtener URL pública
@@ -87,4 +94,3 @@ export class StorageUploadService implements IStorageUploadService {
     return Promise.all(uploadPromises);
   }
 }
-

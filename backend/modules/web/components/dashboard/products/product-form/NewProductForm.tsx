@@ -5,6 +5,7 @@ import { categoryService } from "@/lib/api/categoryService";
 import { tagService } from "@/lib/api/tagService";
 import { collectionService } from "@/lib/api/collectionService";
 import { typeService } from "@/lib/api/typeService";
+import { productService } from "@/lib/api/productService";
 
 interface ProductFormData {
   title: string;
@@ -123,6 +124,10 @@ const NewProductForm: React.FC<NewProductFormProps> = ({
   const [showNewTypeInput, setShowNewTypeInput] = useState(false);
   const [newTypeName, setNewTypeName] = useState("");
   const [creatingType, setCreatingType] = useState(false);
+
+  // Estados para guardar
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   // Cargar datos de organizar
   useEffect(() => {
@@ -372,6 +377,119 @@ const NewProductForm: React.FC<NewProductFormProps> = ({
       ...prev,
       media: prev.media.filter((_, idx) => idx !== index),
     }));
+  };
+
+  const handleSaveProduct = async (isDraft: boolean = false) => {
+    try {
+      setIsSaving(true);
+      setSaveError(null);
+
+      console.log("=== Iniciando guardado de producto ===");
+      console.log("isDraft:", isDraft);
+      console.log("formData:", formData);
+
+      // Validar que tenga título
+      if (!formData.title || formData.title.trim() === "") {
+        throw new Error("El título es requerido");
+      }
+
+      // Crear FormData para enviar imágenes
+      const data = new FormData();
+
+      // Agregar datos básicos del producto
+      data.append("titulo", formData.title.trim());
+      data.append("subtitulo", formData.subtitle?.trim() || "");
+      data.append("slug", formData.handle.trim());
+      data.append("descripcion", formData.description?.trim() || "");
+      data.append("tiene_descuento", formData.discountApplicable.toString());
+      data.append("tiene_variantes", formData.hasVariants.toString());
+      data.append("estado", isDraft ? "borrador" : "publicado");
+
+      console.log("Datos básicos agregados");
+
+      // Agregar tipo si existe
+      if (formData.type) {
+        data.append("tipo_producto_id", formData.type);
+        console.log("Tipo agregado:", formData.type);
+      }
+
+      // Agregar colección si existe
+      if (formData.collection) {
+        data.append("coleccion_id", formData.collection);
+        console.log("Colección agregada:", formData.collection);
+      }
+
+      // Agregar categorías
+      if (formData.categories.length > 0) {
+        data.append("categorias", JSON.stringify(formData.categories));
+        console.log("Categorías agregadas:", formData.categories);
+      }
+
+      // Agregar etiquetas
+      if (formData.tags.length > 0) {
+        data.append("etiquetas", JSON.stringify(formData.tags));
+        console.log("Etiquetas agregadas:", formData.tags);
+      }
+
+      // Agregar imágenes
+      if (formData.media.length > 0) {
+        // La primera imagen será la miniatura
+        data.append("miniatura", formData.media[0]);
+        console.log("Miniatura agregada:", formData.media[0].name);
+
+        // Todas las imágenes van a imagenes
+        formData.media.forEach((file, index) => {
+          data.append("imagenes", file);
+          console.log(`Imagen ${index + 1} agregada:`, file.name);
+        });
+      } else {
+        console.log("No hay imágenes para agregar");
+      }
+
+      // Agregar variantes si existen
+      if (formData.variants.length > 0) {
+        const variantesSanitizadas = formData.variants
+          .filter((v) => v.selected && !v.id.startsWith("option-"))
+          .map((v) => ({
+            titulo: v.title || v.name,
+            sku: v.sku || "",
+            inventario_gestionado: v.managedInventory || false,
+            permitir_pedido_sin_inventario: v.allowBackorder || false,
+            precio_cop: v.priceCOP ? parseFloat(v.priceCOP) : 0,
+          }));
+
+        if (variantesSanitizadas.length > 0) {
+          data.append("variantes", JSON.stringify(variantesSanitizadas));
+          console.log("Variantes agregadas:", variantesSanitizadas);
+        }
+      }
+
+      // Enviar al backend
+      console.log("=== Enviando al backend ===");
+      console.log("URL:", "/api/productos");
+
+      const producto = await productService.createWithImages(data);
+
+      console.log("=== Producto creado exitosamente ===");
+      console.log("Producto:", producto);
+
+      // Redirigir al listado de productos
+      if (onClose) {
+        onClose();
+      } else {
+        router.push("/dashboard?view=products");
+      }
+    } catch (error: any) {
+      console.error("=== ERROR al guardar producto ===");
+      console.error("Error completo:", error);
+      console.error("Mensaje:", error.message);
+      console.error("Stack:", error.stack);
+
+      setSaveError(error.message || "Error al guardar el producto");
+    } finally {
+      setIsSaving(false);
+      console.log("=== Finalizando guardado ===");
+    }
   };
 
   return (
@@ -1831,40 +1949,58 @@ const NewProductForm: React.FC<NewProductFormProps> = ({
         </div>
 
         {/* Bottom Action Bar */}
-        <div className="border-t border-gray-200 dark:border-gray-700 px-4 md:px-6 py-3 md:py-4 flex flex-col sm:flex-row justify-end gap-2 md:gap-3">
-          <button
-            onClick={onClose}
-            className="px-3 md:px-4 py-1.5 md:py-2 text-sm md:text-base text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
-          >
-            Cancelar
-          </button>
-          <button className="px-3 md:px-4 py-1.5 md:py-2 text-sm md:text-base text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-            Guardar como borrador
-          </button>
-          {activeTab === "variants" ? (
-            <button className="px-3 md:px-4 py-1.5 md:py-2 text-sm md:text-base bg-echo-blue dark:bg-primary text-white rounded-lg hover:bg-echo-blue-variant dark:hover:bg-blue-700 transition-colors font-medium">
-              Publicar
-            </button>
-          ) : (
-            <button
-              disabled={!formData.title}
-              onClick={() => {
-                if (activeTab === "details") {
-                  setActiveTab("organize");
-                } else if (activeTab === "organize") {
-                  setActiveTab("variants");
-                }
-              }}
-              className={`px-3 md:px-4 py-1.5 md:py-2 text-sm md:text-base text-white rounded-lg transition-colors font-medium ${
-                !formData.title
-                  ? "bg-gray-300 dark:bg-gray-700 cursor-not-allowed"
-                  : "bg-echo-blue dark:bg-primary hover:bg-echo-blue-variant dark:hover:bg-blue-700"
-              }`}
-              title={!formData.title ? "Ingresa un título para continuar" : ""}
-            >
-              Continuar
-            </button>
+        <div className="border-t border-gray-200 dark:border-gray-700 px-4 md:px-6 py-3 md:py-4">
+          {saveError && (
+            <div className="mb-3 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-sm text-red-600 dark:text-red-400">
+              {saveError}
+            </div>
           )}
+          <div className="flex flex-col sm:flex-row justify-end gap-2 md:gap-3">
+            <button
+              onClick={onClose}
+              disabled={isSaving}
+              className="px-3 md:px-4 py-1.5 md:py-2 text-sm md:text-base text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={() => handleSaveProduct(true)}
+              disabled={!formData.title || isSaving}
+              className="px-3 md:px-4 py-1.5 md:py-2 text-sm md:text-base text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSaving ? "Guardando..." : "Guardar como borrador"}
+            </button>
+            {activeTab === "variants" ? (
+              <button
+                onClick={() => handleSaveProduct(false)}
+                disabled={!formData.title || isSaving}
+                className="px-3 md:px-4 py-1.5 md:py-2 text-sm md:text-base bg-echo-blue dark:bg-primary text-white rounded-lg hover:bg-echo-blue-variant dark:hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSaving ? "Publicando..." : "Publicar"}
+              </button>
+            ) : (
+              <button
+                disabled={!formData.title}
+                onClick={() => {
+                  if (activeTab === "details") {
+                    setActiveTab("organize");
+                  } else if (activeTab === "organize") {
+                    setActiveTab("variants");
+                  }
+                }}
+                className={`px-3 md:px-4 py-1.5 md:py-2 text-sm md:text-base text-white rounded-lg transition-colors font-medium ${
+                  !formData.title
+                    ? "bg-gray-300 dark:bg-gray-700 cursor-not-allowed"
+                    : "bg-echo-blue dark:bg-primary hover:bg-echo-blue-variant dark:hover:bg-blue-700"
+                }`}
+                title={
+                  !formData.title ? "Ingresa un título para continuar" : ""
+                }
+              >
+                Continuar
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>
