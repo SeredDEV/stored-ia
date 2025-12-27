@@ -1,5 +1,8 @@
 import { SupabaseClient } from "@supabase/supabase-js";
-import type { CreatePrecioInput, Precio } from "../productoPrecio.model";
+import type {
+  CreatePrecioInput,
+  Precio,
+} from "../../../precio/productoPrecio.model";
 import { generateErrorDictionary } from "./precioCreate.dictionary";
 
 export interface IPrecioCreateService {

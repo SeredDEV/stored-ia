@@ -1,5 +1,5 @@
 import { SupabaseClient } from "@supabase/supabase-js";
-import type { Precio } from "../productoPrecio.model";
+import type { Precio } from "../../../precio/productoPrecio.model";
 
 export interface IPrecioListService {
   execute(variante_id: string): Promise<Precio[]>;

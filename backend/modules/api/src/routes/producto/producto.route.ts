@@ -103,6 +103,9 @@ import { PrecioCreateServiceBuilder } from "../../services/producto/variante/pre
 import { buildPrecioListService } from "../../services/producto/variante/precio/list/precioList.builder";
 import { PrecioListEndpoint } from "./variante/precio/list/precioList.endpoint";
 import { PrecioListNetwork } from "./variante/precio/list/precioList.network";
+import { buildPrecioUpdateService } from "../../services/producto/precio/update/precioUpdate.builder";
+import { PrecioUpdateEndpoint } from "./precio/update/precioUpdate.endpoint";
+import { PrecioUpdateNetwork } from "./precio/update/precioUpdate.network";
 
 /**
  * Router de productos.
@@ -415,6 +418,8 @@ export class ProductoRoute {
     varianteDeleteNetwork.setNetwork(variantesRouter);
 
     // ===== PRECIOS DE VARIANTES =====
+    const preciosRouter = Router();
+
     // Create precio
     const precioCreateEndpoint = new PrecioCreateEndpoint({
       precioService: precioCreateService,
@@ -430,6 +435,14 @@ export class ProductoRoute {
     const precioListNetwork = new PrecioListNetwork(precioListEndpoint);
     precioListNetwork.setNetwork(variantesRouter);
 
+    // Update precio
+    const precioUpdateService = buildPrecioUpdateService();
+    const precioUpdateEndpoint = new PrecioUpdateEndpoint({
+      precioService: precioUpdateService,
+    });
+    const precioUpdateNetwork = new PrecioUpdateNetwork(precioUpdateEndpoint);
+    precioUpdateNetwork.setNetwork(preciosRouter);
+
     // Registrar routers en el servidor
     server.use("/api/productos", productosRouter);
     server.use("/api/categorias", categoriasRouter);
@@ -437,5 +450,6 @@ export class ProductoRoute {
     server.use("/api/colecciones", coleccionesRouter);
     server.use("/api/tipos", tiposRouter);
     server.use("/api/variantes", variantesRouter);
+    server.use("/api/precios", preciosRouter);
   }
 }
