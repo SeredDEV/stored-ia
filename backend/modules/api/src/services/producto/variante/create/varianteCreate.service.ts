@@ -48,7 +48,8 @@ export class VarianteCreateService implements IVarianteCreateService {
         producto_id,
         sku,
         ...varianteData,
-        permitir_pedido_pendiente: varianteData.permitir_pedido_pendiente ?? false,
+        permitir_pedido_pendiente:
+          varianteData.permitir_pedido_pendiente ?? false,
         gestionar_inventario: varianteData.gestionar_inventario ?? true,
       })
       .select()
@@ -74,4 +75,3 @@ export class VarianteCreateService implements IVarianteCreateService {
     return data as Variante;
   }
 }
-

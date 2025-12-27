@@ -10,7 +10,7 @@ import type {
   IStorageUploadService,
   IStorageDeleteService,
 } from "../storage/productoStorage.model";
-import { StorageUploadServiceBuilder } from "../storage/upload";
+import { StorageUploadBuilder } from "../storage/upload";
 import { StorageDeleteServiceBuilder } from "../storage/delete";
 import type { ITipoGetService } from "../tipo/get/tipoGet.service";
 import type { IColeccionGetService } from "../coleccion/get/coleccionGet.service";
@@ -53,8 +53,8 @@ export class ProductoCreateServiceBuilder {
     // Crear servicios si no se proveen
     const uploadService =
       args?.uploadService ||
-      new StorageUploadServiceBuilder().setSupabaseClient(client).build();
-    
+      new StorageUploadBuilder().setSupabaseClient(client).build();
+
     const deleteService =
       args?.deleteService ||
       new StorageDeleteServiceBuilder().setSupabaseClient(client).build();

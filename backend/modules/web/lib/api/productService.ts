@@ -63,7 +63,11 @@ export const productService = {
         errorMessage = error.error || error.message || JSON.stringify(error);
       } catch (e) {
         // Si falla el JSON, usar el statusText
-        console.error("Error del servidor (sin JSON):", response.status, response.statusText);
+        console.error(
+          "Error del servidor (sin JSON):",
+          response.status,
+          response.statusText
+        );
         errorMessage = `Error ${response.status}: ${response.statusText}`;
       }
       throw new Error(errorMessage);
@@ -113,14 +117,20 @@ export const productService = {
   },
 
   // Asignar categorías a un producto
-  async assignCategories(productId: string, categoryIds: string[]): Promise<void> {
-    const response = await fetch(`${API_URL}/api/productos/${productId}/categorias`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ categoria_ids: categoryIds }),
-    });
+  async assignCategories(
+    productId: string,
+    categoryIds: string[]
+  ): Promise<void> {
+    const response = await fetch(
+      `${API_URL}/api/productos/${productId}/categorias`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ categoria_ids: categoryIds }),
+      }
+    );
     if (!response.ok) {
       throw new Error("Error al asignar categorías");
     }
@@ -128,13 +138,16 @@ export const productService = {
 
   // Asignar etiquetas a un producto
   async assignTags(productId: string, tagIds: string[]): Promise<void> {
-    const response = await fetch(`${API_URL}/api/productos/${productId}/etiquetas`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ etiqueta_ids: tagIds }),
-    });
+    const response = await fetch(
+      `${API_URL}/api/productos/${productId}/etiquetas`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ etiqueta_ids: tagIds }),
+      }
+    );
     if (!response.ok) {
       throw new Error("Error al asignar etiquetas");
     }
@@ -148,10 +161,13 @@ export const productService = {
       formData.append(`imagenes`, image);
     });
 
-    const response = await fetch(`${API_URL}/api/productos/${productId}/imagenes`, {
-      method: "POST",
-      body: formData, // No incluir Content-Type, el browser lo añade automáticamente con boundary
-    });
+    const response = await fetch(
+      `${API_URL}/api/productos/${productId}/imagenes`,
+      {
+        method: "POST",
+        body: formData, // No incluir Content-Type, el browser lo añade automáticamente con boundary
+      }
+    );
     if (!response.ok) {
       throw new Error("Error al subir imágenes");
     }
@@ -164,5 +180,53 @@ export const productService = {
     if (!response.ok) {
       throw new Error("Error al eliminar producto");
     }
+  },
+
+  // Crear variante
+  async createVariant(variantData: {
+    producto_id: string;
+    titulo: string;
+    sku: string;
+    gestionar_inventario?: boolean;
+    permitir_pedido_pendiente?: boolean;
+  }): Promise<any> {
+    const response = await fetch(`${API_URL}/api/variantes`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(variantData),
+    });
+    if (!response.ok) {
+      throw new Error("Error al crear variante");
+    }
+    const result = await response.json();
+    return result.data;
+  },
+
+  // Crear precio para variante
+  async createPrice(
+    variantId: string,
+    priceData: {
+      variante_id: string;
+      monto: number;
+      codigo_moneda: string;
+    }
+  ): Promise<any> {
+    const response = await fetch(
+      `${API_URL}/api/variantes/${variantId}/precios`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(priceData),
+      }
+    );
+    if (!response.ok) {
+      throw new Error("Error al crear precio");
+    }
+    const result = await response.json();
+    return result.data;
   },
 };

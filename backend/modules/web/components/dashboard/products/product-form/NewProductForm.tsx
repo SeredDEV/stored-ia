@@ -526,18 +526,51 @@ const NewProductForm: React.FC<NewProductFormProps> = ({
       console.log("Producto:", producto);
       console.log("Producto ID:", producto?.id);
 
-      // 2. Subir imágenes si existen
-      // TODO: Cuando se implemente el endpoint POST /api/productos/:id/imagenes
-      if (formData.media && formData.media.length > 0) {
-        console.log("=== Intentando subir imágenes ===");
-        console.log("Número de imágenes:", formData.media.length);
-        try {
-          await productService.uploadImages(producto.id, formData.media);
-          console.log("=== Imágenes subidas exitosamente ===");
-        } catch (error: any) {
-          console.warn("⚠️ No se pudieron subir las imágenes (endpoint no implementado):", error.message);
-          // No lanzamos el error, solo advertimos. El producto ya fue creado.
+      // 2. Crear variantes si existen
+      if (
+        formData.hasVariants &&
+        formData.variants &&
+        formData.variants.length > 0
+      ) {
+        console.log("=== Creando variantes ===");
+        for (const variant of formData.variants) {
+          if (!variant.selected) continue;
+
+          console.log(`Creando variante: ${variant.name}`);
+
+          // Crear variante
+          const varianteCreada = await productService.createVariant({
+            producto_id: producto.id,
+            titulo: variant.title || variant.name,
+            sku: variant.sku || `${producto.slug}-${Date.now()}`.toUpperCase(),
+            gestionar_inventario: variant.managedInventory ?? true,
+            permitir_pedido_pendiente: variant.allowBackorder ?? false,
+          });
+
+          console.log(`Variante creada:`, varianteCreada);
+
+          // Crear precio para la variante si tiene precio definido
+          if (variant.priceCOP && parseFloat(variant.priceCOP) > 0) {
+            console.log(`Creando precio para variante ${varianteCreada.id}`);
+            await productService.createPrice(varianteCreada.id, {
+              variante_id: varianteCreada.id,
+              monto: Math.round(parseFloat(variant.priceCOP) * 100), // Convertir a centavos
+              codigo_moneda: "COP",
+            });
+            console.log(`Precio creado exitosamente`);
+          }
         }
+      } else {
+        // Si no tiene variantes, crear una variante por defecto
+        console.log("=== Creando variante por defecto ===");
+        const varianteDefault = await productService.createVariant({
+          producto_id: producto.id,
+          titulo: `${producto.titulo} - Default`,
+          sku: `${producto.slug}-DEFAULT-${Date.now()}`.toUpperCase(),
+          gestionar_inventario: true,
+          permitir_pedido_pendiente: false,
+        });
+        console.log(`Variante default creada:`, varianteDefault);
       }
 
       // 3. Relacionar categorías si existen
@@ -552,8 +585,18 @@ const NewProductForm: React.FC<NewProductFormProps> = ({
         await productService.assignTags(producto.id, formData.tags);
       }
 
-      // TODO: Después del MVP, agregar:
-      // 5. Crear variantes si existen: POST /api/productos/${producto.id}/variantes
+      // 5. Subir imágenes si existen
+      if (formData.media && formData.media.length > 0) {
+        console.log("=== Subiendo imágenes ===");
+        console.log("Número de imágenes:", formData.media.length);
+        try {
+          await productService.uploadImages(producto.id, formData.media);
+          console.log("=== Imágenes subidas exitosamente ===");
+        } catch (error: any) {
+          console.error("⚠️ Error al subir imágenes:", error.message);
+          // No lanzamos el error, el producto ya fue creado
+        }
+      }
 
       // Limpiar localStorage después de guardar exitosamente
       clearLocalStorage();

@@ -69,6 +69,8 @@ import { EtiquetasAssignEndpoint } from "./etiquetas/assign/etiquetasAssign.endp
 import { EtiquetasAssignNetwork } from "./etiquetas/assign/etiquetasAssign.network";
 import { PrecioCreateEndpoint } from "./variante/precio/create/precioCreate.endpoint";
 import { PrecioCreateNetwork } from "./variante/precio/create/precioCreate.network";
+import { ImagenesUploadEndpoint } from "./imagenes/upload/imagenesUpload.endpoint";
+import { ImagenesUploadNetwork } from "./imagenes/upload/imagenesUpload.network";
 import { ProductoGetServiceBuilder } from "../../services/producto/get";
 import { ProductoListServiceBuilder } from "../../services/producto/list";
 import { ProductoUpdateServiceBuilder } from "../../services/producto/update";
@@ -106,6 +108,7 @@ import { VarianteDeleteServiceBuilder } from "../../services/producto/variante/d
 import { CategoriaAssignServiceBuilder } from "../../services/producto/categoria/assign";
 import { EtiquetaAssignServiceBuilder } from "../../services/producto/etiqueta/assign";
 import { PrecioCreateServiceBuilder } from "../../services/producto/variante/precio/create";
+import { StorageUploadBuilder } from "../../services/producto/storage/upload/storageUpload.builder";
 
 /**
  * Router de productos.
@@ -164,6 +167,10 @@ export class ProductoRoute {
     const categoriaAssignService = new CategoriaAssignServiceBuilder().build();
     const etiquetaAssignService = new EtiquetaAssignServiceBuilder().build();
     const precioCreateService = new PrecioCreateServiceBuilder().build();
+    const storageUploadService = new StorageUploadBuilder().build();
+
+    // Obtener supabaseClient del servicio (ya tiene acceso)
+    const supabaseClient = (productoCreateService as any).supabaseClient;
 
     // ===== PRODUCTOS =====
     // Create
@@ -218,6 +225,16 @@ export class ProductoRoute {
       etiquetaAssignService
     );
     etiquetasAssignNetwork.setNetwork(productosRouter);
+
+    // Upload Imagenes
+    const imagenesUploadEndpoint = new ImagenesUploadEndpoint({
+      storageService: storageUploadService,
+      supabaseClient,
+    });
+    const imagenesUploadNetwork = new ImagenesUploadNetwork(
+      imagenesUploadEndpoint
+    );
+    imagenesUploadNetwork.setNetwork(productosRouter);
 
     // ===== CATEGORÍAS =====
     // Create

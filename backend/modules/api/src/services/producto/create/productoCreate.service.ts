@@ -14,7 +14,7 @@ import type {
   IStorageUploadService,
   IStorageDeleteService,
 } from "../storage/productoStorage.model";
-import { StorageUploadServiceBuilder } from "../storage/upload";
+import { StorageUploadBuilder } from "../storage/upload";
 import { StorageDeleteServiceBuilder } from "../storage/delete";
 import type { ITipoGetService } from "../tipo/get/tipoGet.service";
 import type { IColeccionGetService } from "../coleccion/get/coleccionGet.service";
@@ -49,9 +49,7 @@ export class ProductoCreateService implements IProductoCreateService {
     // Si no se proporcionan servicios, crear por defecto
     this.uploadService =
       uploadService ||
-      new StorageUploadServiceBuilder()
-        .setSupabaseClient(supabaseClient)
-        .build();
+      new StorageUploadBuilder().setSupabaseClient(supabaseClient).build();
     this.deleteService =
       deleteService ||
       new StorageDeleteServiceBuilder()

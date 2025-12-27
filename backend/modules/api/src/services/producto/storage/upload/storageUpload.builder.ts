@@ -2,7 +2,7 @@ import { createClient, SupabaseClient } from "@supabase/supabase-js";
 import { ensureSupabaseConfig } from "../../../../config/env";
 import { StorageUploadService } from "./storageUpload.service";
 
-export class StorageUploadServiceBuilder {
+export class StorageUploadBuilder {
   private supabaseClient?: SupabaseClient;
 
   setSupabaseClient(client: SupabaseClient): this {
@@ -23,4 +23,3 @@ export class StorageUploadServiceBuilder {
     return new StorageUploadService(this.supabaseClient);
   }
 }
-
