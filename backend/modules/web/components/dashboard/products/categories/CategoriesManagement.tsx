@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Category, CreateCategoryInput } from './types';
+import type { Category, CreateCategoryInput } from './types';
 import { CategoryForm } from './CategoryForm';
 import { CategoryList } from './CategoryList';
 import { CategoryMobileList } from './CategoryMobileList';

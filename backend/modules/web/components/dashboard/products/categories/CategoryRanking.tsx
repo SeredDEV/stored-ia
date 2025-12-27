@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Category } from './types';
+import type { Category } from './types';
 
 interface CategoryRankingProps {
   categories: Category[];

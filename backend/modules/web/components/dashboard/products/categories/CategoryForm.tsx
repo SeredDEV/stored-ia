@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CategoryStatus, CategoryVisibility, CreateCategoryInput } from './types';
+import type { CategoryStatus, CategoryVisibility, CreateCategoryInput } from './types';
 
 interface CategoryFormProps {
   onSubmit: (data: CreateCategoryInput) => void;
