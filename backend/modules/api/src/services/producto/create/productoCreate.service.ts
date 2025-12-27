@@ -169,8 +169,11 @@ export class ProductoCreateService implements IProductoCreateService {
   }
 
   /**
-   * Crea un producto (solo la tabla producto y sus relaciones)
-   * Las variantes, opciones y demás se crean con sus propios endpoints
+   * Crea un producto (SOLO datos básicos del producto)
+   * - NO crea imágenes (usar endpoint separado: POST /api/productos/:id/imagenes)
+   * - NO crea variantes (usar endpoint separado: POST /api/productos/:id/variantes)
+   * - NO crea relaciones (usar endpoints separados: POST /api/productos/:id/categorias, /api/productos/:id/etiquetas)
+   * - NO crea precios (se crean automáticamente al crear variantes)
    */
   async createProducto(input: CreateProductoInput): Promise<Producto> {
     const {
@@ -178,60 +181,41 @@ export class ProductoCreateService implements IProductoCreateService {
       subtitulo,
       descripcion,
       slug,
-      miniatura,
-      imagenes,
       tiene_descuento,
       tipo_producto_id,
       coleccion_id,
-      categorias,
-      etiquetas,
     } = input;
 
-    // 1. Validar que las relaciones existan
-    await this.validateRelations({
-      tipo_producto_id,
-      coleccion_id,
-      categorias,
-      etiquetas,
-    });
-
-    // 2. Procesar miniatura (subir si es archivo)
-    let miniaturaUrl: string | undefined = undefined;
-    if (miniatura) {
-      if (typeof miniatura === "string") {
-        // Ya es una URL
-        miniaturaUrl = miniatura;
-      } else {
-        // Es un archivo, subirlo a Supabase Storage
-        miniaturaUrl = await this.uploadService.execute({
-          file: miniatura.buffer,
-          fileName: miniatura.fileName,
-          contentType: miniatura.contentType,
-        });
+    // 1. Validar que las relaciones directas existan (tipo y colección)
+    if (tipo_producto_id) {
+      try {
+        await this.tipoGetService.execute(tipo_producto_id);
+      } catch (error) {
+        throw new Error(
+          JSON.stringify({
+            dictionaryId: "tipoNotFound",
+            statusCode: 404,
+            defaultMessage: "El tipo de producto especificado no existe",
+          })
+        );
       }
     }
 
-    // 3. Procesar imágenes (subir si son archivos)
-    let imagenesUrls: string[] = [];
-    if (imagenes && imagenes.length > 0) {
-      const uploadPromises = imagenes.map(async (imagen) => {
-        if (typeof imagen === "string") {
-          // Ya es una URL
-          return imagen;
-        } else {
-          // Es un archivo, subirlo a Supabase Storage
-          return await this.uploadService.execute({
-            file: imagen.buffer,
-            fileName: imagen.fileName,
-            contentType: imagen.contentType,
-          });
-        }
-      });
-
-      imagenesUrls = await Promise.all(uploadPromises);
+    if (coleccion_id) {
+      try {
+        await this.coleccionGetService.execute(coleccion_id);
+      } catch (error) {
+        throw new Error(
+          JSON.stringify({
+            dictionaryId: "coleccionNotFound",
+            statusCode: 404,
+            defaultMessage: "La colección especificada no existe",
+          })
+        );
+      }
     }
 
-    // 4. Crear el producto
+    // 2. Crear el producto (SOLO datos básicos)
     const { data: producto, error: errorProducto } = await this.supabaseClient
       .from("producto")
       .insert({
@@ -240,9 +224,8 @@ export class ProductoCreateService implements IProductoCreateService {
         subtitulo,
         descripcion,
         slug,
-        miniatura: miniaturaUrl,
         estado: "borrador",
-        tiene_descuento,
+        tiene_descuento: tiene_descuento ?? true,
         tipo_producto_id,
         coleccion_id,
         fecha_creacion: new Date().toISOString(),
@@ -254,44 +237,8 @@ export class ProductoCreateService implements IProductoCreateService {
     if (errorProducto)
       throw new Error(`Error al crear producto: ${errorProducto.message}`);
 
-    // 5. Guardar imágenes en la tabla imagen_producto
-    if (imagenesUrls.length > 0) {
-      const imagenesData = imagenesUrls.map((url, index) => ({
-        id: crypto.randomUUID(),
-        producto_id: producto.id,
-        url,
-        rango: index,
-      }));
-
-      await this.supabaseClient.from("imagen_producto").insert(imagenesData);
-    }
-
-    // 6. Relacionar con categorías
-    if (categorias && categorias.length > 0) {
-      const categoriasData = categorias.map((cat_id) => ({
-        categoria_producto_id: cat_id,
-        producto_id: producto.id,
-      }));
-
-      await this.supabaseClient
-        .from("categoria_producto_producto")
-        .insert(categoriasData);
-    }
-
-    // 7. Relacionar con etiquetas
-    if (etiquetas && etiquetas.length > 0) {
-      const etiquetasData = etiquetas.map((etiq_id) => ({
-        etiqueta_producto_id: etiq_id,
-        producto_id: producto.id,
-      }));
-
-      await this.supabaseClient
-        .from("producto_etiquetas")
-        .insert(etiquetasData);
-    }
-
-    // 8. Retornar el producto creado
-    // Las variantes y opciones se crean con sus propios endpoints
+    // 3. Retornar el producto creado
+    // Las imágenes, variantes, categorías y etiquetas se agregan después con sus propios endpoints
     return producto;
   }
 }

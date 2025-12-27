@@ -35,31 +35,23 @@ export type {
 // ===== INTERFACES =====
 
 export interface CreateProductoInput {
-  // Detalles
+  // Detalles básicos
   titulo: string;
   subtitulo?: string;
   descripcion?: string;
   slug: string;
-  miniatura?:
-    | string
-    | { buffer: string; fileName: string; contentType?: string }; // URL o archivo base64
-  imagenes?: Array<
-    string | { buffer: string; fileName: string; contentType?: string }
-  >; // URLs o archivos base64
 
-  // Organizar
-  tiene_descuento: boolean;
+  // Organizar (solo relaciones directas en la tabla producto)
+  tiene_descuento?: boolean;
   tipo_producto_id?: string;
   coleccion_id?: string;
-  categorias?: string[];
-  etiquetas?: string[];
 
-  // Variantes
-  tiene_variantes: boolean;
-  opciones?: Array<{
-    titulo: string;
-    valores: string[];
-  }>;
+  // NOTA: Los siguientes se manejan con endpoints separados:
+  // - Imágenes: POST /api/productos/:id/imagenes
+  // - Categorías: POST /api/productos/:id/categorias
+  // - Etiquetas: POST /api/productos/:id/etiquetas
+  // - Variantes: POST /api/productos/:id/variantes
+  // - Opciones: POST /api/productos/:id/opciones
 }
 
 export interface CreateVarianteBasicInput {

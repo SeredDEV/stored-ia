@@ -68,11 +68,19 @@ export const productService = {
       body: formData,
     });
     if (!response.ok) {
-      const error = await response.json();
-      console.error("Error del servidor:", error);
-      throw new Error(
-        error.error || error.message || "Error al crear producto"
-      );
+      let errorMessage = "Error al crear producto";
+      try {
+        const error = await response.json();
+        console.error("Error del servidor:", error);
+        errorMessage = error.error || error.message || JSON.stringify(error);
+      } catch (e) {
+        // Si no se puede parsear el JSON, usar el texto de la respuesta
+        const text = await response.text();
+        console.error("Error del servidor (texto):", text);
+        errorMessage =
+          text || `Error ${response.status}: ${response.statusText}`;
+      }
+      throw new Error(errorMessage);
     }
     const result = await response.json();
     return result.data.producto;

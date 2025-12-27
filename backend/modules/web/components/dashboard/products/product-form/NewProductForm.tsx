@@ -492,82 +492,84 @@ const NewProductForm: React.FC<NewProductFormProps> = ({
         throw new Error("El título es requerido");
       }
 
-      // Crear FormData para enviar imágenes
-      const data = new FormData();
-
-      // Agregar datos básicos del producto
-      data.append("titulo", formData.title.trim());
-      data.append("subtitulo", formData.subtitle?.trim() || "");
-      data.append("slug", formData.handle.trim());
-      data.append("descripcion", formData.description?.trim() || "");
-      data.append("tiene_descuento", formData.discountApplicable.toString());
-      data.append("tiene_variantes", formData.hasVariants.toString());
-      data.append("estado", isDraft ? "borrador" : "publicado");
-
-      console.log("Datos básicos agregados");
-
-      // Agregar tipo si existe
-      if (formData.type) {
-        data.append("tipo_producto_id", formData.type);
-        console.log("Tipo agregado:", formData.type);
-      }
-
-      // Agregar colección si existe
-      if (formData.collection) {
-        data.append("coleccion_id", formData.collection);
-        console.log("Colección agregada:", formData.collection);
-      }
-
-      // Agregar categorías
-      if (formData.categories.length > 0) {
-        data.append("categorias", JSON.stringify(formData.categories));
-        console.log("Categorías agregadas:", formData.categories);
-      }
-
-      // Agregar etiquetas
-      if (formData.tags.length > 0) {
-        data.append("etiquetas", JSON.stringify(formData.tags));
-        console.log("Etiquetas agregadas:", formData.tags);
-      }
-
-      // Agregar imágenes
-      if (formData.media.length > 0) {
-        // La primera imagen será la miniatura
-        data.append("miniatura", formData.media[0]);
-        console.log("Miniatura agregada:", formData.media[0].name);
-
-        // Todas las imágenes van a imagenes
-        formData.media.forEach((file, index) => {
-          data.append("imagenes", file);
-          console.log(`Imagen ${index + 1} agregada:`, file.name);
+      // Convertir imágenes a base64 si existen
+      const convertFileToBase64 = (
+        file: File
+      ): Promise<{ buffer: string; fileName: string; contentType: string }> => {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            const base64 = reader.result as string;
+            resolve({
+              buffer: base64,
+              fileName: file.name,
+              contentType: file.type,
+            });
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
         });
-      } else {
-        console.log("No hay imágenes para agregar");
+      };
+
+      // Procesar imágenes si existen
+      let miniatura = undefined;
+      let imagenes = undefined;
+
+      if (formData.media.length > 0) {
+        const imagenesBase64 = await Promise.all(
+          formData.media.map((file) => convertFileToBase64(file))
+        );
+        miniatura = imagenesBase64[0];
+        imagenes = imagenesBase64;
+        console.log(`${imagenes.length} imágenes convertidas a base64`);
       }
 
-      // Agregar variantes si existen
-      if (formData.variants.length > 0) {
-        const variantesSanitizadas = formData.variants
-          .filter((v) => v.selected && !v.id.startsWith("option-"))
-          .map((v) => ({
-            titulo: v.title || v.name,
-            sku: v.sku || "",
-            inventario_gestionado: v.managedInventory || false,
-            permitir_pedido_sin_inventario: v.allowBackorder || false,
-            precio_cop: v.priceCOP ? parseFloat(v.priceCOP) : 0,
-          }));
+      // Crear objeto JSON simple
+      const productData: any = {
+        titulo: formData.title.trim(),
+        slug: formData.handle.trim(),
+      };
 
-        if (variantesSanitizadas.length > 0) {
-          data.append("variantes", JSON.stringify(variantesSanitizadas));
-          console.log("Variantes agregadas:", variantesSanitizadas);
-        }
+      // Agregar campos opcionales solo si tienen valor
+      if (formData.subtitle?.trim()) {
+        productData.subtitulo = formData.subtitle.trim();
+      }
+      if (formData.description?.trim()) {
+        productData.descripcion = formData.description.trim();
+      }
+      if (miniatura) {
+        productData.miniatura = miniatura;
+      }
+      if (imagenes && imagenes.length > 0) {
+        productData.imagenes = imagenes;
       }
 
-      // Enviar al backend
+      productData.tiene_descuento = formData.discountApplicable;
+      productData.tiene_variantes = formData.hasVariants;
+
+      if (formData.type) {
+        productData.tipo_producto_id = formData.type;
+      }
+      if (formData.collection) {
+        productData.coleccion_id = formData.collection;
+      }
+      if (formData.categories.length > 0) {
+        productData.categorias = formData.categories;
+      }
+      if (formData.tags.length > 0) {
+        productData.etiquetas = formData.tags;
+      }
+      if (formData.hasVariants && formData.options.length > 0) {
+        productData.opciones = formData.options.map((opt) => ({
+          titulo: opt.name,
+          valores: opt.values,
+        }));
+      }
+
       console.log("=== Enviando al backend ===");
-      console.log("URL:", "/api/productos");
+      console.log("Datos:", productData);
 
-      const producto = await productService.createWithImages(data);
+      const producto = await productService.create(productData);
 
       console.log("=== Producto creado exitosamente ===");
       console.log("Producto:", producto);

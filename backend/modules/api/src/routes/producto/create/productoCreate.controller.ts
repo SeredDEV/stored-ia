@@ -11,7 +11,8 @@ export class ProductoCreateController {
     next: NextFunction
   ): Promise<void> => {
     try {
-      const input = req.body as CreateProductoInput;
+      // El body ya viene validado y transformado por Zod
+      const input: CreateProductoInput = req.body;
 
       const producto = await this.productoService.createProducto(input);
 
