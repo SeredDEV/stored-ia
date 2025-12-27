@@ -7,7 +7,7 @@ export interface IVarianteCreateService {
 }
 
 export class VarianteCreateService implements IVarianteCreateService {
-  constructor(private readonly supabaseClient: SupabaseClient) { }
+  constructor(private readonly supabaseClient: SupabaseClient) {}
 
   async execute(input: CreateVarianteInput): Promise<Variante> {
     const { producto_id, sku, opciones, ...varianteData } = input;
@@ -44,7 +44,6 @@ export class VarianteCreateService implements IVarianteCreateService {
     const { data, error } = await this.supabaseClient
       .from("variante_producto")
       .insert({
-        id: crypto.randomUUID(),
         producto_id,
         sku,
         ...varianteData,

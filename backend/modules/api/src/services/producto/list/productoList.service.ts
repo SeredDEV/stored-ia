@@ -19,17 +19,11 @@ export class ProductoListService implements IProductoListService {
     let query = this.supabaseClient
       .from("producto")
       .select("*")
-      .eq("estado", "publicado") // Solo listar productos publicados
+      .is("fecha_eliminacion", null)
       .order("fecha_creacion", { ascending: false });
 
-    // Filtro por estado en lugar de activo
     if (filters?.activo !== undefined) {
-      // Si se pide activos, filtrar por estado publicado
-      if (filters.activo) {
-        query = query.eq("estado", "publicado");
-      } else {
-        query = query.in("estado", ["borrador", "inactivo"]);
-      }
+      query = query.eq("activo", filters.activo);
     }
 
     if (filters?.tiene_variantes !== undefined) {
@@ -53,3 +47,4 @@ export class ProductoListService implements IProductoListService {
     return data || [];
   }
 }
+

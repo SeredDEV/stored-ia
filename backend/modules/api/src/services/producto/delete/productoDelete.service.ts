@@ -14,18 +14,18 @@ export class ProductoDeleteService implements IProductoDeleteService {
       .from("producto")
       .select("id")
       .eq("id", id)
-      .neq("estado", "eliminado")
+      .is("fecha_eliminacion", null)
       .single();
 
     if (existingError || !existing) {
       throw new Error(productoDeleteDictionary.notFound.defaultMessage);
     }
 
-    // Soft delete - cambiar estado a "eliminado"
+    // Soft delete
     const { error } = await this.supabaseClient
       .from("producto")
       .update({
-        estado: "inactivo", // Cambiar a inactivo en lugar de eliminar
+        fecha_eliminacion: new Date().toISOString(),
         fecha_actualizacion: new Date().toISOString(),
       })
       .eq("id", id);
@@ -35,3 +35,4 @@ export class ProductoDeleteService implements IProductoDeleteService {
     }
   }
 }
+

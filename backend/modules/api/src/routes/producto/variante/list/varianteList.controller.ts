@@ -11,24 +11,13 @@ export class VarianteListController {
   ): Promise<void> => {
     try {
       const { producto_id } = req.params;
-      const variantes = await this.varianteService.execute(producto_id);
+      const variantes = await this.varianteService.execute(
+        producto_id
+      );
       res.json({ data: variantes });
     } catch (err: any) {
       next(err);
     }
   };
-
-  public listByProductoWithProduct = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> => {
-    try {
-      const { producto_id } = req.params;
-      const result = await this.varianteService.executeWithProduct(producto_id);
-      res.json({ data: result });
-    } catch (err: any) {
-      next(err);
-    }
-  };
 }
+

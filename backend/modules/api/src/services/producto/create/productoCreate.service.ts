@@ -131,42 +131,41 @@ export class ProductoCreateService implements IProductoCreateService {
       }
     }
 
-    // Validar categorías usando el servicio inyectado - filtrar las que no existen
-    let categoriasValidas: string[] = [];
+    // Validar categorías usando el servicio inyectado
     if (categorias && categorias.length > 0) {
-      const validationPromises = categorias.map(async (id) => {
-        try {
-          await this.categoriaGetService.execute(id);
-          return id; // Si existe, devolver el ID
-        } catch (error) {
-          console.warn(`Categoría ${id} no existe, será ignorada`);
-          return null; // Si no existe, devolver null
-        }
-      });
-      const results = await Promise.all(validationPromises);
-      categoriasValidas = results.filter((id): id is string => id !== null);
+      try {
+        const validationPromises = categorias.map((id) =>
+          this.categoriaGetService.execute(id)
+        );
+        await Promise.all(validationPromises);
+      } catch (error) {
+        throw new Error(
+          JSON.stringify({
+            dictionaryId: "categoriaNotFound",
+            statusCode: 404,
+            defaultMessage: "Una o más categorías especificadas no existen",
+          })
+        );
+      }
     }
 
-    // Validar etiquetas usando el servicio inyectado - filtrar las que no existen
-    let etiquetasValidas: string[] = [];
+    // Validar etiquetas usando el servicio inyectado
     if (etiquetas && etiquetas.length > 0) {
-      const validationPromises = etiquetas.map(async (id) => {
-        try {
-          await this.etiquetaGetService.execute(id);
-          return id; // Si existe, devolver el ID
-        } catch (error) {
-          console.warn(`Etiqueta ${id} no existe, será ignorada`);
-          return null; // Si no existe, devolver null
-        }
-      });
-      const results = await Promise.all(validationPromises);
-      etiquetasValidas = results.filter((id): id is string => id !== null);
+      try {
+        const validationPromises = etiquetas.map((id) =>
+          this.etiquetaGetService.execute(id)
+        );
+        await Promise.all(validationPromises);
+      } catch (error) {
+        throw new Error(
+          JSON.stringify({
+            dictionaryId: "etiquetaNotFound",
+            statusCode: 404,
+            defaultMessage: "Una o más etiquetas especificadas no existen",
+          })
+        );
+      }
     }
-
-    return {
-      categoriasValidas,
-      etiquetasValidas,
-    };
   }
 
   /**
@@ -188,14 +187,13 @@ export class ProductoCreateService implements IProductoCreateService {
       etiquetas,
     } = input;
 
-    // 1. Validar que las relaciones existan y filtrar las que no
-    const { categoriasValidas, etiquetasValidas } =
-      await this.validateRelations({
-        tipo_producto_id,
-        coleccion_id,
-        categorias,
-        etiquetas,
-      });
+    // 1. Validar que las relaciones existan
+    await this.validateRelations({
+      tipo_producto_id,
+      coleccion_id,
+      categorias,
+      etiquetas,
+    });
 
     // 2. Procesar miniatura (subir si es archivo)
     let miniaturaUrl: string | undefined = undefined;
@@ -204,12 +202,11 @@ export class ProductoCreateService implements IProductoCreateService {
         // Ya es una URL
         miniaturaUrl = miniatura;
       } else {
-        // Es un archivo, subirlo a Supabase Storage con carpeta del producto
+        // Es un archivo, subirlo a Supabase Storage
         miniaturaUrl = await this.uploadService.execute({
           file: miniatura.buffer,
           fileName: miniatura.fileName,
           contentType: miniatura.contentType,
-          folder: slug, // Usar el slug como carpeta
         });
       }
     }
@@ -222,12 +219,11 @@ export class ProductoCreateService implements IProductoCreateService {
           // Ya es una URL
           return imagen;
         } else {
-          // Es un archivo, subirlo a Supabase Storage con carpeta del producto
+          // Es un archivo, subirlo a Supabase Storage
           return await this.uploadService.execute({
             file: imagen.buffer,
             fileName: imagen.fileName,
             contentType: imagen.contentType,
-            folder: slug, // Usar el slug como carpeta
           });
         }
       });
@@ -245,7 +241,7 @@ export class ProductoCreateService implements IProductoCreateService {
         descripcion,
         slug,
         miniatura: miniaturaUrl,
-        estado: input.estado || "borrador",
+        estado: "borrador",
         tiene_descuento,
         tipo_producto_id,
         coleccion_id,
@@ -270,9 +266,9 @@ export class ProductoCreateService implements IProductoCreateService {
       await this.supabaseClient.from("imagen_producto").insert(imagenesData);
     }
 
-    // 6. Relacionar con categorías (solo las que existen)
-    if (categoriasValidas.length > 0) {
-      const categoriasData = categoriasValidas.map((cat_id) => ({
+    // 6. Relacionar con categorías
+    if (categorias && categorias.length > 0) {
+      const categoriasData = categorias.map((cat_id) => ({
         categoria_producto_id: cat_id,
         producto_id: producto.id,
       }));
@@ -282,9 +278,9 @@ export class ProductoCreateService implements IProductoCreateService {
         .insert(categoriasData);
     }
 
-    // 7. Relacionar con etiquetas (solo las que existen)
-    if (etiquetasValidas.length > 0) {
-      const etiquetasData = etiquetasValidas.map((etiq_id) => ({
+    // 7. Relacionar con etiquetas
+    if (etiquetas && etiquetas.length > 0) {
+      const etiquetasData = etiquetas.map((etiq_id) => ({
         etiqueta_producto_id: etiq_id,
         producto_id: producto.id,
       }));

@@ -1,6 +1,5 @@
 import { Router } from "express";
 import { ProductoCreateEndpoint } from "./productoCreate.endpoint";
-import { uploadProductImages } from "../../../middleware/uploadMiddleware";
 
 export class ProductoCreateNetwork {
   private endpoint: ProductoCreateEndpoint;
@@ -11,7 +10,11 @@ export class ProductoCreateNetwork {
 
   public setNetwork(router: Router): void {
     // POST /api/productos
-    // Usamos uploadProductImages para manejar archivos multipart/form-data
-    router.post("/", uploadProductImages, this.endpoint.controller.create);
+    router.post(
+      "/",
+      this.endpoint.validator.validate,
+      this.endpoint.controller.create
+    );
   }
 }
+

@@ -5,10 +5,6 @@ import { AuthServiceBuilder } from "./services/auth/login";
 import { AuthResetPasswordServiceBuilder } from "./services/auth/reset-password";
 import { AuthNewPasswordServiceBuilder } from "./services/auth/new-password";
 import { ProductoCreateServiceBuilder } from "./services/producto/create";
-import { ProductoGetServiceBuilder } from "./services/producto/get";
-import { ProductoListServiceBuilder } from "./services/producto/list";
-import { ProductoUpdateServiceBuilder } from "./services/producto/update";
-import { ProductoDeleteServiceBuilder } from "./services/producto/delete";
 import { env } from "./config/env";
 import { authErrorHandler } from "./middleware/errorHandler";
 import { RouteLoader } from "./lib/routeLoader";
@@ -21,10 +17,6 @@ const authService = AuthServiceBuilder.build();
 const resetPasswordService = AuthResetPasswordServiceBuilder.build();
 const newPasswordService = AuthNewPasswordServiceBuilder.build();
 const productoCreateService = ProductoCreateServiceBuilder.build();
-const productoGetService = new ProductoGetServiceBuilder().build();
-const productoListService = new ProductoListServiceBuilder().build();
-const productoUpdateService = new ProductoUpdateServiceBuilder().build();
-const productoDeleteService = new ProductoDeleteServiceBuilder().build();
 
 // Middleware
 app.use(
@@ -62,10 +54,6 @@ RouteLoader.loadRoutes(app, undefined, {
   resetPasswordService,
   newPasswordService,
   productoCreateService,
-  productoGetService,
-  productoListService,
-  productoUpdateService,
-  productoDeleteService,
 })
   .then(() => {
     // Middleware de manejo de errores de autenticación (debe ir después de las rutas)

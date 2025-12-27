@@ -7,7 +7,7 @@ export interface ITipoCreateService {
 }
 
 export class TipoCreateService implements ITipoCreateService {
-  constructor(private readonly supabaseClient: SupabaseClient) { }
+  constructor(private readonly supabaseClient: SupabaseClient) {}
 
   async execute(input: CreateTipoProductoInput): Promise<TipoProducto> {
     const { valor, metadatos } = input;
@@ -27,11 +27,7 @@ export class TipoCreateService implements ITipoCreateService {
 
     const { data, error } = await this.supabaseClient
       .from("tipo_producto")
-      .insert({
-        id: crypto.randomUUID(),
-        valor,
-        metadatos: metadatos || {}
-      })
+      .insert({ valor, metadatos: metadatos || {} })
       .select()
       .single();
 

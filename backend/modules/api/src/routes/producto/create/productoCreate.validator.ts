@@ -42,12 +42,6 @@ const createProductoSchema = z.object({
   // Variantes
   tiene_variantes: z.boolean().default(false),
   opciones: z.array(opcionSchema).optional(),
-
-  // Estado
-  estado: z
-    .enum(["borrador", "publicado", "inactivo"])
-    .optional()
-    .default("borrador"),
 });
 
 export type CreateProductoInput = z.infer<typeof createProductoSchema>;
