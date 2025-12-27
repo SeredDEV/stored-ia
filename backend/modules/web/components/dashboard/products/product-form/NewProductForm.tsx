@@ -69,6 +69,14 @@ const NewProductForm: React.FC<NewProductFormProps> = ({
       formData.variants.length === 0 &&
       formData.title
     ) {
+      // Generar SKU automático
+      const baseSku = formData.handle.toUpperCase().slice(0, 10);
+      const skuSuffix = Math.random()
+        .toString(36)
+        .substring(2, 6)
+        .toUpperCase();
+      const autoSku = `${baseSku}-${skuSuffix}`;
+
       setFormData((prev) => ({
         ...prev,
         variants: [
@@ -77,7 +85,7 @@ const NewProductForm: React.FC<NewProductFormProps> = ({
             name: prev.title, // Usamos el título del producto
             selected: true,
             title: prev.title, // Usamos el título del producto
-            sku: "",
+            sku: autoSku,
             priceCOP: "",
             managedInventory: false,
             allowBackorder: false,
@@ -204,12 +212,23 @@ const NewProductForm: React.FC<NewProductFormProps> = ({
       // Generamos un ID basado en la combinación para intentar mantenerlo estable
       const safeId = name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 
+      // Generar SKU automático para cada variante
+      const baseHandle = formData.handle || "product";
+      const variantCode = safeId.slice(0, 8).toUpperCase();
+      const skuSuffix = Math.random()
+        .toString(36)
+        .substring(2, 4)
+        .toUpperCase();
+      const autoSku = `${baseHandle
+        .toUpperCase()
+        .slice(0, 8)}-${variantCode}-${skuSuffix}`;
+
       return {
         id: `variant-${safeId}-${idx}`,
         name: name,
         selected: true,
         title: name, // El título por defecto es la combinación
-        sku: "",
+        sku: autoSku,
         managedInventory: false,
         allowBackorder: false,
         hasInventoryKit: false,
@@ -222,15 +241,18 @@ const NewProductForm: React.FC<NewProductFormProps> = ({
     setFormData((prev) => {
       const updated: ProductFormData = { ...prev, [field]: value };
 
-      // Auto-generar handle desde el título
+      // Auto-generar handle desde el título con timestamp para hacerlo único
       if (field === "title" && typeof value === "string") {
-        const handle = value
+        const baseHandle = value
           .toLowerCase()
           .normalize("NFD")
           .replace(/[\u0300-\u036f]/g, "")
           .replace(/[^a-z0-9]+/g, "-")
           .replace(/(^-|-$)/g, "");
-        updated.handle = handle;
+
+        // Agregar timestamp corto para garantizar unicidad
+        const timestamp = Date.now().toString().slice(-6);
+        updated.handle = `${baseHandle}-${timestamp}`;
       }
 
       // Generar variantes cuando se activa el toggle de variantes
@@ -244,14 +266,21 @@ const NewProductForm: React.FC<NewProductFormProps> = ({
             updated.variants = [];
           }
         } else {
-          // Si desactivamos variantes, volvemos a la variante por defecto única
+          // Si desactivamos variantes, volvemos a la variante por defecto única con SKU
+          const baseSku = updated.handle.toUpperCase().slice(0, 10);
+          const skuSuffix = Math.random()
+            .toString(36)
+            .substring(2, 6)
+            .toUpperCase();
+          const autoSku = `${baseSku}-${skuSuffix}`;
+
           updated.variants = [
             {
               id: "default-variant",
               name: updated.title || "Default Variant",
               selected: true,
               title: updated.title || "Default Variant",
-              sku: "",
+              sku: autoSku,
               priceCOP: "",
               managedInventory: false,
               allowBackorder: false,

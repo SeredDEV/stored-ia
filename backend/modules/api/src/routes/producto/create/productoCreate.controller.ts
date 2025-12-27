@@ -23,6 +23,7 @@ export class ProductoCreateController {
         slug: req.body.slug,
         tiene_descuento: req.body.tiene_descuento === "true",
         tiene_variantes: req.body.tiene_variantes === "true" || false,
+        estado: req.body.estado || "borrador", // Procesar el estado
         tipo_producto_id: req.body.tipo_producto_id,
         coleccion_id: req.body.coleccion_id,
         categorias: req.body.categorias

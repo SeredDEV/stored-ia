@@ -202,11 +202,12 @@ export class ProductoCreateService implements IProductoCreateService {
         // Ya es una URL
         miniaturaUrl = miniatura;
       } else {
-        // Es un archivo, subirlo a Supabase Storage
+        // Es un archivo, subirlo a Supabase Storage con carpeta del producto
         miniaturaUrl = await this.uploadService.execute({
           file: miniatura.buffer,
           fileName: miniatura.fileName,
           contentType: miniatura.contentType,
+          folder: slug, // Usar el slug como carpeta
         });
       }
     }
@@ -219,11 +220,12 @@ export class ProductoCreateService implements IProductoCreateService {
           // Ya es una URL
           return imagen;
         } else {
-          // Es un archivo, subirlo a Supabase Storage
+          // Es un archivo, subirlo a Supabase Storage con carpeta del producto
           return await this.uploadService.execute({
             file: imagen.buffer,
             fileName: imagen.fileName,
             contentType: imagen.contentType,
+            folder: slug, // Usar el slug como carpeta
           });
         }
       });
@@ -241,7 +243,7 @@ export class ProductoCreateService implements IProductoCreateService {
         descripcion,
         slug,
         miniatura: miniaturaUrl,
-        estado: "borrador",
+        estado: input.estado || "borrador",
         tiene_descuento,
         tipo_producto_id,
         coleccion_id,

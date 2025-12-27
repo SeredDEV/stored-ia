@@ -30,7 +30,7 @@ export class StorageUploadService implements IStorageUploadService {
    * Sube un archivo multimedia y retorna la URL pública
    */
   async execute(input: UploadMediaInput): Promise<string> {
-    const { file, fileName, contentType = "image/jpeg" } = input;
+    const { file, fileName, contentType = "image/jpeg", folder } = input;
 
     // Validar tipo de archivo
     if (!this.isValidMediaType(contentType)) {
@@ -43,10 +43,21 @@ export class StorageUploadService implements IStorageUploadService {
     const randomString = Math.random().toString(36).substring(7);
     const uniqueFileName = `${timestamp}-${randomString}-${fileName}`;
 
-    // Determinar carpeta según tipo de archivo
+    // Determinar carpeta según tipo de archivo y carpeta personalizada
     const isVideo = ALLOWED_VIDEO_TYPES.includes(contentType);
-    const folder = isVideo ? "videos" : "imagenes";
-    const filePath = `${folder}/${uniqueFileName}`;
+    const baseFolder = isVideo ? "videos" : "imagenes";
+
+    // Si hay carpeta personalizada (slug del producto), usarla
+    const filePath = folder
+      ? `${baseFolder}/${folder}/${uniqueFileName}`
+      : `${baseFolder}/${uniqueFileName}`;
+
+    console.log("=== STORAGE UPLOAD DEBUG ===");
+    console.log("Subiendo archivo a:", filePath);
+    console.log("Content-Type:", contentType);
+    console.log("Bucket:", BUCKET_NAME);
+    console.log("Carpeta:", folder);
+    console.log("Nombre archivo:", fileName);
 
     // Si es base64, convertir a Buffer
     let fileBuffer: Buffer;
@@ -54,11 +65,14 @@ export class StorageUploadService implements IStorageUploadService {
       // Remover prefijo data:image/xxx;base64, o data:video/xxx;base64, si existe
       const base64Data = file.replace(/^data:(image|video)\/\w+;base64,/, "");
       fileBuffer = Buffer.from(base64Data, "base64");
+      console.log("Buffer creado desde base64, tamaño:", fileBuffer.length);
     } else {
       fileBuffer = file;
+      console.log("Buffer recibido directamente, tamaño:", fileBuffer.length);
     }
 
     // Subir archivo a Supabase Storage
+    console.log("Iniciando upload a Supabase...");
     const { data, error } = await this.supabaseClient.storage
       .from(BUCKET_NAME)
       .upload(filePath, fileBuffer, {
@@ -67,7 +81,9 @@ export class StorageUploadService implements IStorageUploadService {
       });
 
     if (error) {
-      console.error("Error de Supabase Storage:", error);
+      console.error("=== ERROR DE SUPABASE STORAGE ===");
+      console.error("Mensaje:", error.message);
+      console.error("Detalles completos:", JSON.stringify(error, null, 2));
       const errorDict = generateErrorDictionary("ERROR_UPLOADING");
       throw new Error(
         JSON.stringify({
@@ -77,6 +93,8 @@ export class StorageUploadService implements IStorageUploadService {
         })
       );
     }
+
+    console.log("Upload exitoso, data:", data);
 
     // Obtener URL pública
     const {

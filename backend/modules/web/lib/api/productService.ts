@@ -69,7 +69,10 @@ export const productService = {
     });
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.message || "Error al crear producto");
+      console.error("Error del servidor:", error);
+      throw new Error(
+        error.error || error.message || "Error al crear producto"
+      );
     }
     const result = await response.json();
     return result.data.producto;

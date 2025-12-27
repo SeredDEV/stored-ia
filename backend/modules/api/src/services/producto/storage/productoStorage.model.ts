@@ -2,6 +2,7 @@ export interface UploadMediaInput {
   file: Buffer | string;
   fileName: string;
   contentType?: string;
+  folder?: string; // Carpeta personalizada (ej: slug del producto)
 }
 
 export interface IStorageUploadService {
@@ -33,4 +34,3 @@ export const ALLOWED_VIDEO_TYPES = [
 ];
 
 export const BUCKET_NAME = "productos";
-
