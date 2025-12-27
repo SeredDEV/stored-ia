@@ -6,5 +6,5 @@ export interface Product {
   collection: string;
   salesChannel: string;
   variants: number;
-  status: "Publicado" | "Borrador";
+  status: "Publicado" | "Borrador" | "Inactivo";
 }

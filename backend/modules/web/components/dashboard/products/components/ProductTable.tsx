@@ -419,7 +419,23 @@ export const ProductTable: React.FC<ProductTableProps> = ({
       </DndContext>
       <div className="px-8 py-5 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between bg-white dark:bg-surface-dark">
         <div className="text-sm text-gray-500 dark:text-gray-400">
-          Mostrando {table.getRowModel().rows.length} de{" "}
+          Mostrando{" "}
+          <span className="font-medium text-gray-900 dark:text-gray-100">
+            {table.getFilteredRowModel().rows.length > 0
+              ? table.getState().pagination.pageIndex *
+                  table.getState().pagination.pageSize +
+                1
+              : 0}
+          </span>{" "}
+          a{" "}
+          <span className="font-medium text-gray-900 dark:text-gray-100">
+            {Math.min(
+              (table.getState().pagination.pageIndex + 1) *
+                table.getState().pagination.pageSize,
+              table.getFilteredRowModel().rows.length
+            )}
+          </span>{" "}
+          de{" "}
           <span className="font-medium text-gray-900 dark:text-gray-100">
             {table.getFilteredRowModel().rows.length}
           </span>{" "}

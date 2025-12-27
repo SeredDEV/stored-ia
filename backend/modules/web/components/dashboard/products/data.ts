@@ -1,77 +1,16 @@
+import { faker } from '@faker-js/faker';
 import { Product } from "./types";
 
-export const products: Product[] = [
-  {
-    id: "1",
-    name: "Medusa Sweatpants",
-    icon: "checkroom",
-    image: "https://images.unsplash.com/photo-1542272454315-4c01d7abdf4a?auto=format&fit=crop&q=80&w=100&h=100",
-    collection: "-",
-    salesChannel: "Default Sales Channel",
-    variants: 4,
-    status: "Publicado",
-  },
-  {
-    id: "2",
-    name: "Medusa Jeans",
-    icon: "checkroom",
-    collection: "-",
-    salesChannel: "Default Sales Channel",
-    variants: 5,
-    status: "Publicado",
-  },
-  {
-    id: "3",
-    name: "Medusa Sweatshirt",
-    icon: "checkroom",
-    collection: "-",
-    salesChannel: "Default Sales Channel",
-    variants: 4,
-    status: "Publicado",
-  },
-  {
-    id: "4",
-    name: "Medusa Hoodie",
-    icon: "checkroom",
-    collection: "-",
-    salesChannel: "Default Sales Channel",
-    variants: 5,
-    status: "Publicado",
-  },
-  {
-    id: "5",
-    name: "Medusa T-Shirt",
-    icon: "checkroom",
-    collection: "-",
-    salesChannel: "Default Sales Channel",
-    variants: 8,
-    status: "Publicado",
-  },
-  {
-    id: "6",
-    name: "Medusa Backpack",
-    icon: "backpack",
-    collection: "-",
-    salesChannel: "Default Sales Channel",
-    variants: 3,
-    status: "Publicado",
-  },
-  {
-    id: "7",
-    name: "Medusa Watch",
-    icon: "watch",
-    collection: "-",
-    salesChannel: "Default Sales Channel",
-    variants: 3,
-    status: "Publicado",
-  },
-  {
-    id: "8",
-    name: "Echo Dot",
-    icon: "speaker",
-    collection: "-",
-    salesChannel: "Default Sales Channel",
-    variants: 3,
-    status: "Publicado",
-  },
-];
+// Establecer una semilla para tener datos consistentes y evitar errores de hidratación
+faker.seed(123);
+
+export const products: Product[] = Array.from({ length: 50 }, () => ({
+  id: faker.string.uuid(),
+  name: faker.commerce.productName(),
+  icon: "checkroom",
+  image: faker.image.urlLoremFlickr({ category: 'fashion', width: 100, height: 100 }),
+  collection: faker.commerce.department(),
+  salesChannel: "Default Sales Channel",
+  variants: faker.number.int({ min: 1, max: 15 }),
+  status: faker.helpers.arrayElement(["Publicado", "Borrador", "Inactivo"]),
+}));
