@@ -83,8 +83,10 @@ const ProductsManagement: React.FC = () => {
       await productService.delete(id);
       await loadProducts();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al eliminar producto');
-      console.error('Error deleting product:', err);
+      setError(
+        err instanceof Error ? err.message : "Error al eliminar producto"
+      );
+      console.error("Error deleting product:", err);
     }
   };
 
