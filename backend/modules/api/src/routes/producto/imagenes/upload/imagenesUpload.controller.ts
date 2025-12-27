@@ -1,4 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
+import { randomUUID } from "crypto";
 import type { UploadImagenesParams } from "./imagenesUpload.validator";
 import type { StorageUploadService } from "../../../../services/producto/storage/upload/storageUpload.service";
 import type { SupabaseClient } from "@supabase/supabase-js";
@@ -30,36 +31,79 @@ export class ImagenesUploadController {
       // 1. Verificar que el producto existe
       const { data: producto, error: productoError } = await this.supabaseClient
         .from("producto")
-        .select("imagenes")
+        .select("miniatura, metadatos, slug, titulo")
         .eq("id", id)
         .is("fecha_eliminacion", null)
         .single();
 
-      if (productoError || !producto) {
+      if (productoError) {
+        console.error("Error consultando producto:", productoError);
+        res.status(500).json({ error: "Error consultando producto" });
+        return;
+      }
+
+      if (!producto) {
         res.status(404).json({ error: "Producto no encontrado" });
         return;
       }
 
       // 2. Subir imágenes a storage
-      const imagenesActuales = (producto.imagenes as string[]) || [];
+      const metadatos = (producto.metadatos as any) || {};
+      const imagenesActuales = (metadatos.imagenes as string[]) || [];
       const nuevasUrls: string[] = [];
+
+      const folder = producto.slug || producto.titulo || id;
 
       for (const file of files) {
         const publicUrl = await this.storageService.execute({
           file: file.buffer,
           fileName: file.originalname,
           contentType: file.mimetype,
+          folder,
         });
         nuevasUrls.push(publicUrl);
         console.log(`URL guardada: ${publicUrl}`);
+
+        // Crear registro en imagen_producto
+        const { error: imagenInsertError } = await this.supabaseClient
+          .from("imagen_producto")
+          .insert({
+            id: randomUUID(),
+            producto_id: id,
+            url: publicUrl,
+            rango: imagenesActuales.length + nuevasUrls.length, // apilar
+            metadatos: {
+              originalName: file.originalname,
+              mimetype: file.mimetype,
+              size: file.size,
+            },
+          });
+
+        if (imagenInsertError) {
+          console.error(
+            "Error al insertar en imagen_producto:",
+            imagenInsertError
+          );
+          res
+            .status(500)
+            .json({ error: "Error al guardar imagen del producto" });
+          return;
+        }
       }
 
       // 3. Actualizar producto con nuevas URLs
       const todasLasImagenes = [...imagenesActuales, ...nuevasUrls];
+      const miniatura = producto.miniatura || todasLasImagenes[0] || null;
 
       const { error: updateError } = await this.supabaseClient
         .from("producto")
-        .update({ imagenes: todasLasImagenes })
+        .update({
+          miniatura,
+          metadatos: {
+            ...metadatos,
+            imagenes: todasLasImagenes,
+          },
+        })
         .eq("id", id);
 
       if (updateError) {

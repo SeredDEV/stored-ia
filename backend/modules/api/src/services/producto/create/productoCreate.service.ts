@@ -73,6 +73,11 @@ export class ProductoCreateService implements IProductoCreateService {
       new EtiquetaGetServiceBuilder().setSupabaseClient(supabaseClient).build();
   }
 
+  // Exponer el cliente para reutilizarlo en otros endpoints (imágenes, etc.)
+  public getClient(): SupabaseClient {
+    return this.supabaseClient;
+  }
+
   /**
    * Fábrica para crear el servicio usando la configuración centralizada.
    */

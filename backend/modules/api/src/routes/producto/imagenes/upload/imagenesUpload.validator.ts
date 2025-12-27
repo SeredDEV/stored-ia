@@ -8,5 +8,5 @@ const uploadImagenesParamsSchema = z.object({
 export type UploadImagenesParams = z.infer<typeof uploadImagenesParamsSchema>;
 
 export class ImagenesUploadValidator {
-  public validateParams = RouteValidator.create(uploadImagenesParamsSchema);
+  public validateParams = RouteValidator.params(uploadImagenesParamsSchema);
 }

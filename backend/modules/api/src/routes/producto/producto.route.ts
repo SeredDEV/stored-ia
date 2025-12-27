@@ -170,7 +170,7 @@ export class ProductoRoute {
     const storageUploadService = new StorageUploadBuilder().build();
 
     // Obtener supabaseClient del servicio (ya tiene acceso)
-    const supabaseClient = (productoCreateService as any).supabaseClient;
+    const supabaseClient = (productoCreateService as any).getClient?.();
 
     // ===== PRODUCTOS =====
     // Create

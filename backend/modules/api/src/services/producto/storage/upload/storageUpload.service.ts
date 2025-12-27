@@ -30,7 +30,7 @@ export class StorageUploadService implements IStorageUploadService {
    * Sube un archivo multimedia y retorna la URL pública
    */
   async execute(input: UploadMediaInput): Promise<string> {
-    const { file, fileName, contentType = "image/jpeg" } = input;
+    const { file, fileName, contentType = "image/jpeg", folder } = input;
 
     // Validar tipo de archivo
     if (!this.isValidMediaType(contentType)) {
@@ -45,8 +45,9 @@ export class StorageUploadService implements IStorageUploadService {
 
     // Determinar carpeta según tipo de archivo
     const isVideo = ALLOWED_VIDEO_TYPES.includes(contentType);
-    const folder = isVideo ? "videos" : "imagenes";
-    const filePath = `${folder}/${uniqueFileName}`;
+    const baseFolder = isVideo ? "videos" : "imagenes";
+    const subfolder = folder ? `${folder}/` : "";
+    const filePath = `${baseFolder}/${subfolder}${uniqueFileName}`;
 
     // Si es base64, convertir a Buffer
     let fileBuffer: Buffer;
@@ -67,6 +68,15 @@ export class StorageUploadService implements IStorageUploadService {
       });
 
     if (error) {
+      // Log detallado para diagnosticar problemas de bucket/credenciales
+      console.error("[StorageUploadService] Error al subir archivo", {
+        bucket: BUCKET_NAME,
+        filePath,
+        contentType,
+        message: error.message,
+        name: error.name,
+        statusCode: (error as any)?.statusCode,
+      });
       const errorDict = generateErrorDictionary("ERROR_UPLOADING");
       throw new Error(JSON.stringify(errorDict));
     }
@@ -87,4 +97,3 @@ export class StorageUploadService implements IStorageUploadService {
     return Promise.all(uploadPromises);
   }
 }
-

@@ -571,6 +571,20 @@ const NewProductForm: React.FC<NewProductFormProps> = ({
           permitir_pedido_pendiente: false,
         });
         console.log(`Variante default creada:`, varianteDefault);
+
+        // Crear precio para la variante por defecto si se ingresó precio
+        const defaultPrice = formData.variants?.[0]?.priceCOP;
+        if (defaultPrice && parseFloat(defaultPrice) > 0) {
+          console.log(
+            `Creando precio para variante default ${varianteDefault.id}`
+          );
+          await productService.createPrice(varianteDefault.id, {
+            variante_id: varianteDefault.id,
+            monto: Math.round(parseFloat(defaultPrice) * 100),
+            codigo_moneda: "COP",
+          });
+          console.log(`Precio creado exitosamente (variante default)`);
+        }
       }
 
       // 3. Relacionar categorías si existen
