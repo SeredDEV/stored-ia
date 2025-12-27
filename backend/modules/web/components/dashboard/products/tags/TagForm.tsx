@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { CreateProductTagInput } from './types';
+import React, { useState } from "react";
+import { CreateProductTagInput } from "./types";
 
 interface TagFormProps {
   onSubmit: (data: CreateProductTagInput) => void;
@@ -7,29 +7,39 @@ interface TagFormProps {
   initialData?: Partial<CreateProductTagInput>;
 }
 
-export const TagForm: React.FC<TagFormProps> = ({ onSubmit, onCancel, initialData }) => {
-  const [name, setName] = useState(initialData?.name || '');
+export const TagForm: React.FC<TagFormProps> = ({
+  onSubmit,
+  onCancel,
+  initialData,
+}) => {
+  const [name, setName] = useState(initialData?.name || "");
+  const [color, setColor] = useState(initialData?.color || "#6B7280");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit({ name });
+    onSubmit({ name, color });
   };
 
   return (
     <div className="bg-white dark:bg-surface-dark rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
       {/* Header del Formulario */}
       <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
-        <h2 className="text-lg font-semibold text-gray-800 dark:text-white">Crear Etiqueta</h2>
+        <h2 className="text-lg font-semibold text-gray-800 dark:text-white">
+          Crear Etiqueta
+        </h2>
         <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
           Crea una nueva etiqueta para categorizar tus productos.
         </p>
       </div>
 
       <form onSubmit={handleSubmit} className="p-6 space-y-8">
-        <div className="max-w-xl">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Valor (Nombre) */}
           <div className="space-y-3">
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label
+              htmlFor="name"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
               Valor
             </label>
             <div className="relative group">
@@ -45,6 +55,32 @@ export const TagForm: React.FC<TagFormProps> = ({ onSubmit, onCancel, initialDat
                 placeholder="Ej. Nuevo, Oferta, Verano"
                 required
                 autoFocus
+              />
+            </div>
+          </div>
+
+          {/* Color */}
+          <div className="space-y-3">
+            <label
+              htmlFor="color"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
+              Color
+            </label>
+            <div className="flex items-center gap-3">
+              <input
+                type="color"
+                id="color"
+                value={color}
+                onChange={(e) => setColor(e.target.value)}
+                className="w-16 h-10 rounded-lg cursor-pointer border border-gray-300 dark:border-gray-600"
+              />
+              <input
+                type="text"
+                value={color}
+                onChange={(e) => setColor(e.target.value)}
+                className="flex-1 px-4 py-2.5 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white font-mono text-sm placeholder-gray-400 focus:ring-2 focus:ring-echo-blue/20 focus:border-echo-blue transition-all"
+                placeholder="#6B7280"
               />
             </div>
           </div>
