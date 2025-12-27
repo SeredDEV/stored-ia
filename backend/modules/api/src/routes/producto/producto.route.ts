@@ -100,6 +100,9 @@ import { VarianteListServiceBuilder } from "../../services/producto/variante/lis
 import { VarianteUpdateServiceBuilder } from "../../services/producto/variante/update";
 import { VarianteDeleteServiceBuilder } from "../../services/producto/variante/delete";
 import { PrecioCreateServiceBuilder } from "../../services/producto/variante/precio/create";
+import { buildPrecioListService } from "../../services/producto/variante/precio/list/precioList.builder";
+import { PrecioListEndpoint } from "./variante/precio/list/precioList.endpoint";
+import { PrecioListNetwork } from "./variante/precio/list/precioList.network";
 
 /**
  * Router de productos.
@@ -418,6 +421,14 @@ export class ProductoRoute {
     });
     const precioCreateNetwork = new PrecioCreateNetwork(precioCreateEndpoint);
     precioCreateNetwork.setNetwork(variantesRouter);
+
+    // List precios
+    const precioListService = buildPrecioListService();
+    const precioListEndpoint = new PrecioListEndpoint({
+      precioService: precioListService,
+    });
+    const precioListNetwork = new PrecioListNetwork(precioListEndpoint);
+    precioListNetwork.setNetwork(variantesRouter);
 
     // Registrar routers en el servidor
     server.use("/api/productos", productosRouter);
