@@ -7,45 +7,22 @@ import { ProductMobileList } from "../components/ProductMobileList";
 import { Product } from "../types";
 import NewProductForm from "../product-form/NewProductForm";
 
-// Mock data para borradores
-const DRAFT_PRODUCTS: Product[] = [
-  {
-    id: "d1",
-    name: "Camisa Lino Prototipo",
-    icon: "checkroom",
-    collection: "Verano 2025",
-    salesChannel: "-",
-    variants: 2,
-    status: "Borrador",
-  },
-  {
-    id: "d2",
-    name: "Zapatillas Running V2",
-    icon: "checkroom",
-    collection: "-",
-    salesChannel: "-",
-    variants: 5,
-    status: "Borrador",
-  },
-  {
-    id: "d3",
-    name: "Mochila Viaje Concepto",
-    icon: "backpack",
-    collection: "Accesorios",
-    salesChannel: "-",
-    variants: 1,
-    status: "Borrador",
-  },
-  {
-    id: "d4",
-    name: "Smart Watch Sport Edition",
-    icon: "watch",
-    collection: "Tecnología",
-    salesChannel: "-",
-    variants: 3,
-    status: "Borrador",
-  },
-];
+import { faker } from '@faker-js/faker';
+
+// Establecer una semilla diferente para borradores
+faker.seed(456);
+
+// Mock data para borradores generado con faker
+const DRAFT_PRODUCTS: Product[] = Array.from({ length: 20 }, () => ({
+  id: faker.string.uuid(),
+  name: faker.commerce.productName(),
+  icon: "checkroom",
+  image: faker.datatype.boolean() ? faker.image.urlLoremFlickr({ category: 'fashion', width: 100, height: 100 }) : undefined,
+  collection: faker.commerce.department(),
+  salesChannel: "-",
+  variants: faker.number.int({ min: 1, max: 10 }),
+  status: "Borrador",
+}));
 
 const DraftsManagement: React.FC = () => {
   const router = useRouter();
