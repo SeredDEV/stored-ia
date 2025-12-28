@@ -51,6 +51,10 @@ const EditProductForm: React.FC<EditProductFormProps> = ({
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
+  // Estados para selectores personalizados
+  const [showTypeSelect, setShowTypeSelect] = useState(false);
+  const [showCollectionSelect, setShowCollectionSelect] = useState(false);
+
   // Cargar datos de organizar
   useEffect(() => {
     const fetchOrganizeData = async () => {
@@ -161,19 +165,16 @@ const EditProductForm: React.FC<EditProductFormProps> = ({
                   <span className="w-2 h-2 mr-1.5 rounded-full bg-green-500"></span>
                   Publicado
                 </span>
-                <button onClick={() => handleSaveProduct(false)} className="px-4 py-2 bg-primary text-white text-sm rounded hover:bg-primary/90 transition-colors">
-                    {isSaving ? "Guardando..." : "Guardar"}
-                </button>
                 <button onClick={handleClose} className="text-text-secondary-light dark:text-text-secondary-dark hover:text-primary transition-colors">
-                  <span className="material-symbols-outlined text-xl">close</span>
+                  <span className="material-symbols-outlined text-xl">more_horiz</span>
                 </button>
               </div>
             </div>
             
             <div className="divide-y divide-border-light dark:divide-border-dark text-sm">
-              <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-                <span className="text-text-secondary-light dark:text-text-secondary-dark font-medium">Descripción</span>
-                <div className="md:col-span-2 text-text-secondary-light dark:text-text-secondary-dark">
+              <div className="p-6 flex flex-col md:flex-row gap-4">
+                <span className="text-text-secondary-light dark:text-text-secondary-dark font-medium min-w-[100px] pt-2">Descripción</span>
+                <div className="flex-1 text-text-secondary-light dark:text-text-secondary-dark">
                    <textarea
                       value={formData.description}
                       onChange={(e) => handleInputChange("description", e.target.value)}
@@ -183,9 +184,9 @@ const EditProductForm: React.FC<EditProductFormProps> = ({
                     />
                 </div>
               </div>
-              <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-                <span className="text-text-secondary-light dark:text-text-secondary-dark font-medium">Subtítulo</span>
-                <div className="md:col-span-2 text-text-secondary-light dark:text-text-secondary-dark">
+              <div className="p-6 flex flex-col md:flex-row gap-8">
+                <div className="flex-1 flex items-center gap-4">
+                    <span className="text-text-secondary-light dark:text-text-secondary-dark font-medium min-w-[60px]">Subtítulo</span>
                     <input 
                         type="text" 
                         value={formData.subtitle}
@@ -194,18 +195,18 @@ const EditProductForm: React.FC<EditProductFormProps> = ({
                         placeholder="-"
                     />
                 </div>
-              </div>
-              <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-                <span className="text-text-secondary-light dark:text-text-secondary-dark font-medium">Manejo</span>
-                <div className="md:col-span-2 text-text-secondary-light dark:text-text-secondary-dark font-mono text-xs flex items-center">
-                    <span className="text-gray-400 mr-1">/</span>
-                    <input 
-                        type="text" 
-                        value={formData.handle}
-                        onChange={(e) => handleInputChange("handle", e.target.value)}
-                        className="w-full bg-transparent border-b border-transparent hover:border-gray-300 focus:border-primary focus:ring-0 px-0 py-1"
-                        placeholder="slug-producto"
-                    />
+                <div className="flex-1 flex items-center gap-4">
+                    <span className="text-text-secondary-light dark:text-text-secondary-dark font-medium">Manejo</span>
+                    <div className="flex-1 font-mono text-xs flex items-center text-text-secondary-light dark:text-text-secondary-dark">
+                        <span className="text-gray-400 mr-1">/</span>
+                        <input 
+                            type="text" 
+                            value={formData.handle}
+                            onChange={(e) => handleInputChange("handle", e.target.value)}
+                            className="w-full bg-transparent border-b border-transparent hover:border-gray-300 focus:border-primary focus:ring-0 px-0 py-1"
+                            placeholder="slug-producto"
+                        />
+                    </div>
                 </div>
               </div>
               <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -239,17 +240,6 @@ const EditProductForm: React.FC<EditProductFormProps> = ({
               {formData.existingImages?.map((img) => (
                 <div key={img.id} className="relative group w-24 h-24 bg-gray-100 dark:bg-gray-800 rounded border border-border-light dark:border-border-dark overflow-hidden flex items-center justify-center">
                    <img src={img.url.replace(/`/g, '')} alt="Product" className="w-full h-full object-cover" />
-                   <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <button 
-                        onClick={() => {
-                           // TODO: Implement delete logic for existing images
-                           alert("Eliminar imagen existente no implementado aún en frontend");
-                        }}
-                        className="text-white hover:text-red-400"
-                      >
-                        <span className="material-symbols-outlined">delete</span>
-                      </button>
-                   </div>
                 </div>
               ))}
               
@@ -275,18 +265,24 @@ const EditProductForm: React.FC<EditProductFormProps> = ({
                 <span className="material-symbols-outlined text-xl">more_horiz</span>
               </button>
             </div>
-            <div className="flex justify-between items-center py-2 border-b border-border-light dark:border-border-dark last:border-0">
-              <span className="text-sm font-medium">Size</span>
-              <div className="flex items-center gap-2">
-                <span className="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded text-xs border border-border-light dark:border-border-dark font-mono">XL</span>
-                <span className="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded text-xs border border-border-light dark:border-border-dark font-mono">L</span>
-                <span className="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded text-xs border border-border-light dark:border-border-dark font-mono">M</span>
-                <span className="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded text-xs border border-border-light dark:border-border-dark font-mono">S</span>
-                <button className="ml-2 text-text-secondary-light dark:text-text-secondary-dark hover:text-primary">
-                  <span className="material-symbols-outlined text-lg">edit</span>
-                </button>
+            {formData.options && formData.options.length > 0 ? (
+              formData.options.map((option, index) => (
+                <div key={option.id || index} className="flex justify-between items-center py-2 border-b border-border-light dark:border-border-dark last:border-0">
+                  <span className="text-sm font-medium">{option.title}</span>
+                  <div className="flex items-center gap-2 flex-wrap justify-center flex-1 mx-4">
+                     {option.values.map((val, vIdx) => (
+                       <span key={vIdx} className="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded text-xs border border-border-light dark:border-border-dark font-mono">
+                         {val}
+                       </span>
+                     ))}
+                   </div>
+                </div>
+              ))
+            ) : (
+              <div className="py-4 text-center text-sm text-text-secondary-light dark:text-text-secondary-dark">
+                No hay opciones configuradas
               </div>
-            </div>
+            )}
           </div>
 
           {/* Variantes */}
@@ -303,6 +299,18 @@ const EditProductForm: React.FC<EditProductFormProps> = ({
                   </span>
                   <input className="pl-9 pr-4 py-1.5 text-sm bg-background-light dark:bg-black/30 border border-border-light dark:border-border-dark rounded focus:ring-1 focus:ring-primary focus:border-primary w-full md:w-48 placeholder-gray-500 text-text-primary-light dark:text-text-primary-dark" placeholder="Buscar" type="text"/>
                 </div>
+                <button className="p-2 text-text-secondary-light dark:text-text-secondary-dark border border-border-light dark:border-border-dark rounded hover:bg-gray-50 dark:hover:bg-gray-800">
+                  <span className="material-symbols-outlined text-lg">more_horiz</span>
+                </button>
+                <button 
+                  className="px-4 py-1.5 bg-primary hover:bg-primary-dark text-white rounded text-sm font-medium transition-colors"
+                  onClick={() => {
+                    // TODO: Implement create variant modal/logic
+                    alert("Funcionalidad de crear variante no implementada");
+                  }}
+                >
+                  Crear
+                </button>
               </div>
             </div>
             
@@ -400,38 +408,119 @@ const EditProductForm: React.FC<EditProductFormProps> = ({
               </button>
             </div>
             <div className="px-6 pb-6 space-y-4 text-sm">
-              <div className="flex flex-col py-2 border-b border-border-light dark:border-border-dark border-dashed">
+              <div className="flex flex-col py-2 border-b border-border-light dark:border-border-dark border-dashed relative">
                 <span className="text-text-secondary-light dark:text-text-secondary-dark mb-1">Tipo</span>
-                <select
-                    value={formData.type}
-                    onChange={(e) => handleInputChange("type", e.target.value)}
-                    className="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded p-1.5 text-sm focus:ring-1 focus:ring-primary focus:border-primary"
-                >
-                    <option value="">Seleccionar tipo</option>
-                    {types.map((type) => (
-                        <option key={type.id} value={type.id}>{type.valor}</option>
-                    ))}
-                </select>
+                
+                <div className="flex flex-wrap gap-2 items-center">
+                    {formData.type ? (
+                        <span 
+                            className="px-2 py-0.5 bg-gray-100 dark:bg-gray-800 rounded border border-border-light dark:border-border-dark text-xs cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700"
+                            onClick={() => setShowTypeSelect(!showTypeSelect)}
+                        >
+                            {types.find(t => t.id === formData.type)?.valor || "Desconocido"}
+                        </span>
+                    ) : null}
+                    <button 
+                        className="text-xs text-primary hover:underline"
+                        onClick={() => setShowTypeSelect(!showTypeSelect)}
+                    >
+                        + Agregar
+                    </button>
+                </div>
+
+                {showTypeSelect && (
+                    <div className="absolute top-full left-0 z-10 w-full mt-1 bg-white dark:bg-[#1E1E1E] border border-border-light dark:border-border-dark rounded shadow-lg max-h-48 overflow-y-auto">
+                        <div 
+                            className="px-3 py-2 text-xs hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer text-gray-500"
+                            onClick={() => {
+                                handleInputChange("type", "");
+                                setShowTypeSelect(false);
+                            }}
+                        >
+                            -- Ninguno --
+                        </div>
+                        {types.map((type) => (
+                            <div 
+                                key={type.id} 
+                                className={`px-3 py-2 text-xs hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer ${formData.type === type.id ? 'bg-primary/10 text-primary' : ''}`}
+                                onClick={() => {
+                                    handleInputChange("type", type.id);
+                                    setShowTypeSelect(false);
+                                }}
+                            >
+                                {type.valor}
+                            </div>
+                        ))}
+                    </div>
+                )}
+              </div>
+              <div className="flex flex-col py-2 border-b border-border-light dark:border-border-dark border-dashed relative">
+                <span className="text-text-secondary-light dark:text-text-secondary-dark mb-1">Colección</span>
+                
+                <div className="flex flex-wrap gap-2 items-center">
+                    {formData.collection ? (
+                        <span 
+                            className="px-2 py-0.5 bg-gray-100 dark:bg-gray-800 rounded border border-border-light dark:border-border-dark text-xs cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700"
+                            onClick={() => setShowCollectionSelect(!showCollectionSelect)}
+                        >
+                            {collections.find(c => c.id === formData.collection)?.titulo || "Desconocida"}
+                        </span>
+                    ) : null}
+                    <button 
+                        className="text-xs text-primary hover:underline"
+                        onClick={() => setShowCollectionSelect(!showCollectionSelect)}
+                    >
+                        + Agregar
+                    </button>
+                </div>
+
+                {showCollectionSelect && (
+                    <div className="absolute top-full left-0 z-10 w-full mt-1 bg-white dark:bg-[#1E1E1E] border border-border-light dark:border-border-dark rounded shadow-lg max-h-48 overflow-y-auto">
+                        <div 
+                            className="px-3 py-2 text-xs hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer text-gray-500"
+                            onClick={() => {
+                                handleInputChange("collection", "");
+                                setShowCollectionSelect(false);
+                            }}
+                        >
+                            -- Ninguna --
+                        </div>
+                        {collections.map((collection) => (
+                            <div 
+                                key={collection.id} 
+                                className={`px-3 py-2 text-xs hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer ${formData.collection === collection.id ? 'bg-primary/10 text-primary' : ''}`}
+                                onClick={() => {
+                                    handleInputChange("collection", collection.id);
+                                    setShowCollectionSelect(false);
+                                }}
+                            >
+                                {collection.titulo}
+                            </div>
+                        ))}
+                    </div>
+                )}
               </div>
               <div className="flex flex-col py-2 border-b border-border-light dark:border-border-dark border-dashed">
-                <span className="text-text-secondary-light dark:text-text-secondary-dark mb-1">Colección</span>
-                 <select
-                    value={formData.collection}
-                    onChange={(e) => handleInputChange("collection", e.target.value)}
-                    className="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded p-1.5 text-sm focus:ring-1 focus:ring-primary focus:border-primary"
-                >
-                    <option value="">Seleccionar colección</option>
-                    {collections.map((collection) => (
-                        <option key={collection.id} value={collection.id}>{collection.titulo}</option>
-                    ))}
-                </select>
-              </div>
-              <div className="flex flex-col py-2">
                 <span className="text-text-secondary-light dark:text-text-secondary-dark mb-1">Categorías</span>
                 <div className="flex flex-wrap gap-2">
-                    {formData.categories.map((cat, idx) => (
-                        <span key={idx} className="px-2 py-0.5 bg-gray-100 dark:bg-gray-800 rounded border border-border-light dark:border-border-dark text-xs">{cat}</span>
-                    ))}
+                    {formData.categories.map((cat, idx) => {
+                        const categoryName = categories.find(c => c.id === cat)?.nombre || cat;
+                        return (
+                          <span key={idx} className="px-2 py-0.5 bg-gray-100 dark:bg-gray-800 rounded border border-border-light dark:border-border-dark text-xs">{categoryName}</span>
+                        );
+                    })}
+                    <button className="text-xs text-primary hover:underline">+ Agregar</button>
+                </div>
+              </div>
+              <div className="flex flex-col py-2">
+                <span className="text-text-secondary-light dark:text-text-secondary-dark mb-1">Etiquetas</span>
+                <div className="flex flex-wrap gap-2">
+                    {formData.tags.map((tag, idx) => {
+                         const tagName = tags.find(t => t.id === tag)?.valor || tag;
+                         return (
+                           <span key={idx} className="px-2 py-0.5 bg-gray-100 dark:bg-gray-800 rounded border border-border-light dark:border-border-dark text-xs">{tagName}</span>
+                         );
+                    })}
                     <button className="text-xs text-primary hover:underline">+ Agregar</button>
                 </div>
               </div>
