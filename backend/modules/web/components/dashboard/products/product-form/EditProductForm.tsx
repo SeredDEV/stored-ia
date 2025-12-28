@@ -250,9 +250,20 @@ const EditProductForm: React.FC<EditProductFormProps> = ({
                  </div>
               ))}
               
-              <div className="w-24 h-24 border-2 border-dashed border-border-light dark:border-border-dark rounded flex flex-col items-center justify-center text-text-secondary-light dark:text-text-secondary-dark hover:border-primary hover:text-primary transition-colors cursor-pointer">
-                <span className="material-symbols-outlined text-xl">add_photo_alternate</span>
-                <span className="text-xs mt-1">Upload</span>
+              <div className="relative w-24 h-24 border-2 border-dashed border-border-light dark:border-border-dark rounded flex flex-col items-center justify-center text-text-secondary-light dark:text-text-secondary-dark hover:border-primary hover:text-primary transition-colors cursor-pointer">
+                <input 
+                  multiple 
+                  accept="image/*" 
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
+                  type="file" 
+                  onChange={(e) => {
+                    if (e.target.files) {
+                        console.log("Files selected:", e.target.files);
+                    }
+                  }}
+                />
+                <span className="material-symbols-outlined text-xl">cloud_upload</span>
+                <span className="text-xs mt-1">Subir</span>
               </div>
             </div>
           </div>

@@ -745,69 +745,48 @@ const NewProductForm: React.FC<NewProductFormProps> = ({
                     <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Imágenes del producto
                     </label>
-                    <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-10 text-center hover:border-echo-blue dark:hover:border-primary transition-all bg-gray-50 dark:bg-gray-800/50 group">
-                      <input
-                        type="file"
-                        multiple
-                        accept="image/*"
-                        onChange={(e) => handleMediaUpload(e.target.files)}
-                        className="hidden"
-                        id="media-upload"
-                      />
-                      <label
-                        htmlFor="media-upload"
-                        className="cursor-pointer flex flex-col items-center gap-4"
-                      >
-                        <div className="w-16 h-16 bg-white dark:bg-gray-700 rounded-full flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
-                          <span className="material-symbols-outlined text-3xl text-echo-blue dark:text-primary">
-                            cloud_upload
-                          </span>
-                        </div>
-                        <div>
-                          <div className="text-gray-900 dark:text-white font-medium mb-1 text-base">
-                            Haz clic para subir imágenes
-                          </div>
-                          <div className="text-sm text-gray-500 dark:text-gray-400">
-                            o arrastra y suelta aquí
-                          </div>
-                          <div className="text-xs text-gray-400 mt-2">
-                            PNG, JPG, WEBP hasta 5MB
+                    <div className="flex gap-4 flex-wrap">
+                      {formData.media.map((file, index) => (
+                        <div
+                          key={index}
+                          className="relative group w-24 h-24 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800"
+                        >
+                          <img
+                            src={URL.createObjectURL(file)}
+                            alt={file.name}
+                            className="w-full h-full object-cover"
+                          />
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <button
+                              onClick={() => handleRemoveMedia(index)}
+                              className="text-white hover:text-red-400 transition-colors"
+                              title="Eliminar imagen"
+                            >
+                              <span className="material-symbols-outlined">
+                                delete
+                              </span>
+                            </button>
                           </div>
                         </div>
-                      </label>
-                    </div>
-                    {formData.media.length > 0 && (
-                      <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
-                        {formData.media.map((file, index) => (
-                          <div
-                            key={index}
-                            className="relative group border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden aspect-square"
-                          >
-                            <img
-                              src={URL.createObjectURL(file)}
-                              alt={file.name}
-                              className="w-full h-full object-cover"
-                            />
-                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                              <button
-                                onClick={() => handleRemoveMedia(index)}
-                                className="bg-white/90 text-red-600 rounded-full p-2 hover:bg-white hover:scale-110 transition-all shadow-lg"
-                                title="Eliminar imagen"
-                              >
-                                <span className="material-symbols-outlined text-xl">
-                                  delete
-                                </span>
-                              </button>
-                            </div>
-                            <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent">
-                              <p className="text-xs text-white truncate px-1">
-                                {file.name}
-                              </p>
-                            </div>
-                          </div>
-                        ))}
+                      ))}
+                      
+                      <div className="relative w-24 h-24 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg flex flex-col items-center justify-center hover:border-echo-blue dark:hover:border-primary transition-all bg-gray-50 dark:bg-gray-800/50 cursor-pointer group">
+                        <input
+                          type="file"
+                          multiple
+                          accept="image/*"
+                          onChange={(e) => handleMediaUpload(e.target.files)}
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                          id="media-upload"
+                        />
+                        <span className="material-symbols-outlined text-xl text-gray-400 dark:text-primary group-hover:text-echo-blue dark:group-hover:text-primary transition-colors">
+                          cloud_upload
+                        </span>
+                        <span className="text-xs mt-1 text-gray-500 dark:text-gray-400 group-hover:text-echo-blue dark:group-hover:text-primary transition-colors">
+                          Subir
+                        </span>
                       </div>
-                    )}
+                    </div>
                   </div>
 
                   {/* Sección de Variantes */}
