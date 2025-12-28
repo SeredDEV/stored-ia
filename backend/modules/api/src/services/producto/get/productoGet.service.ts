@@ -22,7 +22,12 @@ export class ProductoGetService implements IProductoGetService {
           titulo,
           sku,
           gestionar_inventario,
-          permitir_pedido_pendiente
+          permitir_pedido_pendiente,
+          precios:variante_producto_conjunto_precios(
+            conjunto_precios(
+              precios:precio(id, monto, codigo_moneda)
+            )
+          )
         ),
         imagenes:imagen_producto(
           id,

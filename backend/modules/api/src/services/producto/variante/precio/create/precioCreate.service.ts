@@ -21,10 +21,8 @@ export class PrecioCreateService implements IPrecioCreateService {
       cantidad_maxima,
     } = input;
 
-    // Si el monto viene en pesos (no centavos) detectarlo y normalizar a centavos
-    // Regla simple: si es >= 1_000_000 asumimos que ya está en centavos; si es menor, lo multiplicamos por 100.
-    const normalizedMonto =
-      monto >= 1_000_000 ? monto : Math.round(monto * 100);
+    // Usar el monto tal como viene del frontend (sin normalización)
+    const normalizedMonto = monto;
 
     // 1. Verificar si la variante existe
     const { data: variante, error: varianteError } = await this.supabaseClient
