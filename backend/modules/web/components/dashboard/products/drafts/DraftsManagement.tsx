@@ -7,7 +7,7 @@ import { ProductMobileList } from "../components/ProductMobileList";
 import { Product } from "../types";
 import NewProductForm from "../product-form/NewProductForm";
 
-import { faker } from '@faker-js/faker';
+import { faker } from "@faker-js/faker";
 
 // Establecer una semilla diferente para borradores
 faker.seed(456);
@@ -17,7 +17,9 @@ const DRAFT_PRODUCTS: Product[] = Array.from({ length: 20 }, () => ({
   id: faker.string.uuid(),
   name: faker.commerce.productName(),
   icon: "checkroom",
-  image: faker.datatype.boolean() ? faker.image.urlLoremFlickr({ category: 'fashion', width: 100, height: 100 }) : undefined,
+  image: faker.datatype.boolean()
+    ? faker.image.url({ width: 100, height: 100 })
+    : undefined,
   collection: faker.commerce.department(),
   salesChannel: "-",
   variants: faker.number.int({ min: 1, max: 10 }),
@@ -28,7 +30,7 @@ const DraftsManagement: React.FC = () => {
   const router = useRouter();
   const [showNewProductForm, setShowNewProductForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-  
+
   // Estado para la búsqueda global
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -50,7 +52,11 @@ const DraftsManagement: React.FC = () => {
   };
 
   const handleDeleteProduct = (product: Product) => {
-    if (confirm(`¿Estás seguro de que deseas eliminar el borrador "${product.name}"?`)) {
+    if (
+      confirm(
+        `¿Estás seguro de que deseas eliminar el borrador "${product.name}"?`
+      )
+    ) {
       console.log("Delete draft:", product);
       // Lógica para eliminar borrador
     }
@@ -59,13 +65,20 @@ const DraftsManagement: React.FC = () => {
   if (showNewProductForm) {
     return (
       <div className="max-w-6xl mx-auto">
-        <NewProductForm 
-          onClose={handleCloseNewProduct} 
-          initialData={editingProduct ? {
-            title: editingProduct.name,
-            collection: editingProduct.collection !== "-" ? editingProduct.collection : "",
-            // Otros campos se mapearían aquí
-          } : undefined}
+        <NewProductForm
+          onClose={handleCloseNewProduct}
+          initialData={
+            editingProduct
+              ? {
+                  title: editingProduct.name,
+                  collection:
+                    editingProduct.collection !== "-"
+                      ? editingProduct.collection
+                      : "",
+                  // Otros campos se mapearían aquí
+                }
+              : undefined
+          }
         />
       </div>
     );
@@ -105,10 +118,10 @@ const DraftsManagement: React.FC = () => {
         onDelete={handleDeleteProduct}
       />
 
-      <ProductMobileList 
+      <ProductMobileList
         products={DRAFT_PRODUCTS.filter((product) =>
           product.name.toLowerCase().includes(searchTerm.toLowerCase())
-        )} 
+        )}
         onEdit={handleEditProduct}
         onDelete={handleDeleteProduct}
       />

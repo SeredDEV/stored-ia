@@ -21,13 +21,10 @@ export class ProductoDeleteService implements IProductoDeleteService {
       throw new Error(productoDeleteDictionary.notFound.defaultMessage);
     }
 
-    // Soft delete
+    // Hard delete: deja que las FKs ON DELETE CASCADE borren variantes/precios/relaciones
     const { error } = await this.supabaseClient
       .from("producto")
-      .update({
-        fecha_eliminacion: new Date().toISOString(),
-        fecha_actualizacion: new Date().toISOString(),
-      })
+      .delete()
       .eq("id", id);
 
     if (error) {
@@ -35,4 +32,3 @@ export class ProductoDeleteService implements IProductoDeleteService {
     }
   }
 }
-

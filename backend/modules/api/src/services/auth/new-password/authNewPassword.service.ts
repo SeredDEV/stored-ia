@@ -72,7 +72,7 @@ export class AuthNewPasswordService implements IAuthNewPasswordService {
 
     // Crear un cliente temporal para establecer la sesión de recuperación
     const { createClient } = await import("@supabase/supabase-js");
-    const { url, anonKey } = await import("../../../config/env").then((m) =>
+    const { url, anonKey } = await import("../../../config/env.js").then((m) =>
       m.ensureSupabaseConfig()
     );
 
@@ -88,8 +88,10 @@ export class AuthNewPasswordService implements IAuthNewPasswordService {
     // Si falla, intentar con el token directamente en el header
     let clientToUse = tempClient;
     if (sessionResult.error) {
-      console.log("[AuthNewPassword] setSession failed, trying with token in header");
-      
+      console.log(
+        "[AuthNewPassword] setSession failed, trying with token in header"
+      );
+
       // Crear cliente con token en el header
       clientToUse = createClient(url, anonKey, {
         global: {
@@ -104,7 +106,7 @@ export class AuthNewPasswordService implements IAuthNewPasswordService {
 
       if (userError) {
         const errorMessage = userError.message.toLowerCase();
-        
+
         console.error("[AuthNewPassword] Token validation error:", {
           message: userError.message,
           status: userError.status,
@@ -219,11 +221,11 @@ export class AuthNewPasswordService implements IAuthNewPasswordService {
 
       // Error genérico
       throw new InvalidCredentialsError(
-        result.error.message || "No se pudo actualizar la contraseña. Por favor intenta nuevamente."
+        result.error.message ||
+          "No se pudo actualizar la contraseña. Por favor intenta nuevamente."
       );
     }
 
     console.log("[AuthNewPassword] New password set successfully");
   }
 }
-

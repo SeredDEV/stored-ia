@@ -186,7 +186,7 @@ export class AuthResetPasswordService implements IAuthResetPasswordService {
     // Crear un cliente temporal con el token de recuperación
     // Esto establece la sesión de recuperación
     const { createClient } = await import("@supabase/supabase-js");
-    const { url, anonKey } = await import("../../../config/env").then((m) =>
+    const { url, anonKey } = await import("../../../config/env.js").then((m) =>
       m.ensureSupabaseConfig()
     );
 
@@ -289,7 +289,8 @@ export class AuthResetPasswordService implements IAuthResetPasswordService {
 
       // Error genérico
       throw new InvalidCredentialsError(
-        result.error.message || "No se pudo actualizar la contraseña. Por favor intenta nuevamente."
+        result.error.message ||
+          "No se pudo actualizar la contraseña. Por favor intenta nuevamente."
       );
     }
 
