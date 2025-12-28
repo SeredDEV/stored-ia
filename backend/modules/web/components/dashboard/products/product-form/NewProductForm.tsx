@@ -496,6 +496,7 @@ const NewProductForm: React.FC<NewProductFormProps> = ({
         titulo: formData.title.trim(),
         slug: formData.handle.trim(),
         tiene_descuento: formData.discountApplicable,
+        estado: isDraft ? "borrador" : "publicado",
       };
 
       // Agregar campos opcionales solo si tienen valor

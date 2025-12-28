@@ -187,6 +187,7 @@ export class ProductoCreateService implements IProductoCreateService {
       tiene_descuento,
       tipo_producto_id,
       coleccion_id,
+      estado = "publicado",
     } = input;
 
     // 1. Validar que las relaciones directas existan (tipo y colección)
@@ -227,7 +228,7 @@ export class ProductoCreateService implements IProductoCreateService {
         subtitulo,
         descripcion,
         slug,
-        estado: "publicado",
+        estado,
         tiene_descuento: tiene_descuento ?? true,
         tipo_producto_id,
         coleccion_id,

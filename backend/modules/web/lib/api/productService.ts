@@ -1,4 +1,5 @@
-const API_URL = typeof window === "undefined" ? "http://localhost:3001" : "";
+const API_URL =
+  typeof window === "undefined" ? "http://localhost:3001" : "/api";
 
 export interface ApiProduct {
   id: string;
@@ -28,8 +29,14 @@ export interface ApiProduct {
 }
 
 export const productService = {
-  async getAll(): Promise<ApiProduct[]> {
-    const response = await fetch(`${API_URL}/api/productos`);
+  async getAll(
+    estado?: "publicado" | "borrador" | "inactivo"
+  ): Promise<ApiProduct[]> {
+    let url = `${API_URL}/productos`;
+    if (estado) {
+      url += `?estado=${estado}`;
+    }
+    const response = await fetch(url);
     if (!response.ok) {
       throw new Error("Error al obtener productos");
     }
@@ -38,7 +45,7 @@ export const productService = {
   },
 
   async getById(id: string): Promise<ApiProduct> {
-    const response = await fetch(`${API_URL}/api/productos/${id}`);
+    const response = await fetch(`${API_URL}/productos/${id}`);
     if (!response.ok) {
       throw new Error("Error al obtener producto");
     }
@@ -47,7 +54,7 @@ export const productService = {
   },
 
   async create(product: Partial<ApiProduct>): Promise<ApiProduct> {
-    const response = await fetch(`${API_URL}/api/productos`, {
+    const response = await fetch(`${API_URL}/productos`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -77,7 +84,7 @@ export const productService = {
   },
 
   async createWithImages(formData: FormData): Promise<ApiProduct> {
-    const response = await fetch(`${API_URL}/api/productos`, {
+    const response = await fetch(`${API_URL}/productos`, {
       method: "POST",
       credentials: "include",
       body: formData,
@@ -102,7 +109,7 @@ export const productService = {
   },
 
   async update(id: string, product: Partial<ApiProduct>): Promise<ApiProduct> {
-    const response = await fetch(`${API_URL}/api/productos/${id}`, {
+    const response = await fetch(`${API_URL}/productos/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -122,7 +129,7 @@ export const productService = {
     categoryIds: string[]
   ): Promise<void> {
     const response = await fetch(
-      `${API_URL}/api/productos/${productId}/categorias`,
+      `${API_URL}/productos/${productId}/categorias`,
       {
         method: "POST",
         headers: {
@@ -139,7 +146,7 @@ export const productService = {
   // Asignar etiquetas a un producto
   async assignTags(productId: string, tagIds: string[]): Promise<void> {
     const response = await fetch(
-      `${API_URL}/api/productos/${productId}/etiquetas`,
+      `${API_URL}/productos/${productId}/etiquetas`,
       {
         method: "POST",
         headers: {
@@ -161,20 +168,17 @@ export const productService = {
       formData.append(`imagenes`, image);
     });
 
-    const response = await fetch(
-      `${API_URL}/api/productos/${productId}/imagenes`,
-      {
-        method: "POST",
-        body: formData, // No incluir Content-Type, el browser lo añade automáticamente con boundary
-      }
-    );
+    const response = await fetch(`${API_URL}/productos/${productId}/imagenes`, {
+      method: "POST",
+      body: formData, // No incluir Content-Type, el browser lo añade automáticamente con boundary
+    });
     if (!response.ok) {
       throw new Error("Error al subir imágenes");
     }
   },
 
   async delete(id: string): Promise<void> {
-    const response = await fetch(`${API_URL}/api/productos/${id}`, {
+    const response = await fetch(`${API_URL}/productos/${id}`, {
       method: "DELETE",
     });
     if (!response.ok) {
@@ -190,7 +194,7 @@ export const productService = {
     gestionar_inventario?: boolean;
     permitir_pedido_pendiente?: boolean;
   }): Promise<any> {
-    const response = await fetch(`${API_URL}/api/variantes`, {
+    const response = await fetch(`${API_URL}/variantes`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -213,16 +217,13 @@ export const productService = {
       codigo_moneda: string;
     }
   ): Promise<any> {
-    const response = await fetch(
-      `${API_URL}/api/variantes/${variantId}/precios`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(priceData),
-      }
-    );
+    const response = await fetch(`${API_URL}/variantes/${variantId}/precios`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(priceData),
+    });
     if (!response.ok) {
       throw new Error("Error al crear precio");
     }

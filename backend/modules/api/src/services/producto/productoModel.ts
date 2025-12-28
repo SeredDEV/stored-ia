@@ -45,6 +45,7 @@ export interface CreateProductoInput {
   tiene_descuento?: boolean;
   tipo_producto_id?: string;
   coleccion_id?: string;
+  estado?: "borrador" | "publicado" | "inactivo";
 
   // NOTA: Los siguientes se manejan con endpoints separados:
   // - Imágenes: POST /api/productos/:id/imagenes

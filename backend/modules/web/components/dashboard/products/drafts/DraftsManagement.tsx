@@ -1,30 +1,12 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ProductFilters } from "../components/ProductFilters";
 import { ProductTable } from "../components/ProductTable";
 import { ProductMobileList } from "../components/ProductMobileList";
-import { Product } from "../types";
+import { Product, apiToProduct } from "../types";
 import NewProductForm from "../product-form/NewProductForm";
-
-import { faker } from "@faker-js/faker";
-
-// Establecer una semilla diferente para borradores
-faker.seed(456);
-
-// Mock data para borradores generado con faker
-const DRAFT_PRODUCTS: Product[] = Array.from({ length: 20 }, () => ({
-  id: faker.string.uuid(),
-  name: faker.commerce.productName(),
-  icon: "checkroom",
-  image: faker.datatype.boolean()
-    ? faker.image.url({ width: 100, height: 100 })
-    : undefined,
-  collection: faker.commerce.department(),
-  salesChannel: "-",
-  variants: faker.number.int({ min: 1, max: 10 }),
-  status: "Borrador",
-}));
+import { productService } from "@/lib/api/productService";
 
 const DraftsManagement: React.FC = () => {
   const router = useRouter();
@@ -33,6 +15,31 @@ const DraftsManagement: React.FC = () => {
 
   // Estado para la búsqueda global
   const [searchTerm, setSearchTerm] = useState("");
+  const [drafts, setDrafts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Cargar borradores al montar el componente
+  useEffect(() => {
+    loadDrafts();
+  }, []);
+
+  const loadDrafts = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const apiProducts = await productService.getAll("borrador");
+      const transformedProducts = apiProducts.map(apiToProduct);
+      setDrafts(transformedProducts);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Error al cargar borradores"
+      );
+      console.error("Error loading drafts:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleOpenNewProduct = () => {
     setEditingProduct(null);
@@ -42,11 +49,10 @@ const DraftsManagement: React.FC = () => {
   const handleCloseNewProduct = () => {
     setShowNewProductForm(false);
     setEditingProduct(null);
+    loadDrafts();
   };
 
   const handleEditProduct = (product: Product) => {
-    // Aquí mapearíamos el objeto Product a ProductFormData si fuera necesario
-    // Por ahora, pasamos el producto tal cual y dejamos que el formulario maneje lo que coincida
     setEditingProduct(product);
     setShowNewProductForm(true);
   };
@@ -57,8 +63,19 @@ const DraftsManagement: React.FC = () => {
         `¿Estás seguro de que deseas eliminar el borrador "${product.name}"?`
       )
     ) {
-      console.log("Delete draft:", product);
-      // Lógica para eliminar borrador
+      handleConfirmDelete(product.id);
+    }
+  };
+
+  const handleConfirmDelete = async (id: string) => {
+    try {
+      await productService.delete(id);
+      await loadDrafts();
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Error al eliminar borrador"
+      );
+      console.error("Error deleting draft:", err);
     }
   };
 
@@ -75,11 +92,36 @@ const DraftsManagement: React.FC = () => {
                     editingProduct.collection !== "-"
                       ? editingProduct.collection
                       : "",
-                  // Otros campos se mapearían aquí
                 }
               : undefined
           }
         />
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="max-w-6xl mx-auto">
+        <div className="flex items-center justify-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="max-w-6xl mx-auto">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <p className="text-red-800 mb-2">{error}</p>
+          <button
+            onClick={loadDrafts}
+            className="text-sm text-red-600 hover:text-red-700 underline"
+          >
+            Intentar de nuevo
+          </button>
+        </div>
       </div>
     );
   }
@@ -112,14 +154,14 @@ const DraftsManagement: React.FC = () => {
       />
 
       <ProductTable
-        products={DRAFT_PRODUCTS}
+        products={drafts}
         globalFilter={searchTerm}
         onEdit={handleEditProduct}
         onDelete={handleDeleteProduct}
       />
 
       <ProductMobileList
-        products={DRAFT_PRODUCTS.filter((product) =>
+        products={drafts.filter((product) =>
           product.name.toLowerCase().includes(searchTerm.toLowerCase())
         )}
         onEdit={handleEditProduct}

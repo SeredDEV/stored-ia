@@ -6,6 +6,7 @@ export interface ListProductosFilters {
   tiene_variantes?: boolean;
   tipo_producto_id?: string;
   coleccion_id?: string;
+  estado?: "borrador" | "publicado" | "inactivo";
 }
 
 export interface IProductoListService {
@@ -38,6 +39,10 @@ export class ProductoListService implements IProductoListService {
       query = query.eq("coleccion_id", filters.coleccion_id);
     }
 
+    if (filters?.estado) {
+      query = query.eq("estado", filters.estado);
+    }
+
     const { data, error } = await query;
 
     if (error) {
@@ -47,4 +52,3 @@ export class ProductoListService implements IProductoListService {
     return data || [];
   }
 }
-

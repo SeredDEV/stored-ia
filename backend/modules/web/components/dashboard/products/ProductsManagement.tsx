@@ -40,7 +40,7 @@ const ProductsManagement: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      const apiProducts = await productService.getAll();
+      const apiProducts = await productService.getAll("publicado");
       const transformedProducts = apiProducts.map(apiToProduct);
       setProducts(transformedProducts);
     } catch (err) {
