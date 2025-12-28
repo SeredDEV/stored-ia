@@ -66,8 +66,16 @@ const ProductsManagement: React.FC = () => {
   };
 
   const handleEditProduct = (product: Product) => {
-    console.log("Edit product:", product);
-    // Aquí iría la lógica para editar el producto
+    // Ejecutar GET para cargar datos completos del producto
+    fetch(`/api/productos/${product.id}`)
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("Producto cargado:", data.data);
+      })
+      .catch((err) => {
+        setError("Error al cargar el producto");
+        console.error("Error:", err);
+      });
   };
 
   const handleDeleteProduct = (product: Product) => {
@@ -96,17 +104,6 @@ const ProductsManagement: React.FC = () => {
     return (
       <div className="max-w-6xl mx-auto">
         <NewProductForm onClose={handleCloseNewProduct} />
-      </div>
-    );
-  }
-
-  // Loading state
-  if (loading) {
-    return (
-      <div className="max-w-6xl mx-auto">
-        <div className="flex items-center justify-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-        </div>
       </div>
     );
   }
