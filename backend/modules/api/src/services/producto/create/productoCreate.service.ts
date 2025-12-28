@@ -227,7 +227,7 @@ export class ProductoCreateService implements IProductoCreateService {
         subtitulo,
         descripcion,
         slug,
-        estado: "borrador",
+        estado: "publicado",
         tiene_descuento: tiene_descuento ?? true,
         tipo_producto_id,
         coleccion_id,
