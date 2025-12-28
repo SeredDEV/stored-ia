@@ -12,7 +12,8 @@ export class ProductoGetService implements IProductoGetService {
   async execute(id: string): Promise<Producto> {
     const { data, error } = await this.supabaseClient
       .from("producto")
-      .select(`
+      .select(
+        `
         *,
         tipo_producto:tipo_producto_id(id, valor),
         coleccion:coleccion_id(id, titulo),
@@ -43,7 +44,8 @@ export class ProductoGetService implements IProductoGetService {
             valor
           )
         )
-      `)
+      `
+      )
       .eq("id", id)
       .is("fecha_eliminacion", null)
       .single();
