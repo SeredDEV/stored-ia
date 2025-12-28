@@ -12,7 +12,38 @@ export class ProductoGetService implements IProductoGetService {
   async execute(id: string): Promise<Producto> {
     const { data, error } = await this.supabaseClient
       .from("producto")
-      .select("*")
+      .select(`
+        *,
+        tipo_producto:tipo_producto_id(id, valor),
+        coleccion:coleccion_id(id, titulo),
+        variantes:variante_producto(
+          id,
+          titulo,
+          sku,
+          gestionar_inventario,
+          permitir_pedido_pendiente
+        ),
+        imagenes:imagen_producto(
+          id,
+          url,
+          rango
+        ),
+        categorias:categoria_producto_producto(
+          categoria:categoria_producto_id(
+            id,
+            nombre,
+            slug,
+            descripcion,
+            activa
+          )
+        ),
+        etiquetas:producto_etiquetas(
+          etiqueta:etiqueta_producto_id(
+            id,
+            valor
+          )
+        )
+      `)
       .eq("id", id)
       .is("fecha_eliminacion", null)
       .single();
