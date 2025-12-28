@@ -77,7 +77,9 @@ const ProductsManagement: React.FC = () => {
 
   const handleEditProduct = async (product: Product) => {
     try {
+      console.log("Iniciando edición de producto:", product.id);
       const apiProduct = await productService.getById(product.id);
+      console.log("Producto obtenido de API:", apiProduct);
       
       // Mapear ApiProduct a ProductFormData
       const formData: Partial<ProductFormData> = {
@@ -86,15 +88,31 @@ const ProductsManagement: React.FC = () => {
           handle: apiProduct.slug,
           description: apiProduct.descripcion || "",
           hasVariants: (apiProduct.variantes && apiProduct.variantes.length > 0) || false,
-          media: [], // TODO: Handle existing images
-          options: [], // TODO: Handle options
-          variants: [], // TODO: Handle variants
+          media: [], 
+          existingImages: apiProduct.imagenes?.map((img: any) => ({
+            id: img.id,
+            url: img.url.trim() // Trim to remove potential whitespace
+          })) || [],
+          options: [], // TODO: Reconstruct options from variants if possible
+          variants: apiProduct.variantes?.map((v: any) => ({
+            id: v.id,
+            name: v.titulo,
+            selected: true,
+            title: v.titulo,
+            sku: v.sku,
+            managedInventory: v.gestionar_inventario,
+            allowBackorder: v.permitir_pedido_pendiente,
+            hasInventoryKit: false,
+            priceCOP: v.precios?.find((p: any) => p.conjunto_precios?.precios?.[0]?.codigo_moneda === "COP")?.conjunto_precios?.precios?.[0]?.monto
+              ? (v.precios.find((p: any) => p.conjunto_precios?.precios?.[0]?.codigo_moneda === "COP").conjunto_precios.precios[0].monto).toString() 
+              : "",
+          })) || [],
           discountApplicable: apiProduct.tiene_descuento,
-          type: apiProduct.tipo_producto_id || "",
-          collection: apiProduct.coleccion_id || "",
-          categories: [], // TODO
-          tags: [], // TODO
-          shippingProfile: "", // TODO
+          type: apiProduct.tipo_producto?.id || "",
+          collection: apiProduct.coleccion?.id || "",
+          categories: apiProduct.categorias?.map((c: any) => c.categoria.id) || [],
+          tags: apiProduct.etiquetas?.map((e: any) => e.etiqueta.id) || [],
+          shippingProfile: "", 
           salesChannels: ["Default Sales Channel"],
       };
       

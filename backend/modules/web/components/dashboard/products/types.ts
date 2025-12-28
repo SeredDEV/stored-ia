@@ -47,6 +47,7 @@ export interface ProductFormData {
   description: string;
   hasVariants: boolean;
   media: File[];
+  existingImages?: { id: string; url: string }[];
   options: ProductOption[];
   variants: ProductVariant[];
   // Organizar section

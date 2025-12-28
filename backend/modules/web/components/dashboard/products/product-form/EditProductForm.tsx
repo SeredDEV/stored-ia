@@ -37,6 +37,7 @@ const EditProductForm: React.FC<EditProductFormProps> = ({
     tags: initialData.tags || [],
     shippingProfile: initialData.shippingProfile || "",
     salesChannels: initialData.salesChannels || ["Default Sales Channel"],
+    existingImages: initialData.existingImages || [],
   });
 
   // Estados para las listas de organizar
@@ -234,13 +235,30 @@ const EditProductForm: React.FC<EditProductFormProps> = ({
               </button>
             </div>
             <div className="flex gap-4 flex-wrap">
+              {/* Existing Images */}
+              {formData.existingImages?.map((img) => (
+                <div key={img.id} className="relative group w-24 h-24 bg-gray-100 dark:bg-gray-800 rounded border border-border-light dark:border-border-dark overflow-hidden flex items-center justify-center">
+                   <img src={img.url.replace(/`/g, '')} alt="Product" className="w-full h-full object-cover" />
+                   <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <button 
+                        onClick={() => {
+                           // TODO: Implement delete logic for existing images
+                           alert("Eliminar imagen existente no implementado aún en frontend");
+                        }}
+                        className="text-white hover:text-red-400"
+                      >
+                        <span className="material-symbols-outlined">delete</span>
+                      </button>
+                   </div>
+                </div>
+              ))}
+              
               {/* Placeholder images based on code.html, would normally be formData.media */}
-              <div className="relative group w-24 h-24 bg-gray-100 dark:bg-gray-800 rounded border border-border-light dark:border-border-dark overflow-hidden flex items-center justify-center">
-                <span className="material-symbols-outlined text-gray-400">image</span>
-                <span className="absolute top-1 left-1 bg-blue-500 text-white rounded-full p-0.5">
-                  <span className="material-symbols-outlined text-[10px] block">star</span>
-                </span>
-              </div>
+              {formData.media.map((file, idx) => (
+                 <div key={idx} className="relative group w-24 h-24 bg-gray-100 dark:bg-gray-800 rounded border border-border-light dark:border-border-dark overflow-hidden flex items-center justify-center">
+                    <img src={URL.createObjectURL(file)} alt="New upload" className="w-full h-full object-cover" />
+                 </div>
+              ))}
               
               <div className="w-24 h-24 border-2 border-dashed border-border-light dark:border-border-dark rounded flex flex-col items-center justify-center text-text-secondary-light dark:text-text-secondary-dark hover:border-primary hover:text-primary transition-colors cursor-pointer">
                 <span className="material-symbols-outlined text-xl">add_photo_alternate</span>
@@ -300,22 +318,33 @@ const EditProductForm: React.FC<EditProductFormProps> = ({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border-light dark:divide-border-dark">
-                   {/* Example Variant Row */}
-                   <tr className="bg-surface-light dark:bg-surface-dark hover:bg-gray-50 dark:hover:bg-gray-800/50">
-                    <td className="px-6 py-4">
-                      <div className="w-8 h-8 rounded bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-400">
-                        <span className="material-symbols-outlined text-sm">image</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 font-medium">Default Variant</td>
-                    <td className="px-6 py-4 text-text-secondary-light dark:text-text-secondary-dark">-</td>
-                    <td className="px-6 py-4 text-text-secondary-light dark:text-text-secondary-dark">0 disponible</td>
-                    <td className="px-6 py-4 text-right">
-                      <button className="text-text-secondary-light dark:text-text-secondary-dark hover:text-primary">
-                        <span className="material-symbols-outlined text-lg">more_horiz</span>
-                      </button>
-                    </td>
-                  </tr>
+                   {/* Variants List */}
+                   {formData.variants.map((variant) => (
+                     <tr key={variant.id} className="bg-surface-light dark:bg-surface-dark hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                      <td className="px-6 py-4">
+                        <div className="w-8 h-8 rounded bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-400">
+                          <span className="material-symbols-outlined text-sm">image</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 font-medium">{variant.title || variant.name}</td>
+                      <td className="px-6 py-4 text-text-secondary-light dark:text-text-secondary-dark">{variant.sku || "-"}</td>
+                      <td className="px-6 py-4 text-text-secondary-light dark:text-text-secondary-dark">
+                         {variant.managedInventory ? "Gestionado" : "No gestionado"}
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <button className="text-text-secondary-light dark:text-text-secondary-dark hover:text-primary">
+                          <span className="material-symbols-outlined text-lg">more_horiz</span>
+                        </button>
+                      </td>
+                    </tr>
+                   ))}
+                   {formData.variants.length === 0 && (
+                      <tr>
+                        <td colSpan={5} className="px-6 py-4 text-center text-text-secondary-light dark:text-text-secondary-dark">
+                           No hay variantes
+                        </td>
+                      </tr>
+                   )}
                 </tbody>
               </table>
             </div>

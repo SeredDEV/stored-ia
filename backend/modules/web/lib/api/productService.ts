@@ -27,7 +27,11 @@ export interface ApiProduct {
   fecha_actualizacion: string;
   fecha_eliminacion: string | null;
   variantes?: any[];
-  coleccion?: { titulo: string } | null;
+  imagenes?: any[];
+  categorias?: any[];
+  etiquetas?: any[];
+  tipo_producto?: { id: string; valor: string };
+  coleccion?: { id: string; titulo: string } | null;
 }
 
 export const productService = {
