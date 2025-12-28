@@ -35,6 +35,7 @@ export interface ApiProduct {
   fecha_creacion: string;
   fecha_actualizacion: string;
   fecha_eliminacion: string | null;
+  variantes?: { count: number }[];
 }
 
 // Transformation functions
@@ -52,7 +53,7 @@ export const apiToProduct = (apiProduct: ApiProduct): Product => {
     image: apiProduct.miniatura || undefined,
     collection: "N/A", // TODO: fetch collection name
     salesChannel: "Todos", // Default
-    variants: 0, // TODO: fetch variants count
+    variants: apiProduct.variantes?.[0]?.count || 0,
     status: statusMap[apiProduct.estado] || "Borrador",
   };
 };

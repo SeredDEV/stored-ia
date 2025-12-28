@@ -31,7 +31,7 @@ export class ImagenesUploadController {
       // 1. Verificar que el producto existe
       const { data: producto, error: productoError } = await this.supabaseClient
         .from("producto")
-        .select("miniatura, metadatos, slug, titulo")
+        .select("miniatura, slug, titulo")
         .eq("id", id)
         .is("fecha_eliminacion", null)
         .single();
@@ -48,8 +48,6 @@ export class ImagenesUploadController {
       }
 
       // 2. Subir imágenes a storage
-      const metadatos = (producto.metadatos as any) || {};
-      const imagenesActuales = (metadatos.imagenes as string[]) || [];
       const nuevasUrls: string[] = [];
 
       const folder = producto.slug || producto.titulo || id;
@@ -71,7 +69,7 @@ export class ImagenesUploadController {
             id: randomUUID(),
             producto_id: id,
             url: publicUrl,
-            rango: imagenesActuales.length + nuevasUrls.length, // apilar
+            rango: nuevasUrls.length, // posición
             metadatos: {
               originalName: file.originalname,
               mimetype: file.mimetype,
@@ -91,18 +89,13 @@ export class ImagenesUploadController {
         }
       }
 
-      // 3. Actualizar producto con nuevas URLs
-      const todasLasImagenes = [...imagenesActuales, ...nuevasUrls];
-      const miniatura = producto.miniatura || todasLasImagenes[0] || null;
+      // 3. Actualizar miniatura del producto si no tiene
+      const miniatura = producto.miniatura || nuevasUrls[0] || null;
 
       const { error: updateError } = await this.supabaseClient
         .from("producto")
         .update({
           miniatura,
-          metadatos: {
-            ...metadatos,
-            imagenes: todasLasImagenes,
-          },
         })
         .eq("id", id);
 
