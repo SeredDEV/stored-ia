@@ -483,10 +483,6 @@ const NewProductForm: React.FC<NewProductFormProps> = ({
       setIsSaving(true);
       setSaveError(null);
 
-      console.log("=== Iniciando guardado de producto ===");
-      console.log("isDraft:", isDraft);
-      console.log("formData:", formData);
-
       // Validar que tenga título
       if (!formData.title || formData.title.trim() === "") {
         throw new Error("El título es requerido");
@@ -516,15 +512,8 @@ const NewProductForm: React.FC<NewProductFormProps> = ({
         productData.coleccion_id = formData.collection;
       }
 
-      console.log("=== Enviando al backend ===");
-      console.log("Datos (solo producto básico):", productData);
-
       // 1. Crear el producto básico
       const producto = await productService.create(productData);
-
-      console.log("=== Producto creado exitosamente ===");
-      console.log("Producto:", producto);
-      console.log("Producto ID:", producto?.id);
 
       // 2. Crear variantes si existen
       if (
@@ -532,11 +521,8 @@ const NewProductForm: React.FC<NewProductFormProps> = ({
         formData.variants &&
         formData.variants.length > 0
       ) {
-        console.log("=== Creando variantes ===");
         for (const variant of formData.variants) {
           if (!variant.selected) continue;
-
-          console.log(`Creando variante: ${variant.name}`);
 
           // Crear variante
           const varianteCreada = await productService.createVariant({
@@ -547,22 +533,17 @@ const NewProductForm: React.FC<NewProductFormProps> = ({
             permitir_pedido_pendiente: variant.allowBackorder ?? false,
           });
 
-          console.log(`Variante creada:`, varianteCreada);
-
           // Crear precio para la variante si tiene precio definido
           if (variant.priceCOP && parseFloat(variant.priceCOP) > 0) {
-            console.log(`Creando precio para variante ${varianteCreada.id}`);
             await productService.createPrice(varianteCreada.id, {
               variante_id: varianteCreada.id,
               monto: Math.round(parseFloat(variant.priceCOP) * 100), // Convertir a centavos
               codigo_moneda: "COP",
             });
-            console.log(`Precio creado exitosamente`);
           }
         }
       } else {
         // Si no tiene variantes, crear una variante por defecto
-        console.log("=== Creando variante por defecto ===");
         const varianteDefault = await productService.createVariant({
           producto_id: producto.id,
           titulo: `${producto.titulo} - Default`,
@@ -570,44 +551,33 @@ const NewProductForm: React.FC<NewProductFormProps> = ({
           gestionar_inventario: true,
           permitir_pedido_pendiente: false,
         });
-        console.log(`Variante default creada:`, varianteDefault);
 
         // Crear precio para la variante por defecto si se ingresó precio
         const defaultPrice = formData.variants?.[0]?.priceCOP;
         if (defaultPrice && parseFloat(defaultPrice) > 0) {
-          console.log(
-            `Creando precio para variante default ${varianteDefault.id}`
-          );
           await productService.createPrice(varianteDefault.id, {
             variante_id: varianteDefault.id,
             monto: Math.round(parseFloat(defaultPrice) * 100),
             codigo_moneda: "COP",
           });
-          console.log(`Precio creado exitosamente (variante default)`);
         }
       }
 
       // 3. Relacionar categorías si existen
       if (formData.categories && formData.categories.length > 0) {
-        console.log("=== Asignando categorías ===");
         await productService.assignCategories(producto.id, formData.categories);
       }
 
       // 4. Relacionar etiquetas si existen
       if (formData.tags && formData.tags.length > 0) {
-        console.log("=== Asignando etiquetas ===");
         await productService.assignTags(producto.id, formData.tags);
       }
 
       // 5. Subir imágenes si existen
       if (formData.media && formData.media.length > 0) {
-        console.log("=== Subiendo imágenes ===");
-        console.log("Número de imágenes:", formData.media.length);
         try {
           await productService.uploadImages(producto.id, formData.media);
-          console.log("=== Imágenes subidas exitosamente ===");
         } catch (error: any) {
-          console.error("⚠️ Error al subir imágenes:", error.message);
           // No lanzamos el error, el producto ya fue creado
         }
       }
@@ -622,15 +592,9 @@ const NewProductForm: React.FC<NewProductFormProps> = ({
         router.push("/dashboard?view=products");
       }
     } catch (error: any) {
-      console.error("=== ERROR al guardar producto ===");
-      console.error("Error completo:", error);
-      console.error("Mensaje:", error.message);
-      console.error("Stack:", error.stack);
-
       setSaveError(error.message || "Error al guardar el producto");
     } finally {
       setIsSaving(false);
-      console.log("=== Finalizando guardado ===");
     }
   };
 
