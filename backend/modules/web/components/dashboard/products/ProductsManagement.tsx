@@ -2,11 +2,12 @@
 import React, { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import NewProductForm from "./product-form/NewProductForm";
+import EditProductForm from "./product-form/EditProductForm";
 import { ProductHeader } from "./components/ProductHeader";
 import { ProductFilters } from "./components/ProductFilters";
 import { ProductTable } from "./components/ProductTable";
 import { ProductMobileList } from "./components/ProductMobileList";
-import { Product, apiToProduct } from "./types";
+import { Product, apiToProduct, ProductFormData } from "./types";
 import { productService } from "@/lib/api/productService";
 
 const ProductsManagement: React.FC = () => {
@@ -17,6 +18,9 @@ const ProductsManagement: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Estado para edición
+  const [editingProduct, setEditingProduct] = useState<{data: Partial<ProductFormData>, id: string} | null>(null);
 
   // Estado para la búsqueda global
   const [searchTerm, setSearchTerm] = useState("");
@@ -65,17 +69,41 @@ const ProductsManagement: React.FC = () => {
     loadProducts();
   };
 
-  const handleEditProduct = (product: Product) => {
-    // Ejecutar GET para cargar datos completos del producto
-    fetch(`/api/productos/${product.id}`)
-      .then((res) => res.json())
-      .then((data) => {
-        console.log("Producto cargado:", data.data);
-      })
-      .catch((err) => {
-        setError("Error al cargar el producto");
-        console.error("Error:", err);
-      });
+  const handleCloseEditProduct = () => {
+    setEditingProduct(null);
+    router.push("/dashboard?view=products");
+    loadProducts();
+  };
+
+  const handleEditProduct = async (product: Product) => {
+    try {
+      const apiProduct = await productService.getById(product.id);
+      
+      // Mapear ApiProduct a ProductFormData
+      const formData: Partial<ProductFormData> = {
+          title: apiProduct.titulo,
+          subtitle: apiProduct.subtitulo || "",
+          handle: apiProduct.slug,
+          description: apiProduct.descripcion || "",
+          hasVariants: (apiProduct.variantes && apiProduct.variantes.length > 0) || false,
+          media: [], // TODO: Handle existing images
+          options: [], // TODO: Handle options
+          variants: [], // TODO: Handle variants
+          discountApplicable: apiProduct.tiene_descuento,
+          type: apiProduct.tipo_producto_id || "",
+          collection: apiProduct.coleccion_id || "",
+          categories: [], // TODO
+          tags: [], // TODO
+          shippingProfile: "", // TODO
+          salesChannels: ["Default Sales Channel"],
+      };
+      
+      setEditingProduct({ data: formData, id: product.id });
+    } catch (err) {
+      const msg = "Error al cargar el producto para edición: " + (err instanceof Error ? err.message : String(err));
+      setError(msg);
+      console.error(msg);
+    }
   };
 
   const handleDeleteProduct = (product: Product) => {
@@ -99,6 +127,18 @@ const ProductsManagement: React.FC = () => {
       console.error("Error deleting product:", err);
     }
   };
+
+  if (editingProduct) {
+    return (
+      <div className="max-w-6xl mx-auto">
+        <EditProductForm 
+          onClose={handleCloseEditProduct} 
+          initialData={editingProduct.data}
+          productId={editingProduct.id}
+        />
+      </div>
+    );
+  }
 
   if (showNewProductForm) {
     return (

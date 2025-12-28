@@ -35,8 +35,47 @@ export interface ApiProduct {
   fecha_creacion: string;
   fecha_actualizacion: string;
   fecha_eliminacion: string | null;
-  variantes?: { count: number }[];
+  variantes?: any[];
   coleccion?: { titulo: string } | null;
+}
+
+// Form Types
+export interface ProductFormData {
+  title: string;
+  subtitle: string;
+  handle: string;
+  description: string;
+  hasVariants: boolean;
+  media: File[];
+  options: ProductOption[];
+  variants: ProductVariant[];
+  // Organizar section
+  discountApplicable: boolean;
+  type: string;
+  collection: string;
+  categories: string[];
+  tags: string[];
+  shippingProfile: string;
+  salesChannels: string[];
+}
+
+export interface ProductOption {
+  id: string;
+  title: string;
+  values: string[];
+}
+
+export interface ProductVariant {
+  id: string;
+  name: string;
+  selected: boolean;
+  title?: string;
+  sku?: string;
+  managedInventory?: boolean;
+  allowBackorder?: boolean;
+  hasInventoryKit?: boolean;
+  priceCOP?: string;
+  priceCol?: string;
 }
 
 // Transformation functions
@@ -54,7 +93,7 @@ export const apiToProduct = (apiProduct: ApiProduct): Product => {
     image: apiProduct.miniatura || undefined,
     collection: apiProduct.coleccion?.titulo || "N/A",
     salesChannel: "Todos", // Default
-    variants: apiProduct.variantes?.[0]?.count || 0,
+    variants: apiProduct.variantes?.length || 0,
     status: statusMap[apiProduct.estado] || "Borrador",
   };
 };

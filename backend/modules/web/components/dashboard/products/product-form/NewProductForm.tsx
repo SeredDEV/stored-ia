@@ -6,44 +6,7 @@ import { tagService } from "@/lib/api/tagService";
 import { collectionService } from "@/lib/api/collectionService";
 import { typeService } from "@/lib/api/typeService";
 import { productService } from "@/lib/api/productService";
-
-interface ProductFormData {
-  title: string;
-  subtitle: string;
-  handle: string;
-  description: string;
-  hasVariants: boolean;
-  media: File[];
-  options: ProductOption[];
-  variants: ProductVariant[];
-  // Organizar section
-  discountApplicable: boolean;
-  type: string;
-  collection: string;
-  categories: string[];
-  tags: string[];
-  shippingProfile: string;
-  salesChannels: string[];
-}
-
-interface ProductOption {
-  id: string;
-  title: string;
-  values: string[];
-}
-
-interface ProductVariant {
-  id: string;
-  name: string;
-  selected: boolean;
-  title?: string;
-  sku?: string;
-  managedInventory?: boolean;
-  allowBackorder?: boolean;
-  hasInventoryKit?: boolean;
-  priceCOP?: string;
-  priceCol?: string;
-}
+import { ProductFormData, ProductOption, ProductVariant } from "../types";
 
 interface NewProductFormProps {
   onClose?: () => void;

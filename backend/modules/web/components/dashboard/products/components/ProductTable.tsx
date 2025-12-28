@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Product } from "../types";
+import ProductEditAction from "./ProductEditAction";
 import {
   createColumnHelper,
   flexRender,
@@ -286,19 +287,11 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                   }}
                 >
                   <div className="p-1">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onEdit?.(product);
-                        setActiveMenu(null);
-                      }}
-                      className="w-full px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg flex items-center gap-2.5 transition-colors"
-                    >
-                      <span className="material-symbols-outlined text-[20px] text-gray-500 dark:text-gray-400">
-                        edit
-                      </span>
-                      Editar
-                    </button>
+                    <ProductEditAction
+                      product={product}
+                      onEdit={onEdit}
+                      onClose={() => setActiveMenu(null)}
+                    />
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
