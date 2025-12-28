@@ -199,7 +199,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
       columnHelper.accessor("variants", {
         header: "VARIANTES",
         cell: (info) => (
-          <div className="text-sm text-gray-900 dark:text-white">
+          <div className="text-sm text-gray-500 dark:text-gray-400">
             {info.getValue()} variante{info.getValue() !== 1 ? "s" : ""}
           </div>
         ),

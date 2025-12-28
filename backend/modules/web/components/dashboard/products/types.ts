@@ -94,7 +94,9 @@ export const apiToProduct = (apiProduct: ApiProduct): Product => {
     image: apiProduct.miniatura || undefined,
     collection: apiProduct.coleccion?.titulo || "N/A",
     salesChannel: "Todos", // Default
-    variants: apiProduct.variantes?.length || 0,
+    variants: (apiProduct.variantes && apiProduct.variantes.length > 0 && apiProduct.variantes[0].count) 
+      ? apiProduct.variantes[0].count 
+      : (apiProduct.variantes?.length || 0),
     status: statusMap[apiProduct.estado] || "Borrador",
   };
 };

@@ -45,6 +45,7 @@ const ProductsManagement: React.FC = () => {
       setLoading(true);
       setError(null);
       const apiProducts = await productService.getAll("publicado");
+      console.log("Productos cargados (getAll):", apiProducts);
       const transformedProducts = apiProducts.map(apiToProduct);
       setProducts(transformedProducts);
     } catch (err) {
