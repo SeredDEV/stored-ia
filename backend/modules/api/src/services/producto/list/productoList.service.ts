@@ -19,7 +19,11 @@ export class ProductoListService implements IProductoListService {
   async execute(filters?: ListProductosFilters): Promise<Producto[]> {
     let query = this.supabaseClient
       .from("producto")
-      .select("*, variantes:variante_producto(count)")
+      .select(`
+        *,
+        variantes:variante_producto(count),
+        coleccion:coleccion_id(titulo)
+      `)
       .is("fecha_eliminacion", null)
       .order("fecha_creacion", { ascending: false });
 

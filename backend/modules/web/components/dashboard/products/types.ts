@@ -36,6 +36,7 @@ export interface ApiProduct {
   fecha_actualizacion: string;
   fecha_eliminacion: string | null;
   variantes?: { count: number }[];
+  coleccion?: { titulo: string } | null;
 }
 
 // Transformation functions
@@ -51,7 +52,7 @@ export const apiToProduct = (apiProduct: ApiProduct): Product => {
     name: apiProduct.titulo,
     icon: "📦", // Default icon
     image: apiProduct.miniatura || undefined,
-    collection: "N/A", // TODO: fetch collection name
+    collection: apiProduct.coleccion?.titulo || "N/A",
     salesChannel: "Todos", // Default
     variants: apiProduct.variantes?.[0]?.count || 0,
     status: statusMap[apiProduct.estado] || "Borrador",
